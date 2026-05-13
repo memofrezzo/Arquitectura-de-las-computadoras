@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Aritmética Computacional — Guía Interactiva</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Patrick+Hand&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg-top: #f9f1e3;
+  --bg-bottom: #f3eadf;
+  --paper: rgba(255,252,246,0.94);
+  --paper-strong: #fffdf9;
+  --paper-line: rgba(42,75,156,0.05);
+  --ink: #1f1a17;
+  --ink-soft: #625a53;
+  --line: rgba(31,26,23,0.1);
+  --line-strong: rgba(31,26,23,0.16);
+  --blue: #2148b5;
+  --blue-soft: #eef3ff;
+  --red: #c73127;
+  --red-soft: #fff2ef;
+  --gold: #c48a39;
+  --gold-soft: #fff8ec;
+  --green: #1a7d3a;
+  --green-soft: #f0fbf3;
+  --purple: #6b32b0;
+  --purple-soft: #fbf5ff;
+  --shadow: 0 26px 70px rgba(47,38,31,0.11);
+  --radius-xl: 32px;
+  --radius-lg: 24px;
+  --radius-md: 18px;
+  --font-title: "Caveat", cursive;
+  --font-body: "Patrick Hand", cursive;
+  --font-accent: "Fraunces", serif;
+}
+*,*::before,*::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(255,213,170,0.55), transparent 26%),
+    radial-gradient(circle at top right, rgba(202,216,255,0.48), transparent 24%),
+    linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+  padding: 18px;
+}
+button,input,textarea,select { font: inherit; }
+.app { width: min(1180px,100%); margin: 0 auto; }
+
+/* ─── TOPBAR ─── */
+.topbar {
+  position: sticky; top: 12px; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+  padding: 12px 14px; margin-bottom: 18px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: rgba(255,252,246,0.86); backdrop-filter: blur(16px);
+  box-shadow: 0 12px 30px rgba(35,31,29,0.08);
+}
+.brand-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: 999px;
+  background: rgba(255,255,255,0.78); border: 1px solid rgba(31,26,23,0.08);
+  appearance: none; cursor: pointer; color: inherit;
+  transition: background 0.18s, transform 0.18s;
+}
+.brand-btn:hover { transform: translateY(-2px); }
+.brand-mark {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font-accent); font-size: 0.95rem;
+  color: var(--paper-strong);
+  background: linear-gradient(135deg, var(--blue), var(--red));
+}
+.brand-copy { display: grid; gap: 1px; text-align: left; }
+.brand-title { font-family: var(--font-accent); font-size: 0.92rem; letter-spacing: 0.04em; }
+.brand-subtitle { color: var(--ink-soft); font-size: 0.92rem; }
+.crumbs { color: var(--ink-soft); font-family: var(--font-accent); font-size: 0.88rem; letter-spacing: 0.04em; text-align: right; }
+.topbar-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.topbar-link { white-space: nowrap; }
+
+/* ─── SCREENS ─── */
+.screen { display: none; }
+.screen.is-active { display: block; }
+
+/* ─── PANEL (notebook paper) ─── */
+.panel {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,252,246,0.95)),
+    repeating-linear-gradient(180deg, transparent 0, transparent 48px, var(--paper-line) 49px, transparent 50px);
+  border: 1px solid rgba(31,26,23,0.08); border-radius: var(--radius-xl);
+  box-shadow: var(--shadow);
+}
+.hero-panel { padding: clamp(24px,4vw,42px); margin-bottom: 20px; }
+
+.eyebrow {
+  margin: 0 0 10px; font-family: var(--font-accent); font-size: 0.9rem;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft);
+}
+.hero-panel h1 {
+  margin: 0; line-height: 0.95; font-family: var(--font-title);
+  font-size: clamp(2.9rem,7vw,4.7rem); color: var(--red);
+  text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 10px;
+}
+.hero-copy { margin: 14px 0 0; max-width: 880px; font-size: clamp(1.18rem,2vw,1.55rem); line-height: 1.5; }
+
+/* ─── HOME GRID ─── */
+.home-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 18px; }
+.home-stack { display: grid; gap: 20px; }
+.topic-card {
+  width: 100%; text-align: left; appearance: none; cursor: pointer;
+  border: 1px solid rgba(31,26,23,0.08); background: rgba(255,255,255,0.78);
+  border-radius: var(--radius-lg); padding: 18px 18px 20px;
+  box-shadow: 0 12px 28px rgba(36,33,31,0.05);
+  transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s; color: inherit;
+}
+.topic-card:hover { transform: translateY(-3px); border-color: rgba(33,72,181,0.18); box-shadow: 0 16px 32px rgba(36,33,31,0.09); }
+.topic-pill {
+  display: inline-flex; align-items: center; padding: 5px 10px; border-radius: 999px;
+  font-family: var(--font-accent); font-size: 0.8rem; letter-spacing: 0.04em;
+  color: var(--blue); background: var(--blue-soft);
+}
+.topic-pill.red { color: var(--red); background: var(--red-soft); }
+.topic-pill.gold { color: var(--gold); background: var(--gold-soft); }
+.topic-pill.green { color: var(--green); background: var(--green-soft); }
+.topic-name { margin: 12px 0 8px; font-family: var(--font-title); font-size: clamp(1.55rem,2.3vw,2rem); line-height: 1.1; }
+.topic-desc { margin: 0; color: var(--ink-soft); font-size: 1.12rem; line-height: 1.45; }
+.topic-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.meta-chip {
+  padding: 4px 10px; border-radius: 999px; font-family: var(--font-accent); font-size: 0.78rem;
+  background: rgba(31,26,23,0.06); color: var(--ink-soft);
+}
+.donation-panel { margin-top: 20px; padding: clamp(24px,4vw,34px); }
+.donation-title {
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: clamp(2.3rem,4.8vw,3.5rem);
+  line-height: 0.98;
+  color: var(--green);
+}
+.donation-copy {
+  margin: 14px 0 0;
+  max-width: 820px;
+  color: var(--ink-soft);
+  font-size: clamp(1.12rem,2vw,1.42rem);
+  line-height: 1.5;
+}
+.alias-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 16px 18px;
+  border: 1.8px solid rgba(26,125,58,0.18);
+  border-radius: var(--radius-lg);
+  background: rgba(240,251,243,0.84);
+}
+.alias-meta { display: grid; gap: 6px; }
+.alias-label {
+  font-family: var(--font-accent);
+  font-size: 0.84rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+.alias-value {
+  font-family: var(--font-accent);
+  font-size: clamp(1.15rem,2vw,1.45rem);
+  line-height: 1.35;
+  color: var(--ink);
+  word-break: break-word;
+}
+.ghost-btn.donation-btn {
+  color: var(--paper-strong);
+  background: linear-gradient(135deg,var(--green),#24904a);
+  border-color: transparent;
+}
+.copy-feedback {
+  min-height: 1.4em;
+  margin: 12px 0 0;
+  color: var(--green);
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+/* ─── TOPIC SCREEN ─── */
+.topic-screen, .exercise-screen { padding: clamp(22px,4vw,36px); }
+.nav-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.ghost-btn {
+  padding: 10px 14px; border-radius: 999px; border: 1px solid rgba(31,26,23,0.08);
+  background: rgba(255,255,255,0.76); appearance: none; cursor: pointer; color: inherit;
+  transition: background 0.18s, transform 0.18s;
+}
+.ghost-btn:hover { transform: translateY(-2px); }
+.ghost-btn.primary { color: var(--paper-strong); background: linear-gradient(135deg,var(--blue),#365dd3); border-color: transparent; }
+.topic-head h2 { margin: 0; line-height: 0.95; font-family: var(--font-title); font-size: clamp(2.9rem,7vw,4.7rem); }
+.topic-copy { margin: 14px 0 0; max-width: 880px; font-size: clamp(1.18rem,2vw,1.55rem); line-height: 1.5; }
+.exercise-list { display: grid; gap: 16px; margin-top: 22px; }
+.exercise-card {
+  width: 100%; text-align: left; appearance: none; cursor: pointer; color: inherit;
+  border: 1px solid rgba(31,26,23,0.08); background: rgba(255,255,255,0.78);
+  border-radius: var(--radius-lg); padding: 18px 18px 20px;
+  box-shadow: 0 12px 28px rgba(36,33,31,0.05);
+  transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+}
+.exercise-card:hover { transform: translateY(-2px); border-color: rgba(33,72,181,0.18); box-shadow: 0 16px 32px rgba(36,33,31,0.09); }
+.exercise-pill { display: inline-flex; align-items: center; padding: 5px 10px; border-radius: 999px; font-family: var(--font-accent); font-size: 0.8rem; letter-spacing: 0.04em; color: var(--red); background: var(--red-soft); }
+.exercise-name { margin: 12px 0 8px; font-family: var(--font-title); font-size: clamp(1.55rem,2.3vw,2rem); line-height: 1.1; }
+.exercise-desc { margin: 0; color: var(--ink-soft); font-size: 1.12rem; line-height: 1.45; }
+
+/* ─── EXERCISE SCREEN ─── */
+.exercise-screen { padding: 10px; border: 0; background: transparent; box-shadow: none; }
+.exercise-frame { margin-top: 10px; }
+
+/* ─── EXAM SHEET ─── */
+.exam-sheet {
+  background: #fffefa; border: 2px solid var(--purple);
+  border-radius: 14px; overflow: hidden;
+  box-shadow: 0 18px 45px rgba(47,24,91,0.12);
+  font-family: var(--font-body); color: #1e1425;
+}
+.exam-sheet.blue-theme { border-color: var(--blue); }
+.exam-sheet.red-theme { border-color: var(--red); }
+.exam-sheet.gold-theme { border-color: var(--gold); }
+.exam-sheet.green-theme { border-color: var(--green); }
+
+.exam-header {
+  display: grid; grid-template-columns: auto minmax(0,1fr) auto;
+  gap: 16px; align-items: center; padding: 10px 16px;
+  border-bottom: 2px solid rgba(107,50,176,0.35);
+}
+.exam-sheet.blue-theme .exam-header { border-bottom-color: rgba(33,72,181,0.35); }
+.exam-sheet.red-theme .exam-header { border-bottom-color: rgba(199,49,39,0.35); }
+.exam-sheet.gold-theme .exam-header { border-bottom-color: rgba(196,138,57,0.35); }
+.exam-sheet.green-theme .exam-header { border-bottom-color: rgba(26,125,58,0.35); }
+
+.exam-badge {
+  display: inline-flex; align-items: center; min-height: 36px; padding: 5px 13px;
+  border-radius: 5px; background: #56309a; color: #fff;
+  font-family: var(--font-accent); font-size: 0.98rem; font-weight: 700; text-transform: uppercase;
+}
+.exam-sheet.blue-theme .exam-badge { background: var(--blue); }
+.exam-sheet.red-theme .exam-badge { background: var(--red); }
+.exam-sheet.gold-theme .exam-badge { background: var(--gold); }
+.exam-sheet.green-theme .exam-badge { background: var(--green); }
+
+.exam-prompt { margin: 0; font-size: 1.55rem; line-height: 1.28; }
+.exam-equation { margin: 0; text-align: right; font-size: 1.9rem; white-space: normal; }
+
+.exam-body { display: grid; grid-template-columns: 47% 53%; }
+.exam-body.full { grid-template-columns: 1fr; }
+.exam-col { padding: 14px 18px 16px; }
+.exam-col + .exam-col { border-left: 2px solid rgba(107,50,176,0.22); }
+.exam-sheet.blue-theme .exam-col + .exam-col { border-left-color: rgba(33,72,181,0.22); }
+.exam-sheet.red-theme .exam-col + .exam-col { border-left-color: rgba(199,49,39,0.22); }
+.exam-sheet.gold-theme .exam-col + .exam-col { border-left-color: rgba(196,138,57,0.22); }
+.exam-sheet.green-theme .exam-col + .exam-col { border-left-color: rgba(26,125,58,0.22); }
+
+.exam-title {
+  margin: 0 0 12px; text-align: center; font-family: var(--font-accent);
+  font-size: 1.05rem; text-decoration: underline; text-decoration-thickness: 2px;
+  text-underline-offset: 4px; text-transform: uppercase; color: #5a28a6;
+}
+.exam-sheet.blue-theme .exam-title { color: var(--blue); }
+.exam-sheet.red-theme .exam-title { color: var(--red); }
+.exam-sheet.gold-theme .exam-title { color: var(--gold); }
+.exam-sheet.green-theme .exam-title { color: var(--green); }
+
+/* ─── EXAM STEPS ─── */
+.exam-step {
+  position: relative; padding: 8px 0 12px 42px;
+  border-bottom: 1px dashed rgba(107,50,176,0.38);
+}
+.exam-sheet.blue-theme .exam-step { border-bottom-color: rgba(33,72,181,0.38); }
+.exam-sheet.red-theme .exam-step { border-bottom-color: rgba(199,49,39,0.38); }
+.exam-sheet.gold-theme .exam-step { border-bottom-color: rgba(196,138,57,0.38); }
+.exam-sheet.green-theme .exam-step { border-bottom-color: rgba(26,125,58,0.38); }
+
+.exam-step[data-step-key] { cursor: pointer; transition: background-color 0.18s, box-shadow 0.18s; }
+.exam-step[data-step-key]:hover { background: rgba(107,50,176,0.04); }
+.exam-step.is-open { background: rgba(107,50,176,0.05); }
+.exam-sheet.blue-theme .exam-step[data-step-key]:hover,
+.exam-sheet.blue-theme .exam-step.is-open { background: rgba(33,72,181,0.04); }
+.exam-sheet.red-theme .exam-step[data-step-key]:hover,
+.exam-sheet.red-theme .exam-step.is-open { background: rgba(199,49,39,0.04); }
+.exam-sheet.gold-theme .exam-step[data-step-key]:hover,
+.exam-sheet.gold-theme .exam-step.is-open { background: rgba(196,138,57,0.04); }
+.exam-sheet.green-theme .exam-step[data-step-key]:hover,
+.exam-sheet.green-theme .exam-step.is-open { background: rgba(26,125,58,0.04); }
+
+.exam-step:last-child { border-bottom: 0; }
+
+.exam-number {
+  position: absolute; left: 0; top: 9px;
+  width: 28px; height: 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 2px solid #6b32b0; border-radius: 50%;
+  color: #5a28a6; font-family: var(--font-accent); font-size: 1rem; background: #fbf5ff;
+}
+.exam-sheet.blue-theme .exam-number { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+.exam-sheet.red-theme .exam-number { border-color: var(--red); color: var(--red); background: var(--red-soft); }
+.exam-sheet.gold-theme .exam-number { border-color: var(--gold); color: var(--gold); background: var(--gold-soft); }
+.exam-sheet.green-theme .exam-number { border-color: var(--green); color: var(--green); background: var(--green-soft); }
+
+.exam-step h4 { margin: 0 0 8px; color: #5a28a6; font-family: var(--font-body); font-size: 1.22rem; line-height: 1.2; text-transform: uppercase; }
+.exam-sheet.blue-theme .exam-step h4 { color: var(--blue); }
+.exam-sheet.red-theme .exam-step h4 { color: var(--red); }
+.exam-sheet.gold-theme .exam-step h4 { color: var(--gold); }
+.exam-sheet.green-theme .exam-step h4 { color: var(--green); }
+
+.exam-step-hint {
+  display: inline-flex; align-items: center; gap: 8px; margin: 6px 0 2px;
+  color: #5a28a6; font-family: var(--font-accent); font-size: 0.82rem;
+  letter-spacing: 0; text-transform: uppercase;
+}
+.exam-sheet.blue-theme .exam-step-hint { color: var(--blue); }
+.exam-sheet.red-theme .exam-step-hint { color: var(--red); }
+.exam-sheet.gold-theme .exam-step-hint { color: var(--gold); }
+.exam-sheet.green-theme .exam-step-hint { color: var(--green); }
+
+.exam-step-hint::before {
+  content: "+"; width: 18px; height: 18px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1.5px solid currentColor; border-radius: 50%; font-size: 0.95rem; line-height: 1;
+}
+.exam-step.is-open .exam-step-hint::before { content: "−"; }
+
+.exam-text { margin: 0 0 8px; font-size: 1.05rem; line-height: 1.4; }
+.exam-list { margin: 0; padding-left: 20px; font-size: 1.05rem; line-height: 1.4; }
+.exam-list li + li { margin-top: 5px; }
+
+.exam-math { margin: 8px 0; font-size: 1.38rem; line-height: 1.35; text-align: center; }
+.exam-math.small { font-size: 1.14rem; text-align: left; }
+.exam-math.left { text-align: left; }
+
+.exam-mathbox {
+  display: inline-block; padding: 6px 12px;
+  border: 1.8px solid #8c57df; border-radius: 4px; background: #fff;
+}
+.exam-mathbox.blue { border-color: #3e88da; }
+.exam-mathbox.red { border-color: #e0647c; }
+.exam-mathbox.green { border-color: #5aa45c; }
+.exam-mathbox.gold { border-color: #e6a935; background: #fffcef; }
+
+.exam-green-note,.exam-purple-note,.exam-blue-note,.exam-red-note,.exam-gold-note {
+  margin: 10px 0; padding: 10px 12px; border-radius: 6px; font-size: 1.05rem; line-height: 1.42;
+}
+.exam-purple-note { border: 1.8px solid #8c57df; background: #fbf5ff; }
+.exam-blue-note { border: 1.8px solid #4c93e6; background: #f4f8ff; }
+.exam-green-note { border: 1.8px solid #62b166; color: #0f6d20; background: #fbfff7; }
+.exam-red-note { border: 1.8px solid #e56c84; background: #fff8fa; }
+.exam-gold-note { border: 1.8px solid #d4a030; background: var(--gold-soft); }
+
+.exam-answer {
+  display: inline-block; margin-top: 8px; padding: 10px 18px;
+  border: 2px solid #6b32b0; border-radius: 4px; background: #fffdf0;
+  font-size: 1.35rem; line-height: 1.35;
+}
+.exam-answer.blue { border-color: var(--blue); background: var(--blue-soft); }
+.exam-answer.red { border-color: var(--red); background: var(--red-soft); }
+.exam-answer.green { border-color: #49a84f; background: #f6fff1; }
+.exam-answer.gold { border-color: var(--gold); background: var(--gold-soft); }
+
+/* ─── EXPAND PANEL ─── */
+.exam-step-explain {
+  max-height: 0; overflow: hidden; opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.22s ease, margin-top 0.22s ease, padding-top 0.22s ease;
+  margin-top: 0; padding-top: 0;
+}
+.exam-step.is-open .exam-step-explain {
+  max-height: 900px; opacity: 1; margin-top: 10px; padding-top: 10px;
+  border-top: 1px dashed rgba(107,50,176,0.28);
+}
+.exam-sheet.blue-theme .exam-step.is-open .exam-step-explain { border-top-color: rgba(33,72,181,0.28); }
+.exam-sheet.red-theme .exam-step.is-open .exam-step-explain { border-top-color: rgba(199,49,39,0.28); }
+.exam-sheet.gold-theme .exam-step.is-open .exam-step-explain { border-top-color: rgba(196,138,57,0.28); }
+.exam-sheet.green-theme .exam-step.is-open .exam-step-explain { border-top-color: rgba(26,125,58,0.28); }
+
+.exam-explain-grid { display: grid; gap: 8px; }
+.exam-explain-card {
+  padding: 10px 12px; border: 1px solid rgba(107,50,176,0.18);
+  border-radius: 6px; background: rgba(255,255,255,0.9);
+}
+.exam-explain-card strong {
+  display: block; margin-bottom: 4px; color: #5a28a6;
+  font-family: var(--font-accent); font-size: 0.84rem;
+  letter-spacing: 0; text-transform: uppercase;
+}
+.exam-explain-card p { margin: 0; font-size: 1rem; line-height: 1.42; }
+
+/* ─── BIT TABLE ─── */
+.bit-table-wrap { overflow-x: auto; margin: 10px 0; }
+.bit-table { border-collapse: collapse; font-size: 1rem; width: 100%; }
+.bit-table th {
+  padding: 7px 10px; background: rgba(33,72,181,0.07);
+  border: 1px solid rgba(33,72,181,0.18); font-family: var(--font-accent);
+  font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-soft);
+}
+.bit-table td { padding: 8px 10px; border: 1px solid rgba(31,26,23,0.1); text-align: center; }
+.td-sign { background: rgba(199,49,39,0.08); color: var(--red); font-weight: 700; font-size: 1.1rem; }
+.td-exp { background: rgba(196,138,57,0.08); color: var(--gold); font-weight: 700; font-size: 1.1rem; }
+.td-int { background: rgba(33,72,181,0.06); color: var(--blue); }
+.td-frac { background: rgba(107,50,176,0.06); color: var(--purple); }
+.td-mant { background: rgba(26,125,58,0.06); color: var(--green); }
+.td-carry { background: rgba(196,138,57,0.12); color: #8a5a00; font-size: 0.85rem; }
+
+/* ─── FLAGS ─── */
+.flags-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin: 12px 0; }
+.flag-card { padding: 12px 8px; border-radius: 10px; text-align: center; background: #fff; border: 1.5px solid rgba(31,26,23,0.1); }
+.flag-name { font-family: var(--font-accent); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-soft); margin-bottom: 6px; }
+.flag-val { font-family: var(--font-accent); font-size: 2rem; font-weight: 700; }
+.flag-val.is-one { color: var(--green); }
+.flag-val.is-zero { color: rgba(31,26,23,0.25); }
+.flag-desc { font-size: 0.88rem; color: var(--ink-soft); margin-top: 4px; line-height: 1.3; }
+
+/* ─── BIN OP ─── */
+.bin-op-box {
+  display: inline-block; padding: 16px 22px; border-radius: 10px;
+  border: 1.8px solid rgba(33,72,181,0.2); background: rgba(238,243,255,0.6);
+  font-size: 1.25rem; line-height: 1.9; margin: 10px 0;
+}
+.bin-op-carry { color: var(--gold); font-size: 0.95rem; margin-bottom: 2px; }
+.bin-op-row { display: flex; align-items: center; gap: 10px; }
+.bin-op-sym { width: 18px; text-align: right; color: var(--green); font-weight: 700; }
+.bin-op-line { border-top: 2px solid var(--ink); margin: 6px 0; }
+.bin-op-res { color: var(--blue); font-weight: 700; }
+.bit-sign { color: var(--red); font-weight: 700; }
+.bit-carry-out { color: var(--gold); font-weight: 700; font-size: 0.82em; vertical-align: super; }
+
+/* ─── SUMMARY ─── */
+.exam-summary { margin-top: 12px; padding: 10px 12px; border: 1.8px solid #88b8ea; border-radius: 6px; background: #f8fbff; }
+.exam-summary h5 { margin: 0 0 6px; color: var(--blue); font-family: var(--font-accent); font-size: 0.92rem; text-transform: uppercase; }
+.exam-summary ol { margin: 0; padding-left: 20px; font-size: 1rem; line-height: 1.5; }
+
+/* ─── PANEL/NOTE ─── */
+.exam-panel { margin-bottom: 14px; padding: 12px; border: 1.8px solid #4c93e6; border-radius: 6px; background: #fff; }
+.exam-panel.purple { border-color: #8c57df; background: #fbf5ff; }
+.exam-panel.green { border-color: #54a74d; background: #fbfff7; }
+.exam-panel.gold { border-color: var(--gold); background: var(--gold-soft); }
+.exam-panel.red { border-color: #ea6f8a; background: #fffafa; }
+.exam-panel strong { display: block; margin-bottom: 5px; font-family: var(--font-accent); font-size: 0.88rem; text-transform: uppercase; }
+.exam-panel p { margin: 0; font-size: 1rem; line-height: 1.4; }
+
+/* ─── SMALL UTIL ─── */
+.mono { font-family: monospace; font-size: 1.05em; }
+.b-blue { color: var(--blue); font-weight: 700; }
+.b-red { color: var(--red); font-weight: 700; }
+.b-gold { color: var(--gold); font-weight: 700; }
+.b-green { color: var(--green); font-weight: 700; }
+.b-purple { color: var(--purple); font-weight: 700; }
+
+body.modal-open { overflow: hidden; }
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(31,26,23,0.4);
+  backdrop-filter: blur(10px);
+}
+.modal-backdrop.is-open { display: flex; }
+.modal-card {
+  position: relative;
+  width: min(560px,100%);
+  padding: clamp(24px,4vw,32px);
+}
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(31,26,23,0.08);
+  background: rgba(255,255,255,0.82);
+  appearance: none;
+  cursor: pointer;
+  color: var(--ink);
+  transition: transform 0.18s, background 0.18s;
+}
+.modal-close:hover { transform: translateY(-2px); }
+.modal-title {
+  margin: 0;
+  padding-right: 48px;
+  font-family: var(--font-title);
+  font-size: clamp(2.3rem,5vw,3.4rem);
+  line-height: 0.98;
+  color: var(--green);
+}
+.modal-copy {
+  margin: 14px 0 0;
+  color: var(--ink-soft);
+  font-size: clamp(1.12rem,2vw,1.38rem);
+  line-height: 1.5;
+}
+.modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 640px) {
+  .topbar-actions { width: 100%; justify-content: space-between; }
+  .alias-box { align-items: flex-start; flex-direction: column; }
+  .modal-actions { flex-direction: column; }
+  .modal-actions .ghost-btn { width: 100%; }
+  .exam-body { grid-template-columns: 1fr; }
+  .exam-col + .exam-col { border-left: 0; border-top: 2px solid rgba(107,50,176,0.22); }
+  .flags-grid { grid-template-columns: repeat(2,1fr); }
+  .bit-table { font-size: 0.88rem; }
+  .bit-table td,.bit-table th { padding: 6px 6px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <button class="brand-btn" data-go-home>
+      <span class="brand-mark">AC</span>
+      <span class="brand-copy">
+        <span class="brand-title">Aritmética Computacional</span>
+        <span class="brand-subtitle">Guía interactiva de ejercicios</span>
+      </span>
+    </button>
+    <div class="topbar-actions">
+      <button class="ghost-btn topbar-link" type="button" data-go-donations>Donaciones</button>
+      <span class="crumbs" id="crumbs">Inicio / Elegí un tema</span>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════
+       HOME SCREEN
+  ══════════════════════════════════════ -->
+  <div class="screen is-active" id="screen-home">
+    <div class="home-stack">
+    <div class="panel hero-panel">
+      <p class="eyebrow">Arquitectura de Computadoras · Unidad 2</p>
+      <h1>Aritmética Computacional</h1>
+      <p class="hero-copy">Elegí un tema para ver los ejercicios resueltos paso a paso. Cada paso es interactivo: hacé clic para ver la explicación en palabras, la formulación formal y la idea clave.</p>
+    </div>
+    <div class="home-grid">
+      <button class="topic-card" data-topic="pf">
+        <span class="topic-pill">Representación</span>
+        <p class="topic-name">Punto Fijo</p>
+        <p class="topic-desc">Conversión entre decimal y BCH con parte entera y fraccionaria de longitud fija.</p>
+        <div class="topic-meta"><span class="meta-chip">2 ejercicios</span><span class="meta-chip">DEC ↔ BCH</span></div>
+      </button>
+      <button class="topic-card" data-topic="pfl">
+        <span class="topic-pill red">Representación</span>
+        <p class="topic-name">Punto Flotante</p>
+        <p class="topic-desc">Notación científica binaria con exponente sesgado y mantisa normalizada.</p>
+        <div class="topic-meta"><span class="meta-chip">2 ejercicios</span><span class="meta-chip">Signo · Exp · Mantisa</span></div>
+      </button>
+      <button class="topic-card" data-topic="ops">
+        <span class="topic-pill green">Operaciones</span>
+        <p class="topic-name">Suma y Resta</p>
+        <p class="topic-desc">Operaciones bit a bit en C2 y Ca1 con análisis completo de flags aritméticos.</p>
+        <div class="topic-meta"><span class="meta-chip">2 ejercicios</span><span class="meta-chip">Z · N · C · V</span></div>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       TOPIC SCREEN
+  ══════════════════════════════════════ -->
+      <section class="panel donation-panel" id="donation-section">
+        <p class="eyebrow">Si esta guia te sirvio</p>
+        <h2 class="donation-title">Podes colaborar con una donacion</h2>
+        <p class="donation-copy">Si esta pagina te ayudo a estudiar, podes apoyarme con un aporte.</p>
+        <div class="alias-box">
+          <div class="alias-meta">
+            <span class="alias-label">Alias BNA+</span>
+            <strong class="alias-value">estudio.juegos.piano</strong>
+          </div>
+          <button class="ghost-btn donation-btn" id="btn-copy-alias" type="button">Copiar alias</button>
+        </div>
+        <p class="copy-feedback" id="copy-feedback" aria-live="polite"></p>
+      </section>
+  </div>
+
+  <div class="screen" id="screen-topic">
+    <div class="panel">
+      <div class="topic-screen">
+        <div class="nav-row">
+          <button class="ghost-btn" data-go-home>← Inicio</button>
+        </div>
+        <div class="topic-head">
+          <p class="eyebrow" id="topic-eyebrow">Tema</p>
+          <h2 id="topic-title">—</h2>
+          <p class="topic-copy" id="topic-copy"></p>
+        </div>
+        <div class="exercise-list" id="exercise-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       EXERCISE SCREEN
+  ══════════════════════════════════════ -->
+  <div class="screen" id="screen-exercise">
+    <div class="exercise-screen">
+      <div class="nav-row">
+        <button class="ghost-btn" id="btn-back-topic">← Volver al tema</button>
+        <button class="ghost-btn" data-go-home>Inicio</button>
+      </div>
+      <div class="exercise-frame" id="exercise-frame"></div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<div class="modal-backdrop" id="donation-modal" aria-hidden="true">
+  <div class="panel modal-card" role="dialog" aria-modal="true" aria-labelledby="donation-modal-title">
+    <button class="modal-close" id="btn-close-donation-modal" type="button" aria-label="Cerrar cartel de donaciones">&times;</button>
+    <p class="eyebrow">Si esta guia te sirvio</p>
+    <h2 class="modal-title" id="donation-modal-title">Podes colaborar con una donacion</h2>
+    <p class="modal-copy">Si te fue util para estudiar, podes darme una mano con un aporte. El alias de BNA+ es:</p>
+    <div class="alias-box">
+      <div class="alias-meta">
+        <span class="alias-label">Alias BNA+</span>
+        <strong class="alias-value">estudio.juegos.piano</strong>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="ghost-btn donation-btn" id="btn-modal-donations" type="button">Ir a donaciones</button>
+      <button class="ghost-btn" id="btn-modal-copy" type="button">Copiar alias</button>
+      <button class="ghost-btn" id="btn-modal-close-secondary" type="button">Seguir viendo</button>
+    </div>
+    <p class="copy-feedback" id="modal-copy-feedback" aria-live="polite"></p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TEMPLATES
+══════════════════════════════════════ -->
+
+<!-- EJ 1: PF DEC→BCH -->
+<template id="tpl-pf-1">
+<div class="exam-sheet blue-theme">
+  <div class="exam-header">
+    <span class="exam-badge">Ej. 01</span>
+    <p class="exam-prompt">Convertir el decimal <strong>−12,85951</strong> a BCH en Punto Fijo</p>
+    <p class="exam-equation">1S · 4E · 11F</p>
+  </div>
+  <div class="exam-body">
+    <div class="exam-col">
+      <p class="exam-title">Resolucion paso a paso</p>
+      <!-- PASO 1 -->
+      <div class="exam-step" data-step-key="pf1-1">
+        <span class="exam-number">1</span>
+        <h4>Identificar signo y separar partes</h4>
+        <div class="exam-math small"><span class="exam-mathbox red">signo = 1</span> &nbsp; <span class="exam-mathbox blue">entera = 12</span> &nbsp; <span class="exam-mathbox">frac = 0,85951</span></div>
+      </div>
+
+      <!-- PASO 2 -->
+      <div class="exam-step" data-step-key="pf1-2">
+        <span class="exam-number">2</span>
+        <h4>Parte entera 12 → binario (4 bits)</h4>
+        <div class="exam-math small left">
+          12 ÷ 2 = 6 <span class="b-blue">r 0</span><br>
+          6 ÷ 2 = 3 <span class="b-blue">r 0</span><br>
+          3 ÷ 2 = 1 <span class="b-blue">r 1</span><br>
+          1 ÷ 2 = 0 <span class="b-blue">r 1</span>
+        </div>
+        <div class="exam-math"><span class="exam-mathbox blue">1100₂</span></div>
+      </div>
+
+      <!-- PASO 3 -->
+      <div class="exam-step" data-step-key="pf1-3">
+        <span class="exam-number">3</span>
+        <h4>Parte fraccionaria → binario (11 bits)</h4>
+        <div class="exam-math small left">
+          0,85951 × 2 = <span class="b-blue">1</span>,71902<br>
+          0,71902 × 2 = <span class="b-blue">1</span>,43804<br>
+          0,43804 × 2 = <span class="b-blue">0</span>,87608<br>
+          0,87608 × 2 = <span class="b-blue">1</span>,75216<br>
+          0,75216 × 2 = <span class="b-blue">1</span>,50432<br>
+          0,50432 × 2 = <span class="b-blue">1</span>,00864<br>
+          0,00864 × 2 = <span class="b-blue">0</span>,01728<br>
+          0,01728 × 2 = <span class="b-blue">0</span>,03456<br>
+          0,03456 × 2 = <span class="b-blue">0</span>,06912<br>
+          0,06912 × 2 = <span class="b-blue">0</span>,13824<br>
+          0,13824 × 2 = <span class="b-blue">0</span>,27648
+        </div>
+        <div class="exam-math"><span class="exam-mathbox">11011100000₂</span></div>
+      </div>
+
+      <!-- PASO 4 -->
+      <div class="exam-step" data-step-key="pf1-4">
+        <span class="exam-number">4</span>
+        <h4>Armar los 16 bits completos</h4>
+        <div class="bit-table-wrap">
+          <table class="bit-table">
+            <tr><th>S</th><th>E³</th><th>E²</th><th>E¹</th><th>E⁰</th><th>F⁻¹</th><th>F⁻²</th><th>F⁻³</th><th>F⁻⁴</th><th>F⁻⁵</th><th>F⁻⁶</th><th>F⁻⁷</th><th>F⁻⁸</th><th>F⁻⁹</th><th>F⁻¹⁰</th><th>F⁻¹¹</th></tr>
+            <tr>
+              <td class="td-sign">1</td>
+              <td class="td-int">1</td><td class="td-int">1</td><td class="td-int">0</td><td class="td-int">0</td>
+              <td class="td-frac">1</td><td class="td-frac">1</td><td class="td-frac">0</td><td class="td-frac">1</td><td class="td-frac">1</td><td class="td-frac">1</td><td class="td-frac">0</td><td class="td-frac">0</td><td class="td-frac">0</td><td class="td-frac">0</td><td class="td-frac">0</td>
+            </tr>
+          </table>
+        </div>
+        <div class="exam-text">Agrupando de a 4 bits:<br>
+          <span class="b-red">1</span><span class="b-blue">110</span> | <span class="b-blue">0110</span> | <span class="b-purple">1110</span> | <span class="b-purple">0000</span><br>
+          <span class="b-red mono">E</span> &nbsp;|&nbsp; <span class="b-blue mono">6</span> &nbsp;|&nbsp; <span class="b-purple mono">E</span> &nbsp;|&nbsp; <span class="b-purple mono">0</span>
+        </div>
+      </div>
+
+    </div>
+    <div class="exam-col">
+      <p class="exam-title">Resultado y verificación</p>
+
+      <div class="exam-blue-note">
+        <strong>💡 Recordá:</strong> En Punto Fijo, la posición del punto binario es fija. El bit de signo indica el signo del número (0 = positivo, 1 = negativo).
+      </div>
+
+      <div class="exam-panel purple">
+        <strong>Formato del número</strong>
+        <p>1 bit signo + 4 bits parte entera + 11 bits parte fraccionaria = <strong>16 bits = 4 dígitos BCH</strong></p>
+      </div>
+
+      <div class="exam-panel green">
+        <strong>Conversión a BCH</strong>
+        <p><span class="mono b-red">1</span><span class="mono b-blue">110</span> → <strong class="b-red">E</strong><br>
+           <span class="mono b-blue">0110</span> → <strong class="b-blue">6</strong><br>
+           <span class="mono b-purple">1110</span> → <strong class="b-purple">E</strong><br>
+           <span class="mono b-purple">0000</span> → <strong>0</strong></p>
+      </div>
+
+      <div class="exam-step" data-step-key="pf1-5">
+        <span class="exam-number">5</span>
+        <h4>Resultado final</h4>
+        <div class="exam-math"><span class="exam-answer blue">BCH = E6E0<sub>h</sub></span></div>
+        <div class="exam-blue-note" style="margin-top:10px">
+          ✅ Representación de −12,85951 en Punto Fijo de 16 bits (1+4+11)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</template>
+
+<!-- EJ 2: PF BCH→DEC -->
+<template id="tpl-pf-2">
+<div class="exam-sheet blue-theme">
+  <div class="exam-header">
+    <span class="exam-badge">Ej. 02</span>
+    <p class="exam-prompt">Convertir el BCH <strong>5B7C</strong> a decimal en Punto Fijo</p>
+    <p class="exam-equation">1S · 6E · 9F</p>
+  </div>
+  <div class="exam-body">
+    <div class="exam-col">
+      <p class="exam-title">Resolución paso a paso</p>
+
+      <div class="exam-step" data-step-key="pf2-1">
+        <span class="exam-number">1</span>
+        <h4>BCH → Binario (cada hex = 4 bits)</h4>
+        <div class="exam-math small left">
+          <span class="b-blue mono">5</span> → 0101 &nbsp;&nbsp;
+          <span class="b-blue mono">B</span> → 1011<br>
+          <span class="b-blue mono">7</span> → 0111 &nbsp;&nbsp;
+          <span class="b-blue mono">C</span> → 1100
+        </div>
+        <div class="exam-math"><span class="exam-mathbox blue">0101 1011 0111 1100</span></div>
+      </div>
+
+      <div class="exam-step" data-step-key="pf2-2">
+        <span class="exam-number">2</span>
+        <h4>Separar según formato 1 + 6 + 9 bits</h4>
+        <div class="bit-table-wrap">
+          <table class="bit-table">
+            <tr><th>S</th><th>E⁵</th><th>E⁴</th><th>E³</th><th>E²</th><th>E¹</th><th>E⁰</th><th>F⁻¹</th><th>F⁻²</th><th>F⁻³</th><th>F⁻⁴</th><th>F⁻⁵</th><th>F⁻⁶</th><th>F⁻⁷</th><th>F⁻⁸</th><th>F⁻⁹</th></tr>
+            <tr>
+              <td class="td-sign">0</td>
+              <td class="td-int">1</td><td class="td-int">0</td><td class="td-int">1</td><td class="td-int">1</td><td class="td-int">0</td><td class="td-int">1</td>
+              <td class="td-frac">1</td><td class="td-frac">0</td><td class="td-frac">1</td><td class="td-frac">1</td><td class="td-frac">1</td><td class="td-frac">1</td><td class="td-frac">1</td><td class="td-frac">0</td><td class="td-frac">0</td>
+            </tr>
+          </table>
+        </div>
+        <p class="exam-text">Signo <span class="b-red">0</span> → número positivo</p>
+      </div>
+
+      <div class="exam-step" data-step-key="pf2-3">
+        <span class="exam-number">3</span>
+        <h4>Parte entera 101101₂ → decimal</h4>
+        <div class="exam-math small left">
+          1×2⁵ + 0×2⁴ + 1×2³ + 1×2² + 0×2¹ + 1×2⁰<br>
+          = <span class="b-blue">32</span> + 0 + <span class="b-blue">8</span> + <span class="b-blue">4</span> + 0 + <span class="b-blue">1</span>
+        </div>
+        <div class="exam-math"><span class="exam-mathbox blue">= 45</span></div>
+      </div>
+
+      <div class="exam-step" data-step-key="pf2-4">
+        <span class="exam-number">4</span>
+        <h4>Parte fraccionaria 101111100₂ → decimal</h4>
+        <div class="exam-math small left">
+          1×2⁻¹ + 0×2⁻² + 1×2⁻³ + 1×2⁻⁴ + 1×2⁻⁵ + 1×2⁻⁶ + 1×2⁻⁷<br>
+          = 0,5 + 0,125 + 0,0625 + 0,03125 + 0,015625 + 0,0078125
+        </div>
+        <div class="exam-math"><span class="exam-mathbox">= 0,7421875</span></div>
+      </div>
+
+      <div class="exam-step" data-step-key="pf2-5">
+        <span class="exam-number">5</span>
+        <h4>Resultado final</h4>
+        <div class="exam-math"><span class="exam-answer blue">+45,7421875</span></div>
+      </div>
+    </div>
+    <div class="exam-col">
+      <p class="exam-title">Claves del proceso</p>
+      <div class="exam-blue-note">
+        <strong>📌 Proceso inverso:</strong> Cada dígito hexadecimal se convierte a 4 bits binarios. Luego se distribuyen según el formato del ejercicio.
+      </div>
+      <div class="exam-panel">
+        <strong>Formato 5B7C</strong>
+        <p>Total: 16 bits → 4 hex<br>Distribución: <span class="b-red">S</span> + <span class="b-blue">EEEEEE</span> + <span class="b-purple">FFFFFFFFF</span></p>
+      </div>
+      <div class="exam-panel green">
+        <strong>Partes identificadas</strong>
+        <p>Signo: <span class="b-red">0</span> (positivo)<br>
+        Entera: <span class="b-blue mono">101101</span> = 45<br>
+        Fraccionaria: <span class="b-purple mono">101111100</span> = 0,7421875</p>
+      </div>
+      <div class="exam-summary">
+        <h5>Fórmula general</h5>
+        <ol>
+          <li>Hexadecimal → 4 bits por dígito</li>
+          <li>Separar S + Entera + Fraccionaria según formato</li>
+          <li>Entera: sumar potencias positivas de 2</li>
+          <li>Fraccionaria: sumar potencias negativas de 2</li>
+          <li>Aplicar signo al resultado</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+</template>
+
+<!-- EJ 3: PFL DEC→BCH -->
+<template id="tpl-pfl-1">
+<div class="exam-sheet red-theme">
+  <div class="exam-header">
+    <span class="exam-badge">Ej. 03</span>
+    <p class="exam-prompt">Convertir <strong>−0,3232421875</strong> a BCH en Punto Flotante</p>
+    <p class="exam-equation">1S · 5Exp · 10M</p>
+  </div>
+  <div class="exam-body">
+    <div class="exam-col">
+      <p class="exam-title">Resolución paso a paso</p>
+
+      <div class="exam-step" data-step-key="pfl1-1">
+        <span class="exam-number">1</span>
+        <h4>Identificar signo y valor absoluto</h4>
+        <div class="exam-math small"><span class="exam-mathbox red">Signo = 1 (negativo)</span></div>
+        <p class="exam-text">Trabajamos con <strong>0,3232421875</strong></p>
+      </div>
+
+      <div class="exam-step" data-step-key="pfl1-2">
+        <span class="exam-number">2</span>
+        <h4>Convertir 0,3232421875 a binario (× 2)</h4>
+        <div class="exam-math small left">
+          0,3232421875 × 2 = <span class="b-blue">0</span>,646484375<br>
+          0,646484375 × 2 = <span class="b-blue">1</span>,29296875<br>
+          0,29296875 × 2 = <span class="b-blue">0</span>,5859375<br>
+          0,5859375 × 2 = <span class="b-blue">1</span>,171875<br>
+          0,171875 × 2 = <span class="b-blue">0</span>,34375<br>
+          0,34375 × 2 = <span class="b-blue">0</span>,6875<br>
+          0,6875 × 2 = <span class="b-blue">1</span>,375<br>
+          0,375 × 2 = <span class="b-blue">0</span>,75<br>
+          0,75 × 2 = <span class="b-blue">1</span>,5<br>
+          0,5 × 2 = <span class="b-blue">1</span>,0 ✓
+        </div>
+        <div class="exam-math"><span class="exam-mathbox">0,0101001011₂</span></div>
+      </div>
+
+      <div class="exam-step" data-step-key="pfl1-3">
+        <span class="exam-number">3</span>
+        <h4>Normalizar: mover punto → 1.xxx × 2ⁿ</h4>
+        <div class="exam-math">
+          0,0101001011<br>
+          = <span class="exam-mathbox green">1,01001011 × 2<sup>−2</sup></span>
+        </div>
+        <p class="exam-text">Exponente real <strong>e = −2</strong><br>Mantisa (sin 1 implícito): <span class="b-green mono">0100101100</span> (10 bits)</p>
+      </div>
+
+      <div class="exam-step" data-step-key="pfl1-4">
+        <span class="exam-number">4</span>
+        <h4>Calcular exponente sesgado (bias = 15)</h4>
+        <div class="exam-math">
+          <span class="exam-mathbox gold">bias = 2^(5−1) − 1 = 15</span>
+        </div>
+        <div class="exam-math">
+          exp_sesgado = −2 + 15 = <span class="exam-mathbox gold">13 = 01101₂</span>
+        </div>
+      </div>
+
+      <div class="exam-step" data-step-key="pfl1-5">
+        <span class="exam-number">5</span>
+        <h4>Armar los 16 bits</h4>
+        <div class="bit-table-wrap">
+          <table class="bit-table">
+            <tr><th>S</th><th>Exp⁴</th><th>Exp³</th><th>Exp²</th><th>Exp¹</th><th>Exp⁰</th><th>M¹</th><th>M²</th><th>M³</th><th>M⁴</th><th>M⁵</th><th>M⁶</th><th>M⁷</th><th>M⁸</th><th>M⁹</th><th>M¹⁰</th></tr>
+            <tr>
+              <td class="td-sign">1</td>
+              <td class="td-exp">0</td><td class="td-exp">1</td><td class="td-exp">1</td><td class="td-exp">0</td><td class="td-exp">1</td>
+              <td class="td-mant">0</td><td class="td-mant">1</td><td class="td-mant">0</td><td class="td-mant">0</td><td class="td-mant">1</td><td class="td-mant">0</td><td class="td-mant">1</td><td class="td-mant">1</td><td class="td-mant">0</td><td class="td-mant">0</td>
+            </tr>
+          </table>
+        </div>
+        <p class="exam-text">
+          <span class="b-red">1</span><span class="b-gold">011</span> = <strong class="b-red">B</strong> &nbsp;|&nbsp;
+          <span class="b-gold">01</span><span class="b-green">01</span> = <strong>5</strong> &nbsp;|&nbsp;
+          <span class="b-green">0010</span> = <strong>2</strong> &nbsp;|&nbsp;
+          <span class="b-green">1100</span> = <strong>C</strong>
+        </p>
+        <div class="exam-math"><span class="exam-answer red">BCH = B52C<sub>h</sub></span></div>
+      </div>
+    </div>
+    <div class="exam-col">
+      <p class="exam-title">Conceptos clave</p>
+      <div class="exam-red-note">
+        <strong>🔑 1 implícito:</strong> En la representación normalizada, el primer bit siempre es 1 y NO se guarda en la mantisa (ahorro de un bit extra de precisión).
+      </div>
+      <div class="exam-panel">
+        <strong>Bias (sesgo del exponente)</strong>
+        <p>El bias permite representar exponentes negativos sin usar signo extra.<br>
+        bias = 2^(n−1) − 1 donde n = bits de exponente</p>
+      </div>
+      <div class="exam-panel gold">
+        <strong>Con 5 bits de exponente</strong>
+        <p>bias = 2⁴ − 1 = <strong>15</strong><br>
+        Rango de exponentes reales: −15 a +16</p>
+      </div>
+      <div class="exam-panel green">
+        <strong>Normalización</strong>
+        <p>Mover el punto binario hasta que quede:<br>
+        <span class="mono">1.xxxxxxxx × 2^e</span><br>
+        Si el número es menor que 1 → exponente negativo</p>
+      </div>
+      <div class="exam-summary">
+        <h5>Resumen del proceso</h5>
+        <ol>
+          <li>Bit de signo</li>
+          <li>Convertir valor absoluto a binario</li>
+          <li>Normalizar → obtener e</li>
+          <li>Exponente sesgado = e + bias</li>
+          <li>Mantisa = bits después del punto</li>
+          <li>Agrupar en BCH (nibbles de 4)</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+</template>
+
+<!-- EJ 4: PFL BCH→DEC -->
+<template id="tpl-pfl-2">
+<div class="exam-sheet red-theme">
+  <div class="exam-header">
+    <span class="exam-badge">Ej. 04</span>
+    <p class="exam-prompt">Convertir el BCH <strong>4C12</strong> a decimal en Punto Flotante</p>
+    <p class="exam-equation">1S · 4Exp · 11M</p>
+  </div>
+  <div class="exam-body">
+    <div class="exam-col">
+      <p class="exam-title">Resolución paso a paso</p>
+
+      <div class="exam-step" data-step-key="pfl2-1">
+        <span class="exam-number">1</span>
+        <h4>BCH → Binario (4 bits por dígito)</h4>
+        <div class="exam-math small left">
+          <span class="b-red mono">4</span> → 0100 &nbsp;&nbsp;
+          <span class="b-red mono">C</span> → 1100<br>
+          <span class="b-red mono">1</span> → 0001 &nbsp;&nbsp;
+          <span class="b-red mono">2</span> → 0010
+        </div>
+        <div class="exam-math"><span class="exam-mathbox red">0100 1100 0001 0010</span></div>
+      </div>
+
+      <div class="exam-step" data-step-key="pfl2-2">
+        <span class="exam-number">2</span>
+        <h4>Separar según formato 1 + 4 + 11 bits</h4>
+        <div class="bit-table-wrap">
+          <table class="bit-table">
+            <tr><th>S</th><th>E³</th><th>E²</th><th>E¹</th><th>E⁰</th><th>M¹</th><th>M²</th><th>M³</th><th>M⁴</th><th>M⁵</th><th>M⁶</th><th>M⁷</th><th>M⁸</th><th>M⁹</th><th>M¹⁰</th><th>M¹¹</th></tr>
+            <tr>
+              <td class="td-sign">0</td>
+              <td class="td-exp">1</td><td class="td-exp">0</td><td class="td-exp">0</td><td class="td-exp">1</td>
+              <td class="td-mant">1</td><td class="td-mant">0</td><td class="td-mant">0</td><td class="td-mant">0</td><td class="td-mant">0</td><td class="td-mant">0</td><td class="td-mant">1</td><td class="td-mant">0</td><td class="td-mant">0</td><td class="td-mant">1</td><td class="td-mant">0</td>
+            </tr>
+          </table>
+        </div>
+        <p class="exam-text">Signo <span class="b-red">0</span> → positivo<br>
+        Exp sesgado: <span class="b-gold mono">1001</span> = 9 &nbsp;&nbsp; Mantisa: <span class="b-green mono">10000010010</span></p>
+      </div>
+
+      <div class="exam-step" data-step-key="pfl2-3">
+        <span class="exam-number">3</span>
+        <h4>Exponente real (bias = 7 con 4 bits)</h4>
+        <div class="exam-math">
+          <span class="exam-mathbox gold">bias = 2³ − 1 = 7</span>
+        </div>
+        <div class="exam-math">
+          e = 9 − 7 = <span class="exam-mathbox gold">2</span>
+        </div>
+      </div>
+
+      <div class="exam-step" data-step-key="pfl2-4">
+        <span class="exam-number">4</span>
+        <h4>Reconstruir: 1.mantisa × 2²</h4>
+        <div class="exam-math small">
+          <span class="exam-mathbox green">1,10000010010 × 2²</span>
+        </div>
+        <p class="exam-text">Desplazar punto 2 lugares →</p>
+        <div class="exam-math"><span class="exam-mathbox">110,00010010₂</span></div>
+      </div>
+
+      <div class="exam-step" data-step-key="pfl2-5">
+        <span class="exam-number">5</span>
+        <h4>Convertir a decimal</h4>
+        <div class="exam-math small left">
+          Entera 110₂: 4+2+0 = <span class="b-blue">6</span><br>
+          Frac 00010010₂:<br>
+          2⁻⁴ + 2⁻⁷ = 0,0625 + 0,0078125 = <span class="b-blue">0,0703125</span>
+        </div>
+        <div class="exam-math"><span class="exam-answer red">+6,0703125</span></div>
+      </div>
+    </div>
+    <div class="exam-col">
+      <p class="exam-title">Claves del proceso inverso</p>
+      <div class="exam-red-note">
+        <strong>🔑 1 implícito:</strong> Al reconstruir, hay que agregar el "1." antes de la mantisa, porque ese bit no se almacena.
+      </div>
+      <div class="exam-panel gold">
+        <strong>Con 4 bits de exponente</strong>
+        <p>bias = 2³ − 1 = <strong>7</strong><br>
+        exp_real = exp_sesgado − bias = 9 − 7 = <strong>2</strong></p>
+      </div>
+      <div class="exam-panel green">
+        <strong>Desplazamiento del punto</strong>
+        <p>Si e = 2 → mover el punto 2 posiciones a la derecha en el número binario normalizado.</p>
+      </div>
+      <div class="exam-summary">
+        <h5>Proceso inverso</h5>
+        <ol>
+          <li>Hex → binario (4 bits por dígito)</li>
+          <li>Separar S + Exp + Mantisa</li>
+          <li>e = exp_sesgado − bias</li>
+          <li>Reconstruir 1.mantisa × 2^e</li>
+          <li>Desplazar el punto</li>
+          <li>Convertir a decimal, aplicar signo</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+</template>
+
+<!-- EJ 5: SUMA C2 -->
+<template id="tpl-ops-1">
+<div class="exam-sheet green-theme">
+  <div class="exam-header">
+    <span class="exam-badge">Ej. 05</span>
+    <p class="exam-prompt">Sumar en <strong>Complemento a 2</strong> e indicar flags</p>
+    <p class="exam-equation mono">00110001 + 01001001</p>
+  </div>
+  <div class="exam-body">
+    <div class="exam-col">
+      <p class="exam-title">Resolución paso a paso</p>
+
+      <div class="exam-step" data-step-key="ops1-1">
+        <span class="exam-number">1</span>
+        <h4>Identificar operandos en C2</h4>
+        <div class="exam-math small left">
+          A = <span class="b-blue mono">00110001</span> → bit signo <span class="b-green">0</span> → <strong>+49</strong><sub>10</sub><br>
+          B = <span class="b-purple mono">01001001</span> → bit signo <span class="b-green">0</span> → <strong>+73</strong><sub>10</sub>
+        </div>
+        <div class="exam-green-note">Ambos positivos → esperamos resultado positivo ≤ +127</div>
+      </div>
+
+      <div class="exam-step" data-step-key="ops1-2">
+        <span class="exam-number">2</span>
+        <h4>Suma binaria columna a columna</h4>
+        <div style="overflow-x:auto">
+        <div class="bin-op-box">
+          <div class="bin-op-carry">Carry:&nbsp; 0 1 1 0 0 0 0 0</div>
+          <div class="bin-op-row"><span class="bin-op-sym">&nbsp;</span><span class="b-blue mono">0 0 1 1 0 0 0 1</span></div>
+          <div class="bin-op-row"><span class="bin-op-sym" style="color:var(--green)">+</span><span class="b-purple mono">0 1 0 0 1 0 0 1</span></div>
+          <div class="bin-op-line"></div>
+          <div class="bin-op-row"><span class="bin-op-sym">&nbsp;</span><span class="bin-op-res mono">0 1 1 1 1 0 1 0</span></div>
+        </div>
+        </div>
+      </div>
+
+      <div class="exam-step" data-step-key="ops1-3">
+        <span class="exam-number">3</span>
+        <h4>Interpretar resultado en C2</h4>
+        <div class="exam-math small left">
+          Resultado: <span class="b-green mono">01111010</span><br>
+          Bit signo = <span class="b-green">0</span> → positivo<br>
+          Valor = 64+32+16+8+2 = <span class="b-blue">+122</span><sub>10</sub>
+        </div>
+        <div class="exam-math"><span class="exam-answer green">01111010 = +122</span></div>
+      </div>
+
+      <div class="exam-step" data-step-key="ops1-4">
+        <span class="exam-number">4</span>
+        <h4>Calcular los 4 flags</h4>
+        <div class="flags-grid">
+          <div class="flag-card">
+            <div class="flag-name">Z (Zero)</div>
+            <div class="flag-val is-zero">0</div>
+            <div class="flag-desc">resultado ≠ 0</div>
+          </div>
+          <div class="flag-card">
+            <div class="flag-name">N (Sign)</div>
+            <div class="flag-val is-zero">0</div>
+            <div class="flag-desc">bit signo = 0</div>
+          </div>
+          <div class="flag-card">
+            <div class="flag-name">C (Carry)</div>
+            <div class="flag-val is-zero">0</div>
+            <div class="flag-desc">sin carry out</div>
+          </div>
+          <div class="flag-card">
+            <div class="flag-name">V (Overflow)</div>
+            <div class="flag-val is-zero">0</div>
+            <div class="flag-desc">C₇⊕C₈ = 1⊕0 = 0</div>
+          </div>
+        </div>
+        <div class="exam-green-note">
+          ✅ 49 + 73 = 122 ≤ 127 → No hay overflow. Resultado correcto.
+        </div>
+      </div>
+    </div>
+    <div class="exam-col">
+      <p class="exam-title">Flags en detalle</p>
+      <div class="exam-green-note">
+        <strong>🚩 Flags aritméticos:</strong> Indican el estado de la ALU después de una operación. Son fundamentales para el control de flujo del programa.
+      </div>
+      <div class="exam-panel green">
+        <strong>Z — Zero Flag</strong>
+        <p>Se activa (=1) cuando el resultado es exactamente 0. Aquí 01111010 ≠ 0 → <strong>Z = 0</strong></p>
+      </div>
+      <div class="exam-panel">
+        <strong>N — Negative / Sign Flag</strong>
+        <p>Copia del bit más significativo del resultado. Si es 1 → negativo (C2). Aquí MSB = 0 → <strong>N = 0</strong></p>
+      </div>
+      <div class="exam-panel purple">
+        <strong>C — Carry Flag</strong>
+        <p>Carry que sale del bit más significativo. Aquí no hay carry out del bit 7 → <strong>C = 0</strong></p>
+      </div>
+      <div class="exam-panel red">
+        <strong>V — Overflow Flag</strong>
+        <p>V = C_entrada_MSB ⊕ C_salida_MSB = 1 ⊕ 0 = 0<br>Positivo + Positivo = Positivo → sin desborde → <strong>V = 0</strong></p>
+      </div>
+      <div class="exam-summary">
+        <h5>Resultado final</h5>
+        <ol>
+          <li>Resultado binario: <strong>01111010</strong></li>
+          <li>Decimal: <strong>+122</strong></li>
+          <li>Flags: <strong>Z=0, N=0, C=0, V=0</strong></li>
+        </ol>
+      </div>
+</div>
+</div>
+</div>
+</template>
+
+<!-- EJ GUIA: RESTA 8 BITS -->
+<template id="tpl-ops-guide">
+<div class="exam-sheet green-theme">
+  <div class="exam-header">
+    <span class="exam-badge">Guia</span>
+    <p class="exam-prompt">Resta guiada en 8 bits: prestamos, Carry y Overflow</p>
+    <p class="exam-equation mono">10000000 - 00000001</p>
+  </div>
+  <div class="exam-body">
+    <div class="exam-col">
+      <p class="exam-title">Resta paso a paso</p>
+
+      <div class="exam-step" data-step-key="opsg-1">
+        <span class="exam-number">1</span>
+        <h4>Mirar la columna de la derecha primero</h4>
+        <div class="exam-panel green">
+          <strong>Regla base</strong>
+          <p>Siempre restamos de derecha a izquierda. Si aparece 0 - 1, no se puede y hay que pedir prestado al primer 1 que encontremos hacia la izquierda.</p>
+        </div>
+        <div class="exam-math small left">
+          0 - 0 = 0<br>
+          1 - 0 = 1<br>
+          1 - 1 = 0<br>
+          0 - 1 -&gt; pedir prestado
+        </div>
+      </div>
+
+      <div class="exam-step" data-step-key="opsg-2">
+        <span class="exam-number">2</span>
+        <h4>Hacer el prestamo largo</h4>
+        <div class="exam-panel">
+          <strong>Operacion original</strong>
+          <p class="mono">1 0 0 0 0 0 0 0</p>
+        </div>
+        <div class="exam-panel gold">
+          <strong>Despues del prestamo</strong>
+          <p class="mono">0 1 1 1 1 1 1 10</p>
+        </div>
+        <div class="exam-gold-note">
+          El 1 de la izquierda se gasta para prestar. Cada 0 del medio recibe 10, presta 1 a la derecha y por eso termina quedando en 1.
+        </div>
+      </div>
+
+      <div class="exam-step" data-step-key="opsg-3">
+        <span class="exam-number">3</span>
+        <h4>Restar columna por columna con los valores ya ajustados</h4>
+        <div class="bit-table-wrap">
+          <table class="bit-table">
+            <tr>
+              <th>Columna</th>
+              <th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th>
+            </tr>
+            <tr>
+              <th>Arriba ajustado</th>
+              <td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>10</td>
+            </tr>
+            <tr>
+              <th>Abajo</th>
+              <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td>
+            </tr>
+            <tr>
+              <th>Cuenta</th>
+              <td>0-0</td><td>1-0</td><td>1-0</td><td>1-0</td><td>1-0</td><td>1-0</td><td>1-0</td><td>10-1</td>
+            </tr>
+            <tr>
+              <th>Resultado</th>
+              <td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td>
+            </tr>
+          </table>
+        </div>
+        <div class="exam-math"><span class="exam-answer green">01111111</span></div>
+      </div>
+
+      <div class="exam-step" data-step-key="opsg-4">
+        <span class="exam-number">4</span>
+        <h4>Responder la duda tipica: que pasa con un 1 arriba y un 0 abajo</h4>
+        <div class="exam-panel red">
+          <strong>No mires solo los bits originales</strong>
+          <p>Antes de resolver una columna, fijate si ese bit ya presto o si recibio un prestamo. Eso puede cambiar completamente la cuenta.</p>
+        </div>
+        <div class="exam-math small left">
+          Caso normal: 1 - 0 = 1<br>
+          Si ese 1 ya presto a la derecha: ahora vale 0, entonces 0 - 0 = 0<br>
+          Si un 0 recibio 10 y presto 1: termina valiendo 1, entonces 1 - 0 = 1
+        </div>
+      </div>
+
+      <div class="exam-step" data-step-key="opsg-5">
+        <span class="exam-number">5</span>
+        <h4>Calcular Carry y Overflow en C2</h4>
+        <div class="exam-math small left">
+          B = <span class="b-purple mono">00000001</span><br>
+          C2(B) = <span class="b-gold mono">11111111</span><br><br>
+          A - B = A + C2(B)<br>
+          <span class="mono">10000000 + 11111111 = 1 01111111</span>
+        </div>
+        <div class="flags-grid" style="margin-top:12px">
+          <div class="flag-card">
+            <div class="flag-name">Z (Zero)</div>
+            <div class="flag-val is-zero">0</div>
+            <div class="flag-desc">resultado != 0</div>
+          </div>
+          <div class="flag-card">
+            <div class="flag-name">N (Sign)</div>
+            <div class="flag-val is-zero">0</div>
+            <div class="flag-desc">MSB almacenado = 0</div>
+          </div>
+          <div class="flag-card">
+            <div class="flag-name">C (Carry)</div>
+            <div class="flag-val is-one">1</div>
+            <div class="flag-desc">carry out = 1</div>
+          </div>
+          <div class="flag-card">
+            <div class="flag-name">V (Overflow)</div>
+            <div class="flag-val is-one">1</div>
+            <div class="flag-desc">resultado real fuera de rango</div>
+          </div>
+        </div>
+        <div class="exam-red-note">
+          En 8 bits con signo, 10000000 representa -128. Entonces -128 - 1 = -129 y eso no entra en el rango [-128, 127]. Por eso hay Overflow = 1.
+        </div>
+      </div>
+    </div>
+
+    <div class="exam-col">
+      <p class="exam-title">Reglas para no perderse</p>
+      <div class="exam-panel green">
+        <strong>Regla 1</strong>
+        <p>Si aparece 0 - 1, no sigas. Primero resolve el prestamo.</p>
+      </div>
+      <div class="exam-panel">
+        <strong>Regla 2</strong>
+        <p>Un bit puede cambiar antes de que lo restes. Un 1 puede pasar a 0 si presto. Un 0 puede terminar en 1 si recibio y despues presto.</p>
+      </div>
+      <div class="exam-panel gold">
+        <strong>Regla 3</strong>
+        <p>En una resta con flags de C2, primero podes entender la cuenta con prestamos, y despues calcular Carry y Overflow usando A + C2(B).</p>
+      </div>
+      <div class="exam-summary">
+        <h5>Resultado final</h5>
+        <ol>
+          <li>Resta manual: <strong>01111111</strong></li>
+          <li>Carry: <strong>1</strong></li>
+          <li>Overflow: <strong>1</strong></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+</template>
+
+<!-- EJ 6: RESTA Ca1 -->
+<template id="tpl-ops-2">
+<div class="exam-sheet gold-theme">
+  <div class="exam-header">
+    <span class="exam-badge">Ej. 06</span>
+    <p class="exam-prompt">Resta en <strong>Complemento a 1</strong> usando la tecnica especial de Ca1</p>
+    <p class="exam-equation mono">11101100 - 00101101</p>
+  </div>
+  <div class="exam-body">
+    <div class="exam-col">
+      <p class="exam-title">Resolución paso a paso</p>
+
+      <div class="exam-panel gold">
+        <strong>Importante</strong>
+        <p>Este ejercicio no se resuelve pidiendo prestado columna por columna. En Ca1, la resta se convierte en una suma: A - B = A + Ca1(B). Si queres repasar el prestamo bit a bit, mira primero la guia de resta en 8 bits.</p>
+      </div>
+
+      <div class="exam-step" data-step-key="ops2-1">
+        <span class="exam-number">1</span>
+        <h4>Identificar operandos en Ca1</h4>
+        <div class="exam-math small left">
+          A = <span class="b-blue mono">11101100</span> -> signo <span class="b-red">1</span> -> negativo<br>
+          Ca1(A): invertir -> 00010011 = 19 -> <strong>A = -19</strong><sub>10</sub><br><br>
+          B = <span class="b-purple mono">00101101</span> -> signo <span class="b-green">0</span> -> <strong>B = +45</strong><sub>10</sub>
+        </div>
+        <div class="exam-gold-note">Operacion real: -19 - 45 = -64</div>
+      </div>
+
+      <div class="exam-step" data-step-key="ops2-2">
+        <span class="exam-number">2</span>
+        <h4>Calcular Ca1(B) e invertir todos los bits de B</h4>
+        <div class="exam-math small left">
+          B      = <span class="b-purple mono">0 0 1 0 1 1 0 1</span><br>
+          Ca1(B) = <span class="b-gold mono">1 1 0 1 0 0 1 0</span>
+        </div>
+        <div class="exam-gold-note">A partir de aca ya no estamos restando: estamos preparando una suma binaria.</div>
+      </div>
+
+      <div class="exam-step" data-step-key="ops2-3">
+        <span class="exam-number">3</span>
+        <h4>Sumar A + Ca1(B)</h4>
+        <div style="overflow-x:auto">
+        <div class="bin-op-box">
+          <div class="bin-op-row"><span class="bin-op-sym">&nbsp;</span><span class="b-blue mono">1 1 1 0 1 1 0 0</span></div>
+          <div class="bin-op-row"><span class="bin-op-sym" style="color:var(--gold)">+</span><span class="b-gold mono">1 1 0 1 0 0 1 0</span></div>
+          <div class="bin-op-line"></div>
+          <div class="bin-op-row"><span class="bin-op-sym">&nbsp;</span><span class="b-red mono">1</span><span class="bin-op-res mono"> 0 1 1 1 1 1 1 0</span></div>
+        </div>
+        </div>
+        <p class="exam-text">El resultado tiene 9 bits, asi que hay <strong class="b-gold">carry out = 1</strong> y los 8 bits guardados son <span class="mono">10111110</span>.</p>
+        <div class="exam-panel">
+          <strong>Ojo con la duda del prestamo</strong>
+          <p>En este paso no mires 1 arriba y 0 abajo como si fuera una resta manual. Aca ya estamos haciendo una suma binaria comun: A + Ca1(B).</p>
+        </div>
+      </div>
+
+      <div class="exam-step" data-step-key="ops2-4">
+        <span class="exam-number">4</span>
+        <h4>Carry circular (end-around carry)</h4>
+        <div style="overflow-x:auto">
+        <div class="bin-op-box">
+          <div class="bin-op-row"><span class="bin-op-sym">&nbsp;</span><span class="mono">1 0 1 1 1 1 1 0</span></div>
+          <div class="bin-op-row"><span class="bin-op-sym" style="color:var(--gold)">+</span><span class="b-gold mono">0 0 0 0 0 0 0 1</span> <span style="font-size:0.85rem; color:var(--ink-soft)"><- carry circular</span></div>
+          <div class="bin-op-line"></div>
+          <div class="bin-op-row"><span class="bin-op-sym">&nbsp;</span><span class="bin-op-res mono">1 0 1 1 1 1 1 1</span></div>
+        </div>
+        </div>
+        <div class="exam-gold-note">En Ca1, el carry out no se descarta: se vuelve a sumar al resultado.</div>
+      </div>
+
+      <div class="exam-step" data-step-key="ops2-5">
+        <span class="exam-number">5</span>
+        <h4>Interpretar resultado y flags</h4>
+        <div class="exam-math small left">
+          Resultado: <span class="b-gold mono">10111111</span><br>
+          Signo = <span class="b-red">1</span> -> negativo en Ca1<br>
+          Ca1(10111111) = 01000000 = 64 -> <strong>-64</strong><sub>10</sub>
+        </div>
+        <div class="exam-math"><span class="exam-answer gold">10111111 = -64</span></div>
+
+        <div class="flags-grid" style="margin-top:12px">
+          <div class="flag-card">
+            <div class="flag-name">Z (Zero)</div>
+            <div class="flag-val is-zero">0</div>
+            <div class="flag-desc">resultado != 0</div>
+          </div>
+          <div class="flag-card">
+            <div class="flag-name">N (Sign)</div>
+            <div class="flag-val is-one">1</div>
+            <div class="flag-desc">MSB = 1</div>
+          </div>
+          <div class="flag-card">
+            <div class="flag-name">C (Carry)</div>
+            <div class="flag-val is-one">1</div>
+            <div class="flag-desc">carry out = 1</div>
+          </div>
+          <div class="flag-card">
+            <div class="flag-name">V (Overflow)</div>
+            <div class="flag-val is-zero">0</div>
+            <div class="flag-desc">carry in MSB xor carry out = 0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="exam-col">
+      <p class="exam-title">Que se aprende aca</p>
+      <div class="exam-gold-note">
+        <strong>Carry circular:</strong> En complemento a 1, si hay carry out del bit 7, ese carry se suma de vuelta al resultado. Ese paso extra es obligatorio.
+      </div>
+      <div class="exam-panel gold">
+        <strong>Por que no usamos prestamo manual</strong>
+        <p>Porque el metodo propio de Ca1 es transformar la resta en una suma. La logica del ejercicio no es "restar bits", sino "sumar con el complemento a 1".</p>
+      </div>
+      <div class="exam-panel green">
+        <strong>N - Negative</strong>
+        <p>MSB del resultado = 1, asi que el resultado almacenado es negativo en Ca1. Por eso <strong>N = 1</strong>.</p>
+      </div>
+      <div class="exam-panel purple">
+        <strong>C - Carry</strong>
+        <p>Hubo carry out del bit 7 antes del carry circular. Por eso <strong>C = 1</strong>.</p>
+      </div>
+      <div class="exam-panel">
+        <strong>V - Overflow</strong>
+        <p>El carry que entra al bit de signo y el carry que sale son iguales, asi que no hay overflow. Resultado: <strong>V = 0</strong>.</p>
+      </div>
+      <div class="exam-summary">
+        <h5>Resultado final</h5>
+        <ol>
+          <li>Resultado binario Ca1: <strong>10111111</strong></li>
+          <li>Decimal: <strong>-64</strong></li>
+          <li>Flags: <strong>Z=0, N=1, C=1, V=0</strong></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+</template>
+
+<!-- ══════════════════════════════════════
+     SCRIPT
+══════════════════════════════════════ -->
+<script>
+const topics = {
+  pf: {
+    title: "Punto Fijo",
+    eyebrow: "Representación numérica",
+    desc: "Conversión entre números decimales y su representación BCH en formato de punto fijo. La posición del punto binario es fija y definida por el formato.",
+    exercises: [
+      { id: "pf-1", label: "Ejercicio 01", name: "Decimal → BCH", desc: "Convertir −12,85951 al formato BCH con 1 bit signo, 4 bits enteros y 11 bits fraccionarios.", template: "tpl-pf-1" },
+      { id: "pf-2", label: "Ejercicio 02", name: "BCH → Decimal", desc: "Interpretar el BCH 5B7C con formato 1 bit signo, 6 bits enteros y 9 bits fraccionarios.", template: "tpl-pf-2" }
+    ]
+  },
+  pfl: {
+    title: "Punto Flotante",
+    eyebrow: "Representación numérica",
+    desc: "Representación en notación científica binaria. El número se guarda con un bit de signo, un exponente sesgado (bias) y una mantisa normalizada.",
+    exercises: [
+      { id: "pfl-1", label: "Ejercicio 03", name: "Decimal → BCH", desc: "Convertir −0,3232421875 al formato BCH con 1 bit signo, 5 bits exponente y 10 bits mantisa.", template: "tpl-pfl-1" },
+      { id: "pfl-2", label: "Ejercicio 04", name: "BCH → Decimal", desc: "Interpretar el BCH 4C12 con formato 1 bit signo, 4 bits exponente y 11 bits mantisa.", template: "tpl-pfl-2" }
+    ]
+  },
+  ops: {
+    title: "Suma y Resta",
+    eyebrow: "Operaciones aritméticas binarias",
+    desc: "Operaciones bit a bit en complemento a 2 (C2) y complemento a 1 (Ca1), con análisis de los cuatro flags aritméticos: Zero, Negative, Carry y Overflow.",
+    exercises: [
+      { id: "ops-1", label: "Ejercicio 05", name: "Suma en C2", desc: "Sumar 00110001 + 01001001 en complemento a 2 e indicar el estado de todos los flags.", template: "tpl-ops-1" },
+      { id: "ops-guide", label: "Ejercicio guia", name: "Resta guiada en 8 bits", desc: "Aprender a pedir prestado bit a bit y luego leer Carry y Overflow en una resta de 8 bits.", template: "tpl-ops-guide" },
+      { id: "ops-2", label: "Ejercicio 06", name: "Resta en Ca1", desc: "Restar 11101100 − 00101101 en complemento a 1 e indicar el estado de todos los flags.", template: "tpl-ops-2" }
+    ]
+  }
+};
+
+const pillColors = { pf: "", pfl: "red", ops: "green" };
+
+const screenHome = document.getElementById("screen-home");
+const screenTopic = document.getElementById("screen-topic");
+const screenExercise = document.getElementById("screen-exercise");
+const crumbsEl = document.getElementById("crumbs");
+const topicEyebrow = document.getElementById("topic-eyebrow");
+const topicTitle = document.getElementById("topic-title");
+const topicCopy = document.getElementById("topic-copy");
+const exerciseList = document.getElementById("exercise-list");
+const exerciseFrame = document.getElementById("exercise-frame");
+const btnBackTopic = document.getElementById("btn-back-topic");
+const donationSection = document.getElementById("donation-section");
+const btnCopyAlias = document.getElementById("btn-copy-alias");
+const copyFeedback = document.getElementById("copy-feedback");
+const modalCopyFeedback = document.getElementById("modal-copy-feedback");
+const donationModal = document.getElementById("donation-modal");
+const btnCloseDonationModal = document.getElementById("btn-close-donation-modal");
+const btnModalCloseSecondary = document.getElementById("btn-modal-close-secondary");
+const btnModalDonations = document.getElementById("btn-modal-donations");
+const btnModalCopy = document.getElementById("btn-modal-copy");
+
+const DONATION_ALIAS = "estudio.juegos.piano";
+
+let currentTopicId = null;
+let donationPromptDismissed = false;
+let donationSectionVisited = false;
+
+function activateScreen(id, options = {}) {
+  const { scrollToTop = true } = options;
+  [screenHome, screenTopic, screenExercise].forEach(s => s.classList.remove("is-active"));
+  document.getElementById("screen-" + id).classList.add("is-active");
+  if (scrollToTop) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}
+
+function setCrumbs(txt) { crumbsEl.innerHTML = txt; }
+
+function closeDonationModal(shouldDismiss = true) {
+  if (shouldDismiss) {
+    donationPromptDismissed = true;
+  }
+  donationModal.classList.remove("is-open");
+  donationModal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
+}
+
+function openDonationModal() {
+  if (donationPromptDismissed || donationSectionVisited) return;
+  donationModal.classList.add("is-open");
+  donationModal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+}
+
+function goToDonations() {
+  donationSectionVisited = true;
+  closeDonationModal();
+  currentTopicId = null;
+  setCrumbs("Inicio / Donaciones");
+  activateScreen("home", { scrollToTop: false });
+  requestAnimationFrame(() => {
+    donationSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+
+async function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const helper = document.createElement("textarea");
+  helper.value = text;
+  helper.setAttribute("readonly", "");
+  helper.style.position = "fixed";
+  helper.style.opacity = "0";
+  helper.style.pointerEvents = "none";
+  document.body.appendChild(helper);
+  helper.select();
+  const didCopy = document.execCommand("copy");
+  document.body.removeChild(helper);
+
+  if (!didCopy) {
+    throw new Error("copy_failed");
+  }
+}
+
+async function handleAliasCopy(feedbackEl) {
+  try {
+    await copyText(DONATION_ALIAS);
+    feedbackEl.textContent = "Alias copiado.";
+  } catch (error) {
+    feedbackEl.textContent = "No pude copiarlo automaticamente. Alias: " + DONATION_ALIAS;
+  }
+}
+
+function renderTopic(topicId) {
+  const t = topics[topicId];
+  if (!t) return;
+  currentTopicId = topicId;
+  topicEyebrow.textContent = t.eyebrow;
+  topicTitle.textContent = t.title;
+  topicCopy.textContent = t.desc;
+  setCrumbs("Inicio / " + t.title);
+
+  exerciseList.innerHTML = "";
+  t.exercises.forEach(ex => {
+    const btn = document.createElement("button");
+    btn.className = "exercise-card";
+    btn.innerHTML = `
+      <span class="exercise-pill">${ex.label}</span>
+      <p class="exercise-name">${ex.name}</p>
+      <p class="exercise-desc">${ex.desc}</p>
+    `;
+    btn.addEventListener("click", () => renderExercise(topicId, ex));
+    exerciseList.appendChild(btn);
+  });
+
+  activateScreen("topic");
+}
+
+function renderExercise(topicId, ex) {
+  const t = topics[topicId];
+  setCrumbs("Inicio / " + t.title + " / " + ex.label);
+  const tpl = document.getElementById(ex.template);
+  if (!tpl) return;
+  exerciseFrame.replaceChildren(tpl.content.cloneNode(true));
+  wireSteps(exerciseFrame);
+  activateScreen("exercise");
+}
+
+// Step explanations data
+const stepData = {
+  "pf1-1": {
+    plain: "Antes de convertir, identificamos el signo. El número es negativo, así que el bit de signo vale 1. Luego separamos la parte entera (12) de la fraccionaria (0,85951) para convertirlas por separado.",
+    formal: "En punto fijo con 1 bit de signo, el bit más significativo representa el signo: 0 = positivo, 1 = negativo. El resto de los bits representan el valor absoluto.",
+    focus: "Siempre separar primero el signo. Después trabajar con el valor absoluto."
+  },
+  "pf1-2": {
+    plain: "Para la parte entera, dividimos 12 por 2 repetidamente y leemos los restos de abajo hacia arriba. Necesitamos exactamente 4 bits, así que si el resultado tiene menos bits, completamos con ceros a la izquierda.",
+    formal: "La conversión de entero decimal a binario se realiza por divisiones sucesivas por 2. Los restos, leídos en orden inverso, forman el número binario.",
+    focus: "Siempre completar con ceros a la izquierda hasta alcanzar el número de bits del formato."
+  },
+  "pf1-3": {
+    plain: "Para la parte fraccionaria multiplicamos por 2 repetidamente. El dígito entero que sale en cada paso (0 o 1) es un bit de la parte fraccionaria. Los bits se leen de arriba hacia abajo.",
+    formal: "La conversión de fracción decimal a binaria se realiza por multiplicaciones sucesivas por 2. La parte entera de cada producto (0 o 1) forma los bits fraccionarios en orden de mayor a menor peso.",
+    focus: "A diferencia de la parte entera, los bits fraccionarios se leen de arriba hacia abajo (primer producto → bit de mayor peso)."
+  },
+  "pf1-4": {
+    plain: "Juntamos signo, parte entera y parte fraccionaria para formar los 16 bits completos. Luego agrupamos en grupos de 4 bits (nibbles) y convertimos cada grupo a su dígito hexadecimal correspondiente.",
+    formal: "BCH (Binary Coded Hexadecimal) agrupa 4 bits binarios en un dígito hexadecimal. Con 16 bits obtenemos 4 dígitos BCH.",
+    focus: "Al agrupar, empezar siempre desde la izquierda (bit de signo). Si los bits no son múltiplo de 4, completar con ceros a la izquierda."
+  },
+  "pf1-5": {
+    plain: "El resultado BCH final resume los 16 bits en 4 caracteres hexadecimales. Este es el número que se almacenaría en memoria para representar −12,85951 con este formato.",
+    formal: "La representación BCH E6E0 equivale a los 16 bits: 1110 0110 1110 0000, que con el formato 1+4+11 representa −12,85951.",
+    focus: "El resultado BCH es compacto y fácil de expresar. Cada dígito hex siempre equivale exactamente a 4 bits."
+  },
+  "pf2-1": {
+    plain: "Cada dígito hexadecimal se convierte a exactamente 4 bits binarios. Así 5B7C se transforma en una cadena de 16 bits.",
+    formal: "La conversión hex→binario es directa: cada dígito hex tiene un equivalente de 4 bits fijo (0=0000, 1=0001, ... F=1111).",
+    focus: "Esta conversión es mecánica y exacta. No hay aproximaciones: cada hex da exactamente 4 bits."
+  },
+  "pf2-2": {
+    plain: "Distribuimos los 16 bits según el formato del ejercicio: el primero es el signo, los siguientes 6 son la parte entera, y los 9 restantes son la fraccionaria.",
+    formal: "El formato 1+6+9 indica: bit 15 = signo, bits 14-9 = parte entera, bits 8-0 = parte fraccionaria.",
+    focus: "El formato del ejercicio determina cómo se distribuyen los bits. Sin el formato, no sabemos qué significa cada bit."
+  },
+  "pf2-3": {
+    plain: "La parte entera binaria se convierte a decimal sumando las potencias de 2 correspondientes a cada bit que vale 1.",
+    formal: "Para 101101₂: 1×2⁵ + 0×2⁴ + 1×2³ + 1×2² + 0×2¹ + 1×2⁰ = 32+8+4+1 = 45.",
+    focus: "El bit de mayor peso (izquierda) tiene la mayor potencia de 2. Siempre empezar desde la izquierda."
+  },
+  "pf2-4": {
+    plain: "La parte fraccionaria usa potencias negativas de 2. El primer bit tiene peso 2⁻¹ = 0,5, el segundo 2⁻² = 0,25, etc.",
+    formal: "Para 101111100₂: 1×2⁻¹ + 0×2⁻² + 1×2⁻³ + 1×2⁻⁴ + 1×2⁻⁵ + 1×2⁻⁶ + 1×2⁻⁷ + 0×2⁻⁸ + 0×2⁻⁹ = 0,7421875.",
+    focus: "Cada bit fraccionario agrega la mitad del anterior. 2⁻¹=0.5, 2⁻²=0.25, 2⁻³=0.125, etc."
+  },
+  "pf2-5": {
+    plain: "Sumamos parte entera y fraccionaria, y aplicamos el signo. Como el bit de signo era 0, el número es positivo.",
+    formal: "Resultado = (−1)^signo × (entera + fraccionaria) = (+1) × (45 + 0,7421875) = +45,7421875.",
+    focus: "El signo 0 = positivo, signo 1 = negativo. El valor absoluto es siempre la suma de parte entera y fraccionaria."
+  },
+  "pfl1-1": {
+    plain: "En punto flotante, el bit de signo funciona igual que en punto fijo. Luego trabajamos con el valor absoluto para la conversión.",
+    formal: "Bit de signo S=1 indica número negativo. El valor del número es: (−1)^S × 1.mantisa × 2^(exp_sesgado − bias).",
+    focus: "El signo en punto flotante no afecta el exponente ni la mantisa. Se aplica al final."
+  },
+  "pfl1-2": {
+    plain: "Convertimos la parte fraccionaria del número a binario usando multiplicaciones por 2. Como el número es menor que 1, todos los dígitos resultantes serán en la parte fraccionaria.",
+    formal: "El proceso de multiplicación por 2 extrae los bits de la representación binaria fraccionaria, del más significativo al menos significativo.",
+    focus: "El número 0,3232421875 es exactamente representable en binario (llega a 0). Cuando el proceso termina exactamente, el número tiene representación binaria finita."
+  },
+  "pfl1-3": {
+    plain: "Mover el punto binario hasta que quede '1,algo'. Como el número era 0,0... hay que mover el punto 2 posiciones a la derecha, lo que equivale a multiplicar por 2², así el exponente real es −2.",
+    formal: "Normalización: 0,0101001011₂ = 1,01001011 × 2⁻². El exponente real es −2. La mantisa (sin el 1 implícito) son los 10 primeros bits: 0100101100.",
+    focus: "El '1 implícito' no se guarda porque siempre está ahí en la representación normalizada. Esto da un bit extra de precisión gratis."
+  },
+  "pfl1-4": {
+    plain: "El exponente sesgado permite representar exponentes negativos sin usar un bit de signo adicional. Con 5 bits y bias=15, el exponente sesgado va de 0 a 31, representando exponentes reales de −15 a +16.",
+    formal: "bias = 2^(n−1) − 1 = 2⁴ − 1 = 15. exp_sesgado = e + bias = −2 + 15 = 13. En binario de 5 bits: 01101.",
+    focus: "El bias siempre es 2^(bits_exp−1) − 1. Con 5 bits: bias=15. Con 4 bits: bias=7. Con 8 bits: bias=127."
+  },
+  "pfl1-5": {
+    plain: "Juntamos los bits: signo, exponente sesgado en 5 bits, mantisa en 10 bits. Total: 16 bits. Agrupamos de 4 en 4 para obtener el BCH.",
+    formal: "16 bits: 1 01101 0100101100 → agrupado: 1011 0101 0010 1100 → BCH: B52C.",
+    focus: "Al agrupar en nibbles para el BCH, se mezclan campos. No pasa nada: el BCH es solo una forma compacta de expresar los bits."
+  },
+  "pfl2-1": {
+    plain: "El proceso inverso empieza igual: convertir cada dígito hexadecimal a sus 4 bits binarios equivalentes.",
+    formal: "4→0100, C→1100, 1→0001, 2→0010. Concatenando: 0100 1100 0001 0010.",
+    focus: "La conversión hex→binario es directa y sin aproximación. Memorizar los 16 equivalentes (0-F) agiliza mucho el proceso."
+  },
+  "pfl2-2": {
+    plain: "Distribuimos los 16 bits según el formato: 1 de signo, 4 de exponente, 11 de mantisa.",
+    formal: "Bit 15 (signo): 0. Bits 14-11 (exponente): 1001. Bits 10-0 (mantisa): 10000010010.",
+    focus: "Con distintos formatos (1+4+11, 1+5+10, 1+8+23) se obtienen distintas precisiones. El formato siempre define la interpretación."
+  },
+  "pfl2-3": {
+    plain: "El exponente sesgado guardado es 9. Para obtener el exponente real, restamos el bias (que con 4 bits es 7).",
+    formal: "exp_sesgado = 1001₂ = 9. bias = 2³ − 1 = 7. exp_real = 9 − 7 = 2.",
+    focus: "Con 4 bits de exponente, bias=7. Con 5 bits, bias=15. Con 8 bits (IEEE 754 simple), bias=127."
+  },
+  "pfl2-4": {
+    plain: "Reconstruimos el número: agregamos el 1 implícito antes de la mantisa y desplazamos el punto binario 2 posiciones a la derecha (porque el exponente es 2).",
+    formal: "1.10000010010 × 2² = 110.00010010₂. El desplazamiento a la derecha equivale a multiplicar por 2².",
+    focus: "Desplazar el punto a la derecha n posiciones = multiplicar por 2ⁿ. A la izquierda = dividir por 2ⁿ."
+  },
+  "pfl2-5": {
+    plain: "Convertimos la parte entera (110₂ = 6) y la parte fraccionaria (00010010₂ = 0,0703125) a decimal. El signo era 0, así que el resultado es positivo.",
+    formal: "110₂ = 4+2 = 6. 00010010₂: 2⁻⁴ + 2⁻⁷ = 0,0625 + 0,0078125 = 0,0703125. Total: +6,0703125.",
+    focus: "Verificación: parece un valor razonable. Si el resultado fuera absurdo (millones o ceros), hay un error en el exponente o la mantisa."
+  },
+  "ops1-1": {
+    plain: "Primero leemos el bit de signo de cada operando. Como ambos son 0, los dos números son positivos en complemento a 2.",
+    formal: "En C2, el bit más significativo indica signo: 0 = positivo, 1 = negativo. Para números positivos, el valor en C2 es igual al valor binario directo.",
+    focus: "Que ambos sean positivos nos dice que el resultado debería ser positivo y menor que 128 (máximo en 8 bits con signo)."
+  },
+  "ops1-2": {
+    plain: "Sumamos bit a bit de derecha a izquierda, como en suma decimal pero en base 2. Cuando hay carry, lo propagamos a la siguiente columna.",
+    formal: "La suma binaria sigue la tabla: 0+0=0, 0+1=1, 1+0=1, 1+1=10 (0 y carry 1), 1+1+1=11 (1 y carry 1).",
+    focus: "El carry se propaga hacia la izquierda (bits de mayor peso). El carry que sale del MSB (bit 7) es el flag C."
+  },
+  "ops1-3": {
+    plain: "El resultado 01111010 tiene signo 0 (positivo). Convertimos a decimal para verificar: 64+32+16+8+2 = 122.",
+    formal: "01111010₂ = 0×2⁷+1×2⁶+1×2⁵+1×2⁴+1×2³+0×2²+1×2¹+0×2⁰ = 64+32+16+8+2 = 122.",
+    focus: "Verificación: 49 + 73 = 122. ✅ Coincide exactamente con la suma decimal."
+  },
+  "ops1-4": {
+    plain: "Los flags resumen el estado del resultado. Z vale 0 porque el resultado no es cero. N vale 0 porque es positivo. C vale 0 porque no hubo carry final. V vale 0 porque no hay desborde.",
+    formal: "Z = (resultado == 0). N = MSB del resultado. C = carry saliente del bit 7. V = C₇ ⊕ C₈ donde C₇ es carry entrante al MSB y C₈ es carry saliente del MSB.",
+    focus: "El overflow (V) detecta si la operación produce un resultado que no entra en el rango representable. V=1 indica un error aritmético."
+  },
+  "opsg-1": {
+    plain: "La resta binaria se hace de derecha a izquierda. Cuando aparece 0 - 1, no se puede seguir y primero hay que pedir prestado a la izquierda.",
+    formal: "Las cuentas basicas son 0-0=0, 1-0=1, 1-1=0 y 0-1 requiere un prestamo. Ese prestamo agrega un 2 binario a la columna actual.",
+    focus: "La primera pregunta siempre es: en esta columna se puede restar directamente o necesito pedir prestado."
+  },
+  "opsg-2": {
+    plain: "En 10000000 - 00000001, el bit menos significativo hace 0 - 1. Como a su izquierda hay solo ceros, el prestamo viaja hasta el 1 del extremo izquierdo.",
+    formal: "El 1 de la columna 7 se reduce a 0. Cada 0 intermedio recibe 10, presta 1 a la derecha y por eso queda valiendo 1. La ultima columna recibe 10 y recien ahi puede hacer 10 - 1.",
+    focus: "Cuando el prestamo atraviesa varios ceros, esos ceros cambian de valor. No hay que seguir mirando la fila original."
+  },
+  "opsg-3": {
+    plain: "Despues de reescribir los bits por el prestamo, la cuenta ya es mecanica: 10 - 1 = 1 en la ultima columna, 1 - 0 = 1 en las columnas del medio y 0 - 0 = 0 en la primera.",
+    formal: "Tras el ajuste, la fila superior queda 0 1 1 1 1 1 1 10 y la inferior 0 0 0 0 0 0 0 1. El resultado es 01111111.",
+    focus: "Primero se corrige el prestamo y despues se resta. No hay que mezclar ambos pasos al mismo tiempo."
+  },
+  "opsg-4": {
+    plain: "Si ves un 1 arriba y un 0 abajo, eso no siempre significa 1 - 0 = 1. Ese 1 podria haberse gastado en un prestamo anterior, o podria provenir de un 0 que recibio y luego presto.",
+    formal: "Una columna puede cambiar antes de resolverse: 1 -> 0 si presta; 0 -> 10 -> 1 si recibe y luego presta. Por eso cada columna se evalua con su valor actualizado, no con el original.",
+    focus: "La duda tipica se resuelve asi: antes de restar, miras si la columna fue modificada por un prestamo."
+  },
+  "opsg-5": {
+    plain: "La resta manual da 01111111, pero para los flags de C2 conviene reescribirla como suma con complemento a 2. Eso muestra que hay carry out y tambien overflow.",
+    formal: "00000001 en C2 se transforma en 11111111. Entonces 10000000 + 11111111 = 1 01111111. El carry out vale 1 y hay overflow porque -128 - 1 = -129 queda fuera del rango [-128,127].",
+    focus: "Carry y Overflow no dicen lo mismo: Carry habla del bit extra que sale, Overflow habla de si el resultado con signo entro o no en el rango."
+  },
+  "ops2-1": {
+    plain: "A tiene signo 1, asi que es negativo en Ca1. Para conocer su valor decimal, invertimos todos sus bits y leemos el positivo correspondiente.",
+    formal: "En Ca1, un numero negativo se obtiene invirtiendo todos los bits del positivo. Como Ca1(11101100) = 00010011 = 19, se concluye que A = -19.",
+    focus: "Este paso no resuelve la resta todavia. Solo traduce los operandos para saber que cuenta decimal estamos modelando."
+  },
+  "ops2-2": {
+    plain: "En Ca1, la resta no sigue la mecanica del prestamo bit a bit. Se reemplaza por una suma: A - B = A + Ca1(B).",
+    formal: "Ca1(B) es el complemento a 1 de B y se obtiene invirtiendo cada bit. Para B = 00101101, se obtiene Ca1(B) = 11010010.",
+    focus: "El punto clave del ejercicio es cambiar de metodo: dejar de pensar en resta manual y pasar a suma binaria."
+  },
+  "ops2-3": {
+    plain: "Ahora solo sumamos. Si aparece un noveno bit a la izquierda, ese carry out se guarda porque hara falta en el paso siguiente.",
+    formal: "11101100 + 11010010 = 1 10111110. Los 8 bits guardados son 10111110 y el bit extra indica carry out = 1.",
+    focus: "Aca no interviene ningun prestamo. Es una suma comun entre dos palabras de 8 bits."
+  },
+  "ops2-4": {
+    plain: "El carry circular es la marca propia de Ca1. El bit extra que salio por la izquierda vuelve a entrar por la derecha sumando 1.",
+    formal: "Si el carry out vale 1, entonces resultado_final = resultado_8bits + 1. Por eso 10111110 pasa a 10111111.",
+    focus: "Sin este ajuste, el resultado quedaria corrido en una unidad y la representacion Ca1 seria incorrecta."
+  },
+  "ops2-5": {
+    plain: "El resultado final tiene signo 1, asi que es negativo. Para leerlo, invertimos 10111111 y obtenemos 01000000 = 64, de modo que el resultado es -64.",
+    formal: "La cuenta decimal coincide: -19 - 45 = -64. Los flags quedan Z=0 porque el resultado no es cero, N=1 por el bit de signo, C=1 por el carry out y V=0 porque no hubo desborde de signo.",
+    focus: "Este cierre verifica dos cosas a la vez: el valor numerico es correcto y los flags tambien."
+  }
+};
+
+function wireSteps(scope) {
+  scope.querySelectorAll("[data-step-key]").forEach(step => {
+    const key = step.dataset.stepKey;
+    const data = stepData[key];
+    if (!data) return;
+
+    step.setAttribute("tabindex", "0");
+    step.setAttribute("role", "button");
+    step.setAttribute("aria-expanded", "false");
+
+    if (!step.querySelector(".exam-step-hint")) {
+      const hint = document.createElement("div");
+      hint.className = "exam-step-hint";
+      hint.textContent = "Click para ver explicación";
+      step.appendChild(hint);
+    }
+    if (!step.querySelector(".exam-step-explain")) {
+      const ex = document.createElement("div");
+      ex.className = "exam-step-explain";
+      ex.innerHTML = `
+        <div class="exam-explain-grid">
+          <div class="exam-explain-card"><strong>En palabras</strong><p>${data.plain}</p></div>
+          <div class="exam-explain-card"><strong>Formal</strong><p>${data.formal}</p></div>
+          <div class="exam-explain-card"><strong>Idea clave</strong><p>${data.focus}</p></div>
+        </div>`;
+      step.appendChild(ex);
+    }
+
+    const toggle = () => {
+      const isOpen = step.classList.toggle("is-open");
+      step.setAttribute("aria-expanded", String(isOpen));
+    };
+    step.addEventListener("click", e => {
+      if (window.getSelection && window.getSelection().toString()) return;
+      toggle();
+    });
+    step.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+    });
+  });
+}
+
+// NAV
+document.querySelectorAll("[data-topic]").forEach(btn => {
+  btn.addEventListener("click", () => renderTopic(btn.dataset.topic));
+});
+document.querySelectorAll("[data-go-home]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    closeDonationModal(false);
+    currentTopicId = null;
+    setCrumbs("Inicio / Elegí un tema");
+    activateScreen("home");
+  });
+});
+document.querySelectorAll("[data-go-donations]").forEach(btn => {
+  btn.addEventListener("click", goToDonations);
+});
+btnBackTopic.addEventListener("click", () => {
+  if (currentTopicId) renderTopic(currentTopicId);
+  else activateScreen("home");
+});
+btnCopyAlias.addEventListener("click", () => handleAliasCopy(copyFeedback));
+btnModalCopy.addEventListener("click", () => handleAliasCopy(modalCopyFeedback));
+btnModalDonations.addEventListener("click", goToDonations);
+btnCloseDonationModal.addEventListener("click", closeDonationModal);
+btnModalCloseSecondary.addEventListener("click", closeDonationModal);
+donationModal.addEventListener("click", e => {
+  if (e.target === donationModal) closeDonationModal();
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && donationModal.classList.contains("is-open")) {
+    closeDonationModal();
+  }
+});
+window.setTimeout(openDonationModal, 30000);
+</script>
+</body>
+</html>
