@@ -1,0 +1,2903 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assembler Ejercicios resueltos MIMO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=DM+Serif+Display&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #07070e;
+            --surface: #0e0e1a;
+            --surface2: #151525;
+            --accent: #e8a525;
+            --accent2: #00e87b;
+            --accent3: #5b8aff;
+            --text: #ddd8cc;
+            --text-muted: #706a60;
+            --danger: #ff4466;
+            --code-bg: #0a0a15;
+            --border: #1e1e30;
+            --glow: rgba(232, 165, 37, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Source Serif 4', Georgia, serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            font-size: 17px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ─── Layout ─── */
+        .layout {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ─── Sidebar ─── */
+        .sidebar {
+            width: 280px;
+            min-width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 30px 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .sidebar-logo {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .sidebar-logo h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 20px;
+            color: var(--accent);
+            letter-spacing: 0.02em;
+        }
+
+        .sidebar-logo p {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: 'IBM Plex Mono', monospace;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .nav-group {
+            padding: 8px 16px;
+        }
+
+        .nav-group-title {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--accent);
+            padding: 8px 8px 6px;
+            opacity: 0.7;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 7px 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13.5px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-family: 'Source Serif 4', serif;
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+            background: rgba(232, 165, 37, 0.06);
+        }
+
+        .nav-link.active {
+            color: var(--accent);
+            background: var(--glow);
+        }
+
+        /* ─── Main ─── */
+        .main {
+            flex: 1;
+            max-width: 880px;
+            padding: 50px 60px 120px;
+        }
+
+        /* ─── Typography ─── */
+        h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 36px;
+            color: var(--accent);
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        h3 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 24px;
+            color: var(--text);
+            margin: 40px 0 12px;
+        }
+
+        h4 {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent2);
+            margin: 28px 0 10px;
+        }
+
+        .section-subtitle {
+            font-size: 18px;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            font-style: italic;
+        }
+
+        p { margin-bottom: 16px; }
+
+        .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .green { color: var(--accent2); }
+        .blue { color: var(--accent3); }
+        .red { color: var(--danger); }
+
+        /* ─── Dividers ─── */
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+            margin: 60px 0 40px;
+            opacity: 0.3;
+        }
+
+        /* ─── Code blocks ─── */
+        pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 8px;
+            padding: 20px 24px;
+            overflow-x: auto;
+            margin: 16px 0 24px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #c0bbb0;
+        }
+
+        code {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.88em;
+            background: var(--surface2);
+            padding: 2px 7px;
+            border-radius: 4px;
+            color: var(--accent2);
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            font-size: inherit;
+        }
+
+        .code-comment { color: #55504a; }
+        .code-keyword { color: var(--accent); }
+        .code-value { color: var(--accent2); }
+        .code-reg { color: var(--accent3); }
+        .code-label { color: #d4a0ff; }
+        .code-string { color: #ff8866; }
+        .code-directive { color: #ff66aa; }
+
+        /* ─── Tables ─── */
+        .table-wrap {
+            overflow-x: auto;
+            margin: 20px 0 28px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            background: var(--surface2);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 10px 16px;
+            border-bottom: 1px solid rgba(30, 30, 48, 0.6);
+            vertical-align: top;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        tr:hover td {
+            background: rgba(232, 165, 37, 0.03);
+        }
+
+        td code {
+            font-size: 13px;
+        }
+
+        /* ─── Info/Note Boxes ─── */
+        .note {
+            background: linear-gradient(135deg, rgba(232, 165, 37, 0.08) 0%, rgba(232, 165, 37, 0.02) 100%);
+            border: 1px solid rgba(232, 165, 37, 0.2);
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin: 20px 0 28px;
+        }
+
+        .note-title {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .tip {
+            background: linear-gradient(135deg, rgba(0, 232, 123, 0.08) 0%, rgba(0, 232, 123, 0.02) 100%);
+            border: 1px solid rgba(0, 232, 123, 0.2);
+        }
+
+        .tip .note-title { color: var(--accent2); }
+
+        .warning {
+            background: linear-gradient(135deg, rgba(255, 68, 102, 0.08) 0%, rgba(255, 68, 102, 0.02) 100%);
+            border: 1px solid rgba(255, 68, 102, 0.2);
+        }
+
+        .warning .note-title { color: var(--danger); }
+
+        /* ─── Register Visualization ─── */
+        .reg-vis {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 24px 0;
+        }
+
+        .reg-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            min-width: 160px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .reg-box.changed {
+            border-color: var(--accent2);
+            box-shadow: 0 0 20px rgba(0, 232, 123, 0.15);
+        }
+
+        .reg-name {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            color: var(--accent);
+            margin-bottom: 8px;
+            letter-spacing: 0.1em;
+        }
+
+        .reg-value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .reg-hex {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .reg-parts {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border);
+        }
+
+        .reg-part {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .reg-part span {
+            color: var(--accent3);
+            font-weight: 600;
+        }
+
+        /* ─── Step-by-step ─── */
+        .step-container {
+            margin: 24px 0;
+        }
+
+        .step {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .step.active-step {
+            border-color: var(--accent);
+            box-shadow: 0 0 30px var(--glow);
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .step.active-step .step-number {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        .step-code {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .step-arrow {
+            margin-left: auto;
+            color: var(--text-muted);
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .step.open .step-arrow { transform: rotate(90deg); }
+
+        .step-body {
+            display: none;
+            padding: 0 20px 20px 68px;
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .step.open .step-body { display: block; }
+
+        .step-result {
+            background: var(--code-bg);
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-top: 12px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+        }
+
+        .step-result .changed {
+            color: var(--accent2);
+            font-weight: 600;
+        }
+
+        /* ─── Analogy cards ─── */
+        .analogy {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0 28px;
+        }
+
+        .analogy-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .analogy-card h5 {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 10px;
+        }
+
+        .analogy-card.high h5 { color: var(--accent2); }
+        .analogy-card.low h5 { color: var(--accent); }
+
+        .analogy-card p {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* ─── Simulator ─── */
+        .simulator {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 24px 0;
+        }
+
+        .sim-header {
+            background: var(--surface2);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sim-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .sim-dot.red { background: #ff4466; }
+        .sim-dot.yellow { background: #e8a525; }
+        .sim-dot.green { background: #00e87b; }
+
+        .sim-title {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: 8px;
+        }
+
+        .sim-body {
+            padding: 24px;
+        }
+
+        .sim-input-area {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .sim-input-area textarea {
+            flex: 1;
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            color: var(--text);
+            resize: vertical;
+            min-height: 120px;
+            outline: none;
+            line-height: 1.7;
+        }
+
+        .sim-input-area textarea:focus {
+            border-color: var(--accent);
+        }
+
+        .sim-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.05em;
+            padding: 10px 20px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            border-color: var(--accent);
+            background: var(--glow);
+            color: var(--accent);
+        }
+
+        .btn.primary {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
+
+        .btn.primary:hover {
+            background: #d09420;
+        }
+
+        .btn.danger {
+            border-color: rgba(255, 68, 102, 0.3);
+        }
+
+        .btn.danger:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: rgba(255, 68, 102, 0.1);
+        }
+
+        .sim-registers {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .sim-reg {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+
+        .sim-reg.flash {
+            border-color: var(--accent2);
+            box-shadow: 0 0 15px rgba(0, 232, 123, 0.2);
+        }
+
+        .sim-reg-name {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: var(--accent);
+            letter-spacing: 0.1em;
+        }
+
+        .sim-reg-val {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            margin-top: 4px;
+        }
+
+        .sim-log {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            line-height: 1.9;
+            color: var(--text-muted);
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .sim-log::-webkit-scrollbar { width: 4px; }
+        .sim-log::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .log-line { padding: 2px 0; }
+        .log-line .changed { color: var(--accent2); font-weight: 600; }
+        .log-line.error { color: var(--danger); }
+        .log-line.info { color: var(--accent3); }
+
+        /* ─── Memory viewer ─── */
+        .mem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 4px;
+            margin: 16px 0;
+        }
+
+        .mem-cell {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 8px 6px;
+            text-align: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+        }
+
+        .mem-cell .addr {
+            font-size: 10px;
+            color: var(--text-muted);
+            display: block;
+        }
+
+        .mem-cell .val {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .mem-cell.highlighted {
+            border-color: var(--accent2);
+            background: rgba(0, 232, 123, 0.08);
+        }
+
+        /* ─── Converter ─── */
+        .converter {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .converter-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .converter-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--accent);
+            width: 50px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .converter input {
+            flex: 1;
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+        }
+
+        .converter input:focus {
+            border-color: var(--accent);
+        }
+
+        /* ─── Analogy diagram ─── */
+        .diagram-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px;
+            margin: 24px 0;
+            text-align: center;
+        }
+
+        .diagram-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin: 12px 0;
+            flex-wrap: wrap;
+        }
+
+        .diagram-item {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 20px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+        }
+
+        .diagram-arrow {
+            color: var(--accent);
+            font-size: 24px;
+        }
+
+        /* ─── Collapsible ─── */
+        .collapsible {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+
+        .collapsible-header {
+            padding: 16px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .collapsible-header:hover {
+            background: rgba(232, 165, 37, 0.04);
+        }
+
+        .collapsible-icon {
+            color: var(--accent);
+            font-size: 18px;
+            transition: transform 0.3s;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .collapsible.open .collapsible-icon {
+            transform: rotate(90deg);
+        }
+
+        .collapsible-title {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .collapsible-body {
+            display: none;
+            padding: 0 20px 20px 48px;
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .collapsible.open .collapsible-body { display: block; }
+
+        /* ─── Visual bit ─── */
+        .bit-display {
+            display: flex;
+            gap: 2px;
+            justify-content: center;
+            margin: 16px 0;
+        }
+
+        .bit {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 4px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .bit.one {
+            background: rgba(0, 232, 123, 0.15);
+            border-color: var(--accent2);
+            color: var(--accent2);
+        }
+
+        .bit.zero {
+            background: rgba(112, 106, 96, 0.1);
+            color: var(--text-muted);
+        }
+
+        .bit-label {
+            display: flex;
+            gap: 2px;
+            justify-content: center;
+            margin-top: 4px;
+        }
+
+        .bit-label span {
+            width: 36px;
+            text-align: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        /* ─── Process flow ─── */
+        .flow {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .flow-step {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 20px;
+            text-align: center;
+        }
+
+        .flow-step .label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--accent);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .flow-step .value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            color: var(--text);
+            margin-top: 4px;
+        }
+
+        .flow-arrow {
+            color: var(--accent);
+            font-size: 20px;
+        }
+
+        /* ─── Responsive ─── */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 100;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--accent);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 900px) {
+            .mobile-menu-toggle { display: block; }
+
+            .sidebar {
+                position: fixed;
+                left: -300px;
+                top: 0;
+                height: 100vh;
+                z-index: 99;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.open { left: 0; }
+
+            .main {
+                padding: 60px 24px 80px;
+            }
+
+            .analogy { grid-template-columns: 1fr; }
+
+            .sim-registers { grid-template-columns: repeat(2, 1fr); }
+
+            .reg-vis { flex-direction: column; }
+        }
+
+        /* ─── Animations ─── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            animation: fadeUp 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        .animate-in:nth-child(2) { animation-delay: 0.1s; }
+        .animate-in:nth-child(3) { animation-delay: 0.2s; }
+        .animate-in:nth-child(4) { animation-delay: 0.3s; }
+
+        /* ─── Tooltips ─── */
+        .tooltip-term {
+            border-bottom: 1px dashed var(--accent);
+            cursor: help;
+            position: relative;
+        }
+
+        /* ─── List ─── */
+        ul, ol {
+            padding-left: 24px;
+            margin: 12px 0 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+
+        li strong {
+            color: var(--text);
+        }
+
+        /* ─── Equation ─── */
+        .equation {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 24px;
+            margin: 16px 0;
+            text-align: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 16px;
+            color: var(--accent);
+        }
+
+        /* ─── Formula table ─── */
+        .formula-inline {
+            display: inline-block;
+            background: var(--surface2);
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            color: var(--accent);
+        }
+
+        /* exercise card */
+        .exercise-card {
+            background: linear-gradient(135deg, rgba(91, 138, 255, 0.06) 0%, rgba(91, 138, 255, 0.01) 100%);
+            border: 1px solid rgba(91, 138, 255, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .exercise-card .ex-title {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent3);
+            margin-bottom: 8px;
+        }
+
+        .exercise-card .ex-desc {
+            font-size: 15px;
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+
+        .exercise-card .ex-desc em {
+            color: var(--accent);
+            font-style: normal;
+        }
+
+        /* Donation prompt */
+        .donation-launch{
+          display:block;width:calc(100% - 24px);margin:10px 12px 6px;
+          padding:10px 12px;border:0;border-radius:8px;
+          background:linear-gradient(135deg,#39e88a,#e8a525);
+          color:#08110b;font:inherit;font-weight:700;cursor:pointer;
+          box-shadow:0 10px 20px rgba(0,0,0,.18);
+          transition:transform .18s ease,opacity .18s ease;
+        }
+        .donation-launch:hover{transform:translateY(-1px);opacity:.96}
+        .donation-backdrop{
+          position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+          padding:18px;background:rgba(4,6,10,.72);backdrop-filter:blur(8px);z-index:400;
+        }
+        .donation-backdrop.is-open{display:flex}
+        .donation-card{
+          position:relative;width:min(540px,100%);padding:22px 22px 18px;
+          background:var(--surface);color:var(--text);
+          border:1px solid var(--border);border-radius:14px;
+          box-shadow:0 24px 60px rgba(0,0,0,.45);
+        }
+        .donation-kicker{
+          margin:0;font-family:'IBM Plex Mono',monospace;font-size:.68rem;
+          font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
+        }
+        .donation-card h3{
+          margin:.3rem 0 .6rem;color:var(--text);font-family:inherit;
+          font-size:1.5rem;line-height:1.2;
+        }
+        .donation-copy{
+          margin:0 0 .9rem;color:var(--text-muted);font-size:.95rem;line-height:1.5;
+        }
+        .donation-alias{
+          display:flex;align-items:center;justify-content:space-between;gap:12px;
+          padding:14px 16px;margin:12px 0 14px;
+          border:1px solid var(--border);border-radius:10px;background:var(--surface2);
+        }
+        .donation-alias-meta{display:grid;gap:4px}
+        .donation-alias-label{
+          font-family:'IBM Plex Mono',monospace;font-size:.68rem;
+          text-transform:uppercase;letter-spacing:.14em;color:var(--accent);
+        }
+        .donation-alias strong{
+          font-family:'IBM Plex Mono',monospace;font-size:1rem;word-break:break-word;
+        }
+        .donation-copy-btn,.donation-secondary{
+          appearance:none;border-radius:999px;border:1px solid var(--border);
+          background:rgba(255,255,255,.04);color:var(--text);padding:.65rem 1rem;
+          cursor:pointer;font:inherit;transition:transform .18s ease,border-color .18s ease,background .18s ease;
+        }
+        .donation-copy-btn{
+          background:linear-gradient(135deg,#39e88a,#e8a525);color:#08110b;
+          font-weight:700;border-color:transparent;white-space:nowrap;
+        }
+        .donation-copy-btn:hover,.donation-secondary:hover,.donation-close-btn:hover{transform:translateY(-1px)}
+        .donation-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+        .donation-close-btn{
+          position:absolute;top:10px;right:12px;border:0;background:transparent;
+          color:var(--text-muted);font-size:1.4rem;cursor:pointer;line-height:1;
+        }
+        .donation-feedback{
+          min-height:1.2em;margin-top:10px;color:#39e88a;font-size:.9rem;
+        }
+        @media(max-width:640px){
+          .donation-alias{flex-direction:column;align-items:flex-start}
+        }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+    <div class="layout">
+        <!-- ─── SIDEBAR ─── -->
+        <nav class="sidebar">
+            <div class="sidebar-logo">
+                <h1>Assembler Ejercicios resueltos MIMO</h1>
+                <p>Guía interactiva</p>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-group-title">Páginas</div>
+                <a href="index.html" class="nav-link">Parcial arqui 1 TyP</a>
+                <a href="index2.html" class="nav-link">Assembler Teórico</a>
+                <a href="index3.html" class="nav-link">Assembler Práctico MIMO</a>
+                <a href="index4.html" class="nav-link">Assembler Ejercicios resueltos MIMO</a>
+                <a href="index5.html" class="nav-link">Guía completa + ejercicios MIMO</a>
+                <a href="index6.html" class="nav-link">Guía completa Claude</a>
+                <button class="donation-launch" type="button" data-open-donations>Donaciones</button>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-group-title">Fundamentos</div>
+                <a href="#que-es" class="nav-link">¿Qué es Assembler?</a>
+                <a href="#registros" class="nav-link">Los Registros</a>
+                <a href="#numeros" class="nav-link">Sistemas Numéricos</a>
+                <a href="#signo" class="nav-link">Números con Signo</a>
+                <a href="#punto-flotante" class="nav-link">Punto Flotante</a>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-group-title">Instrucciones</div>
+                <a href="#mov" class="nav-link">MOV (Asignación)</a>
+                <a href="#aritmetica" class="nav-link">Aritmética (ADD, SUB...)</a>
+                <a href="#xchg" class="nav-link">XCHG (Intercambio)</a>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-group-title">Programas</div>
+                <a href="#estructura" class="nav-link">Estructura del Programa</a>
+                <a href="#variables" class="nav-link">Variables y Memoria</a>
+                <a href="#arreglos" class="nav-link">Arreglos y Strings</a>
+                <a href="#interrupciones" class="nav-link">Interrupciones</a>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-group-title">Ejercicios Resueltos</div>
+                <a href="#ej1" class="nav-link">Ej 1: Valores en Registros</a>
+                <a href="#ej2" class="nav-link">Ej 2: Copiar entre Registros</a>
+                <a href="#ej3" class="nav-link">Ej 3: Suma de Registros</a>
+                <a href="#ej4" class="nav-link">Ej 4: Año de Nacimiento</a>
+                <a href="#ej5" class="nav-link">Ej 5: Trazado Paso a Paso</a>
+                <a href="#ej6" class="nav-link">Ej 6: Expresión Compleja</a>
+                <a href="#ej7" class="nav-link">Ej 7: Variables</a>
+                <a href="#ej8" class="nav-link">Ej 8: Loop con Arreglo</a>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-group-title">Herramientas</div>
+                <a href="#convertidor" class="nav-link">Convertidor de Bases</a>
+                <a href="#simulador" class="nav-link">Simulador de Ejecución</a>
+                <a href="#cheatsheet" class="nav-link">Hoja de Referencia</a>
+            </div>
+        </nav>
+
+        <!-- ─── MAIN CONTENT ─── -->
+        <main class="main">
+
+            <!-- ═══════════════════════════════════════ -->
+            <!--    SECCIÓN: ¿QUÉ ES ASSEMBLER?          -->
+            <!-- ═══════════════════════════════════════ -->
+            <section id="que-es">
+                <h2>¿Qué es Assembler?</h2>
+                <p class="section-subtitle">El lenguaje más cercano al hardware que puedes aprender</p>
+
+                <p>Imagina que la CPU de tu computadora es una persona que <strong>solo entiende una lengua muy primitiva</strong>: secuencias de ceros y unos. Eso es el <span class="highlight">lenguaje de máquina</span>.</p>
+
+                <p>El <span class="highlight">Assembler</span> (o lenguaje ensamblador) es como un "traductor amigable" de ese lenguaje primitivo. Cada instrucción en Assembler equivale <strong>exactamente</strong> a una instrucción en lenguaje de máquina. No más, no menos.</p>
+
+                <div class="analogy">
+                    <div class="analogy-card high">
+                        <h5>Lenguaje de Alto Nivel (C++, Java...)</h5>
+                        <p>Una sola línea como <code>resultado = 5 + 2</code> puede convertirse en <strong>múltiples</strong> instrucciones de máquina internamente. El compilador decide cómo.</p>
+                    </div>
+                    <div class="analogy-card low">
+                        <h5>Assembler</h5>
+                        <p>Cada línea que escribes equivale a <strong>una sola</strong> instrucción de máquina. Tú controlas exactamente qué hace la CPU. Hay correspondencia 1 a 1.</p>
+                    </div>
+                </div>
+
+                <h3>¿Por qué es tan "raro"?</h3>
+                <p>Porque cada instrucción de bajo nivel hace <strong>una sola tarea básica</strong>: mover un dato, sumar dos números, comparar valores. La potencia de los procesadores viene de ejecutar <em>millones</em> de estas instrucciones simples por segundo.</p>
+
+                <p>Para sumar 5 + 2 en Assembler necesitas <strong>tres instrucciones</strong>:</p>
+
+                <pre><code><span class="code-keyword">mov</span> <span class="code-reg">ax</span>, <span class="code-value">5</span>        <span class="code-comment">; Paso 1: cargar el número 5 en el registro AX</span>
+<span class="code-keyword">add</span> <span class="code-reg">ax</span>, <span class="code-value">2</span>        <span class="code-comment">; Paso 2: sumarle 2 a AX (ahora AX = 7)</span>
+<span class="code-keyword">mov</span> resultado, <span class="code-reg">ax</span>  <span class="code-comment">; Paso 3: guardar el resultado en una variable</span></code></pre>
+
+                <p>En un lenguaje de alto nivel, eso sería simplemente: <code>resultado = 5 + 2</code>. Pero en Assembler <strong>tú ves exactamente lo que hace la CPU</strong>, paso por paso.</p>
+
+                <div class="note">
+                    <div class="note-title">¿Para qué sirve aprenderlo?</div>
+                    <p style="margin:0">Te permite entender cómo funciona un programa compilado a nivel del microprocesador. Sabrás qué "truco" usa el compilador por debajo cuando programas en C++ o Java.</p>
+                </div>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!--    SECCIÓN: REGISTROS                    -->
+            <!-- ═══════════════════════════════════════ -->
+            <section id="registros">
+                <h2>Los Registros</h2>
+                <p class="section-subtitle">La memoria rápida dentro de la CPU</p>
+
+                <p>Un <span class="highlight">registro</span> es un pequeño espacio de almacenamiento <strong>dentro de la propia CPU</strong>. Piensa en ellos como "variables súper rápidas" que el procesador usa directamente. A diferencia de las variables normales (que viven en la RAM), los registros están integrados en el chip.</p>
+
+                <p>En el procesador Intel 8086 hay <strong>4 registros de propósito general</strong>, cada uno de 16 bits. Cada registro se puede usar como un todo (16 bits) o dividir en dos mitades de 8 bits:</p>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Registro (16 bits)</th>
+                                <th>Parte Alta (8 bits)</th>
+                                <th>Parte Baja (8 bits)</th>
+                                <th>Significado</th>
+                                <th>Uso típico</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>AX</code></td>
+                                <td><code>AH</code></td>
+                                <td><code>AL</code></td>
+                                <td><strong>A</strong>cumulador</td>
+                                <td>Operaciones y resultados generales</td>
+                            </tr>
+                            <tr>
+                                <td><code>BX</code></td>
+                                <td><code>BH</code></td>
+                                <td><code>BL</code></td>
+                                <td><strong>B</strong>ase</td>
+                                <td>Direcciones de memoria</td>
+                            </tr>
+                            <tr>
+                                <td><code>CX</code></td>
+                                <td><code>CH</code></td>
+                                <td><code>CL</code></td>
+                                <td><strong>C</strong>ontador</td>
+                                <td>Bucles y conteos</td>
+                            </tr>
+                            <tr>
+                                <td><code>DX</code></td>
+                                <td><code>DH</code></td>
+                                <td><code>DL</code></td>
+                                <td><strong>D</strong>atos</td>
+                                <td>Operaciones de entrada/salida</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="note tip">
+                    <div class="note-title">Analogía</div>
+                    <p style="margin:0">Imagina que AX es un casillero con dos compartimentos: <strong>AH</strong> (la repisa de arriba) y <strong>AL</strong> (la repisa de abajo). Cada repisa guarda 8 bits. Puedes trabajar con las repisas por separado o con el casillero entero (16 bits).</p>
+                </div>
+
+                <h3>Visualización de AX con el valor 0057h</h3>
+
+                <p>Si ejecutamos <code>MOV AX, 0057h</code>, el registro queda así:</p>
+
+                <div class="bit-display">
+                    <div class="bit zero">0</div><div class="bit zero">0</div><div class="bit zero">0</div><div class="bit zero">0</div>
+                    <div class="bit zero">0</div><div class="bit zero">0</div><div class="bit zero">0</div><div class="bit zero">0</div>
+                    <div class="bit zero">0</div><div class="bit one">1</div><div class="bit zero">0</div><div class="bit one">1</div>
+                    <div class="bit zero">0</div><div class="bit one">1</div><div class="bit one">1</div><div class="bit one">1</div>
+                </div>
+                <div class="bit-label">
+                    <span>15</span><span>14</span><span>13</span><span>12</span>
+                    <span>11</span><span>10</span><span>9</span><span>8</span>
+                    <span>7</span><span>6</span><span>5</span><span>4</span>
+                    <span>3</span><span>2</span><span>1</span><span>0</span>
+                </div>
+
+                <div style="text-align:center; margin: 16px 0;">
+                    <span style="font-family:'IBM Plex Mono',monospace; color:var(--accent3);">← AH = 00h →</span>
+                    &nbsp;&nbsp;&nbsp;
+                    <span style="font-family:'IBM Plex Mono',monospace; color:var(--accent);">← AL = 57h →</span>
+                </div>
+
+                <p>El byte alto (AH) es <code>00000000</code> = 00h, y el byte bajo (AL) es <code>01010111</code> = 57h. Juntos forman <code>0057h</code>.</p>
+
+                <div class="note warning">
+                    <div class="note-title">Regla importante</div>
+                    <p style="margin:0">Los registros de propósito general (AX, BX, CX, DX) son los <strong>únicos</strong> que se pueden dividir en partes de 8 bits (AH, AL, etc.). Los demás registros solo manejan 16 bits completos.</p>
+                </div>
+
+                <h3>Reglas al usar registros</h3>
+                <ul>
+                    <li><strong>No mezclar tamaños:</strong> si usas <code>MOV AX, ...</code> estás trabajando con 16 bits. Si usas <code>MOV AL, ...</code> estás trabajando con 8 bits. No puedes hacer <code>MOV AL, BX</code> (mezclas 8 y 16 bits).</li>
+                    <li><strong>Los registros son volátiles:</strong> cuando escribes sobre un registro, el valor anterior se pierde permanentemente.</li>
+                </ul>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!--    SECCIÓN: SISTEMAS NUMÉRICOS           -->
+            <!-- ═══════════════════════════════════════ -->
+            <section id="numeros">
+                <h2>Sistemas Numéricos</h2>
+                <p class="section-subtitle">Binario, Decimal y Hexadecimal</p>
+
+                <p>En Assembler trabajamos con tres sistemas de numeración. Cada uno se identifica por una convención de escritura:</p>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Sistema</th>
+                                <th>Base</th>
+                                <th>Dígitos</th>
+                                <th>Identificación en Assembler</th>
+                                <th>Ejemplo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Decimal</strong></td>
+                                <td>10</td>
+                                <td>0-9</td>
+                                <td>Se escribe normalmente</td>
+                                <td><code>25</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Binario</strong></td>
+                                <td>2</td>
+                                <td>0-1</td>
+                                <td>Se agrega <code>b</code> al final</td>
+                                <td><code>11001b</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hexadecimal</strong></td>
+                                <td>16</td>
+                                <td>0-9, A-F</td>
+                                <td>Se agrega <code>h</code> al final</td>
+                                <td><code>19h</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Tabla de equivalencias</h3>
+                <p>Esta tabla es <strong>fundamental</strong>. Memorízala o tenla siempre a mano:</p>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Binario</th>
+                                <th>Decimal</th>
+                                <th>Hexadecimal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>0000</td><td>0</td><td>0</td></tr>
+                            <tr><td>0001</td><td>1</td><td>1</td></tr>
+                            <tr><td>0010</td><td>2</td><td>2</td></tr>
+                            <tr><td>0011</td><td>3</td><td>3</td></tr>
+                            <tr><td>0100</td><td>4</td><td>4</td></tr>
+                            <tr><td>0101</td><td>5</td><td>5</td></tr>
+                            <tr><td>0110</td><td>6</td><td>6</td></tr>
+                            <tr><td>0111</td><td>7</td><td>7</td></tr>
+                            <tr><td>1000</td><td>8</td><td>8</td></tr>
+                            <tr><td>1001</td><td>9</td><td>9</td></tr>
+                            <tr><td>1010</td><td>10</td><td>A</td></tr>
+                            <tr><td>1011</td><td>11</td><td>B</td></tr>
+                            <tr><td>1100</td><td>12</td><td>C</td></tr>
+                            <tr><td>1101</td><td>13</td><td>D</td></tr>
+                            <tr><td>1110</td><td>14</td><td>E</td></tr>
+                            <tr><td>1111</td><td>15</td><td>F</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="note tip">
+                    <div class="note-title">Truco</div>
+                    <p style="margin:0">Cada dígito hexadecimal representa exactamente 4 bits (un "nibble"). Así puedes convertir fácilmente: <code>9E5Ch</code> = <code>1001 1110 0101 1100</code> b, simplemente reemplazando cada dígito hexa por su equivalente binario de 4 bits.</p>
+                </div>
+
+                <h3>Convertidor interactivo</h3>
+                <div id="convertidor" class="converter">
+                    <div class="converter-row">
+                        <span class="converter-label">DEC:</span>
+                        <input type="text" id="conv-dec" placeholder="Ej: 321" oninput="convertFrom('dec')">
+                    </div>
+                    <div class="converter-row">
+                        <span class="converter-label">BIN:</span>
+                        <input type="text" id="conv-bin" placeholder="Ej: 101000001" oninput="convertFrom('bin')">
+                    </div>
+                    <div class="converter-row">
+                        <span class="converter-label">HEX:</span>
+                        <input type="text" id="conv-hex" placeholder="Ej: 141" oninput="convertFrom('hex')">
+                    </div>
+                </div>
+
+                <h3>¿Cómo convertir Decimal a Hexadecimal?</h3>
+                <p>Método: convertir primero a binario y luego agrupar de a 4 bits.</p>
+                <p><strong>Ejemplo:</strong> convertir 330 decimal a hexadecimal:</p>
+                <ol>
+                    <li>Convertir 330 a binario: <code>101001010</code></li>
+                    <li>Agregar ceros a la izquierda para completar grupos de 4: <code>0001 0100 1010</code></li>
+                    <li>Convertir cada grupo de 4 bits a hexa: <code>1</code>, <code>4</code>, <code>A</code></li>
+                    <li>Resultado: <code>14Ah</code></li>
+                </ol>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!--    SECCIÓN: NÚMEROS CON SIGNO            -->
+            <!-- ═══════════════════════════════════════ -->
+            <section id="signo">
+                <h2>Números con Signo</h2>
+                <p class="section-subtitle">Cómo representar negativos en binario</p>
+
+                <p>Los números en binario pueden representarse con signo de varias formas. El bit más significativo (el de más a la izquierda) se reserva para el signo: <strong>0 = positivo</strong>, <strong>1 = negativo</strong>.</p>
+
+                <h3>Los 4 métodos de representación</h3>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Método</th>
+                                <th>¿Cómo representar un negativo?</th>
+                                <th>Ejemplo: -25 en 8 bits</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Signo y Magnitud (SyM)</strong></td>
+                                <td>El bit de signo se pone en 1, el resto es el número en binario normal</td>
+                                <td><code>10011001</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Complemento a 1 (Ca1)</strong></td>
+                                <td>Se invierten todos los bits del positivo</td>
+                                <td><code>11100110</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Complemento a 2 (Ca2)</strong></td>
+                                <td>Ca1 + 1 (se invierten los bits y se suma 1)</td>
+                                <td><code>11100111</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Exceso (Bias)</strong></td>
+                                <td>Se suma un valor fijo (exceso) al número. <code>Exc = 2^(n-1) - 1</code></td>
+                                <td>Con 8 bits: Exc=127, RN = -25+127 = 102</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="note">
+                    <div class="note-title">¿Cuál se usa más?</div>
+                    <p style="margin:0"><strong>Complemento a 2 (Ca2)</strong> es el más usado en la práctica. Permite que la suma de números negativos y positivos funcione directamente, sin necesidad de lógica especial.</p>
+                </div>
+
+                <h3>Ejemplo: Representar -35 en Ca2 (8 bits)</h3>
+                <ol>
+                    <li>Positivo: +35 = <code>00100011</code></li>
+                    <li>Invertir todos los bits (Ca1): <code>11011100</code></li>
+                    <li>Sumar 1 (Ca2): <code>11011101</code></li>
+                </ol>
+                <p>Resultado: -35 en Ca2 = <code>11011101</code></p>
+
+                <h3>El sistema en Exceso</h3>
+                <p>Se usa para representar el <strong>exponente</strong> en punto flotante. La fórmula es:</p>
+                <div class="equation">RN = N + Exc &nbsp;&nbsp;donde&nbsp;&nbsp; Exc = 2^(n-1) - 1</div>
+                <p><strong>Ejemplo:</strong> Representar +5 en Exceso con 4 bits:</p>
+                <ul>
+                    <li>Exc = 2^(4-1) - 1 = 8 - 1 = <strong>7</strong></li>
+                    <li>RN = 5 + 7 = 12 → <code>1100</code> en binario</li>
+                </ul>
+                <p>Para recuperar el número original: <code>N = RN - Exc = 12 - 7 = 5</code></p>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!--    SECCIÓN: PUNTO FLOTANTE               -->
+            <!-- ═══════════════════════════════════════ -->
+            <section id="punto-flotante">
+                <h2>Punto Flotante</h2>
+                <p class="section-subtitle">Representación de números reales</p>
+
+                <p>Para representar números con decimales se usa la notación de punto flotante, basada en la fórmula:</p>
+                <div class="equation">N = M × b<sup>E</sup></div>
+                <p>Donde <strong>M</strong> es la mantisa, <strong>b</strong> la base (2 en binario) y <strong>E</strong> el exponente.</p>
+
+                <h3>Formato general (en binario)</h3>
+                <div class="diagram-box">
+                    <div class="diagram-row">
+                        <div class="diagram-item" style="border-color:var(--danger)">Signo<br><strong style="color:var(--danger)">1 bit</strong></div>
+                        <div class="diagram-item" style="border-color:var(--accent3)">Exponente<br><strong style="color:var(--accent3)">N bits</strong></div>
+                        <div class="diagram-item" style="border-color:var(--accent2)">Mantisa<br><strong style="color:var(--accent2)">M bits</strong></div>
+                    </div>
+                </div>
+
+                <h3>Ejemplo paso a paso</h3>
+                <p>Representar <strong>+68.3125</strong> en punto flotante con 1 bit de signo, 4 de exponente y 11 de mantisa:</p>
+
+                <div class="collapsible" onclick="this.classList.toggle('open')">
+                    <div class="collapsible-header">
+                        <span class="collapsible-icon">▸</span>
+                        <span class="collapsible-title">Paso 1: Convertir a binario</span>
+                    </div>
+                    <div class="collapsible-body">
+                        <p><strong>Parte entera (68):</strong></p>
+                        <p>68 = 1×2⁶ + 0×2⁵ + 0×2⁴ + 0×2³ + 1×2² + 0×2¹ + 0×2⁰ = <code>1000100</code></p>
+                        <p><strong>Parte fraccionaria (0.3125):</strong></p>
+                        <ul>
+                            <li>0.3125 × 2 = <strong>0</strong>.625</li>
+                            <li>0.625 × 2 = <strong>1</strong>.25</li>
+                            <li>0.25 × 2 = <strong>0</strong>.5</li>
+                            <li>0.5 × 2 = <strong>1</strong>.0</li>
+                        </ul>
+                        <p>Parte fraccionaria = <code>0101</code></p>
+                        <p><strong>Resultado:</strong> 68.3125 = <code>1000100.0101</code></p>
+                    </div>
+                </div>
+
+                <div class="collapsible" onclick="this.classList.toggle('open')">
+                    <div class="collapsible-header">
+                        <span class="collapsible-icon">▸</span>
+                        <span class="collapsible-title">Paso 2: Normalizar la mantisa</span>
+                    </div>
+                    <div class="collapsible-body">
+                        <p>Normalizar significa mover el punto decimal para que quede justo después del primer 1:</p>
+                        <p><code>1000100.0101</code> → <code>1.00010001010</code> × 2⁶</p>
+                        <p>Movimos el punto 6 posiciones a la izquierda, por eso E = 6.</p>
+                        <p>Mantisa (sin el 1 implícito): <code>00010001010</code></p>
+                    </div>
+                </div>
+
+                <div class="collapsible" onclick="this.classList.toggle('open')">
+                    <div class="collapsible-header">
+                        <span class="collapsible-icon">▸</span>
+                        <span class="collapsible-title">Paso 3: Codificar el exponente en Exceso</span>
+                    </div>
+                    <div class="collapsible-body">
+                        <p>El exponente se codifica en sistema "Exceso":</p>
+                        <ul>
+                            <li>Exc = 2^(4-1) - 1 = 7</li>
+                            <li>RN = 6 + 7 = 13 → <code>1101</code> en binario</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="collapsible" onclick="this.classList.toggle('open')">
+                    <div class="collapsible-header">
+                        <span class="collapsible-icon">▸</span>
+                        <span class="collapsible-title">Paso 4: Armar el número final</span>
+                    </div>
+                    <div class="collapsible-body">
+                        <p>Signo: + → <code>0</code></p>
+                        <p>Exponente: <code>1101</code></p>
+                        <p>Mantisa: <code>00010001010</code></p>
+                        <p><strong>Resultado:</strong> <code>0 1101 00010001010</code> = <code>0110 1000 1000 1010</code> = <code>688Ah</code></p>
+                    </div>
+                </div>
+
+                <div class="note warning">
+                    <div class="note-title">Error de representación</div>
+                    <p style="margin:0">No todos los números decimales se pueden representar exactamente en binario. Ejemplo: -68.328125 se representa igual que -68.3125 con 11 bits de mantisa. El error es: <code>Ea = Vo - Vr = -68.3125 - (-68.328125) = 0.015625</code></p>
+                </div>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!--    SECCIÓN: MOV                          -->
+            <!-- ═══════════════════════════════════════ -->
+            <section id="mov">
+                <h2>MOV — Asignación</h2>
+                <p class="section-subtitle">La instrucción más básica: copiar un valor</p>
+
+                <p><code>MOV</code> viene de "move" (mover), pero en realidad <strong>copia</strong> el valor de origen al destino. Es como el signo <code>=</code> en lenguajes de alto nivel.</p>
+
+                <div class="equation">MOV Destino, Fuente &nbsp;&nbsp;→&nbsp;&nbsp; Destino = Fuente</div>
+
+                <div class="note warning">
+                    <div class="note-title">Reglas de MOV</div>
+                    <p style="margin:0">
+                        • <strong>Solo "Fuente"</strong> puede ser un número. "Destino" no puede ser un número (¿dónde guardarías el dato?).<br>
+                        • Ambos operandos deben tener el <strong>mismo tamaño</strong> (ambos de 8 bits o ambos de 16 bits).<br>
+                        • No puedes usar MOV para copiar de memoria a memoria directamente (necesitas un registro intermedio).
+                    </p>
+                </div>
+
+                <h4>Ejemplos</h4>
+                <pre><code><span class="code-keyword">mov</span> <span class="code-reg">ax</span>, <span class="code-value">000Fh</span>      <span class="code-comment">; AX = 000Fh (hexadecimal)</span>
+<span class="code-keyword">mov</span> <span class="code-reg">cx</span>, <span class="code-reg">ax</span>          <span class="code-comment">; CX = AX (copia el valor de AX en CX)</span>
+<span class="code-keyword">mov</span> <span class="code-reg">bh</span>, <span class="code-value">7</span>           <span class="code-comment">; BH = 7 (decimal)</span>
+<span class="code-keyword">mov</span> <span class="code-reg">dl</span>, <span class="code-value">01111101b</span>   <span class="code-comment">; DL = 01111101 en binario (125 decimal)</span></code></pre>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!--    SECCIÓN: ARITMÉTICA                    -->
+            <!-- ═══════════════════════════════════════ -->
+            <section id="aritmetica">
+                <h2>Instrucciones Aritméticas</h2>
+                <p class="section-subtitle">Suma, resta e incremento</p>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Instrucción</th>
+                                <th>Sintaxis</th>
+                                <th>Significado</th>
+                                <th>Equivalente en alto nivel</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ADD</code></td>
+                                <td><code>ADD Dest, Op2</code></td>
+                                <td>Suma y guarda en el destino</td>
+                                <td><code>Dest = Dest + Op2</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>SUB</code></td>
+                                <td><code>SUB Dest, Op2</code></td>
+                                <td>Resta y guarda en el destino</td>
+                                <td><code>Dest = Dest - Op2</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>INC</code></td>
+                                <td><code>INC Dest</code></td>
+                                <td>Suma 1 al destino (más rápida que ADD Dest, 1)</td>
+                                <td><code>Dest++</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>DEC</code></td>
+                                <td><code>DEC Dest</code></td>
+                                <td>Resta 1 al destino (más rápida que SUB Dest, 1)</td>
+                                <td><code>Dest--</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="note">
+                    <div class="note-title">Regla de oro</div>
+                    <p style="margin:0">En todas las instrucciones donde se almacena un resultado, este <strong>siempre se almacena en el primer operando</strong> (el destino). Esto aplica para MOV, ADD, SUB, INC, DEC.</p>
+                </div>
+
+                <h4>Ejemplo: ADD</h4>
+                <pre><code><span class="code-keyword">mov</span> <span class="code-reg">ah</span>, <span class="code-value">1</span>    <span class="code-comment">; AH = 1</span>
+<span class="code-keyword">mov</span> <span class="code-reg">bh</span>, <span class="code-value">2</span>    <span class="code-comment">; BH = 2</span>
+<span class="code-keyword">add</span> <span class="code-reg">ah</span>, <span class="code-reg">bh</span>   <span class="code-comment">; AH = AH + BH → AH = 3</span></code></pre>
+
+                <h4>Ejemplo: SUB</h4>
+                <pre><code><span class="code-keyword">mov</span> <span class="code-reg">dh</span>, <span class="code-value">10</span>   <span class="code-comment">; DH = 10</span>
+<span class="code-keyword">mov</span> <span class="code-reg">bl</span>, <span class="code-value">2</span>    <span class="code-comment">; BL = 2</span>
+<span class="code-keyword">sub</span> <span class="code-reg">dh</span>, <span class="code-reg">bl</span>   <span class="code-comment">; DH = DH - BL → DH = 8</span></code></pre>
+
+                <h4>Ejemplo: INC y DEC</h4>
+                <pre><code><span class="code-keyword">mov</span> <span class="code-reg">dx</span>, <span class="code-value">6</span>    <span class="code-comment">; DX = 6</span>
+<span class="code-keyword">inc</span> <span class="code-reg">dx</span>       <span class="code-comment">; DX = 7 (suma 1)</span>
+<span class="code-keyword">inc</span> <span class="code-reg">dx</span>       <span class="code-comment">; DX = 8</span>
+<span class="code-keyword">dec</span> <span class="code-reg">dx</span>       <span class="code-comment">; DX = 7 (resta 1)</span></code></pre>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!--    SECCIÓN: XCHG                         -->
+            <!-- ═══════════════════════════════════════ -->
+            <section id="xchg">
+                <h2>XCHG — Intercambio</h2>
+                <p class="section-subtitle">Intercambia los valores de dos operandos</p>
+
+                <div class="equation">XCHG Op1, Op2 &nbsp;&nbsp;→&nbsp;&nbsp; Op1 y Op2 intercambian sus valores</div>
+
+                <pre><code><span class="code-keyword">mov</span> <span class="code-reg">ax</span>, <span class="code-value">1</span>    <span class="code-comment">; AX = 1</span>
+<span class="code-keyword">mov</span> <span class="code-reg">bx</span>, <span class="code-value">2</span>    <span class="code-comment">; BX = 2</span>
+<span class="code-keyword">xchg</span> <span class="code-reg">ax</span>, <span class="code-reg">bx</span>  <span class="code-comment">; Ahora AX = 2 y BX = 1</span></code></pre>
+
+                <p>Ninguno de los operandos puede ser un número literal (necesitas un lugar donde guardar el valor intercambiado).</p>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!--    SECCIÓN: ESTRUCTURA                   -->
+            <!-- ═══════════════════════════════════════ -->
+            <section id="estructura">
+                <h2>Estructura de un Programa</h2>
+                <p class="section-subtitle">El "esqueleto" que todo programa necesita</p>
+
+                <p>Todo programa en Assembler tiene una estructura fija. Las partes importantes que tú escribes son los <strong>comentarios</strong> marcados abajo:</p>
+
+                <pre><code><span class="code-directive">.MODEL SMALL</span>          <span class="code-comment">; Modelo de memoria (siempre SMALL para nosotros)</span>
+<span class="code-directive">.STACK</span>                <span class="code-comment">; Definir la pila (siempre va así)</span>
+<span class="code-directive">.DATA</span>                 <span class="code-comment">; ─── Inicio del segmento de DATOS ───</span>
+    <span class="code-comment">; Aquí van todas las declaraciones de variables</span>
+
+<span class="code-directive">.CODE</span>                 <span class="code-comment">; ─── Inicio del segmento de CÓDIGO ───</span>
+<span class="code-label">inicio:</span>
+    <span class="code-keyword">mov</span> <span class="code-reg">ax</span>, <span class="code-value">@data</span>     <span class="code-comment">; Inicializar el segmento de datos</span>
+    <span class="code-keyword">mov</span> <span class="code-reg">ds</span>, <span class="code-reg">ax</span>         <span class="code-comment">; (estas 2 líneas siempre van)</span>
+
+    <span class="code-comment">; ═══════════════════════════════════════</span>
+    <span class="code-comment">; Aquí va TU CÓDIGO (lo que resuelve el problema)</span>
+    <span class="code-comment">; ═══════════════════════════════════════</span>
+
+    <span class="code-keyword">mov</span> <span class="code-reg">ax</span>, <span class="code-value">4C00h</span>     <span class="code-comment">; Terminar el programa</span>
+    <span class="code-keyword">int</span> <span class="code-value">21h</span>             <span class="code-comment">; (estas 2 líneas siempre van al final)</span>
+<span class="code-label">END inicio</span></code></pre>
+
+                <div class="note tip">
+                    <div class="note-title">Consejo práctico</div>
+                    <p style="margin:0">Las primeras 6 líneas y las últimas 4 son <strong>siempre las mismas</strong>. Cópialas como plantilla cada vez que crees un programa nuevo. Solo necesitas concentrarte en la sección de variables (.DATA) y en tu código (.CODE).</p>
+                </div>
+
+                <h3>Las dos secciones clave</h3>
+                <div class="analogy">
+                    <div class="analogy-card high">
+                        <h5>.DATA (Segmento de Datos)</h5>
+                        <p>Donde declaras <strong>todas las variables</strong> que tu programa va a usar. Como las declaraciones de variables al principio de un programa en C.</p>
+                    </div>
+                    <div class="analogy-card low">
+                        <h5>.CODE (Segmento de Código)</h5>
+                        <p>Donde escribes <strong>las instrucciones</strong> que la CPU ejecuta. Como el <code>main()</code> de un programa en C.</p>
+                    </div>
+                </div>
+
+                <h3>Proceso para crear un ejecutable</h3>
+                <div class="flow">
+                    <div class="flow-step">
+                        <div class="label">Editor</div>
+                        <div class="value">programa.asm</div>
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">
+                        <div class="label">MASM</div>
+                        <div class="value">programa.obj</div>
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">
+                        <div class="label">LINK</div>
+                        <div class="value">programa.exe</div>
+                    </div>
+                </div>
+                <p>En la línea de comandos: <code>MASM programa.asm;</code> y luego <code>LINK programa.obj;</code></p>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!--    SECCIÓN: VARIABLES                    -->
+            <!-- ═══════════════════════════════════════ -->
+            <section id="variables">
+                <h2>Variables y Memoria</h2>
+                <p class="section-subtitle">Almacenar datos fuera de los registros</p>
+
+                <p>Las variables en Assembler son <strong>nombres que asignamos a direcciones de memoria</strong>. En los lenguajes de alto nivel el compilador se encarga de esto; en Assembler, tú lo haces explícitamente.</p>
+
+                <h3>Sintaxis de declaración</h3>
+                <div class="equation">NOMBRE &nbsp; TAMAÑO &nbsp; VALOR_INICIAL</div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Descriptor</th>
+                                <th>Tamaño</th>
+                                <th>Bits</th>
+                                <th>Equivalencia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>DB</code></td>
+                                <td>Byte</td>
+                                <td>8 bits</td>
+                                <td>Un solo byte de memoria</td>
+                            </tr>
+                            <tr>
+                                <td><code>DW</code></td>
+                                <td>Word</td>
+                                <td>16 bits</td>
+                                <td>Dos bytes de memoria</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>Ejemplos de declaración</h4>
+                <pre><code><span class="code-directive">.DATA</span>
+    NumeroPrimo <span class="code-keyword">DW</span> <span class="code-value">29</span>        <span class="code-comment">; Reserva 2 bytes con el valor 29</span>
+    Mes         <span class="code-keyword">DB</span> <span class="code-value">6</span>         <span class="code-comment">; Reserva 1 byte con el valor 6</span>
+    Resultado   <span class="code-keyword">DW</span> <span class="code-value">?</span>         <span class="code-comment">; Reserva 2 bytes SIN inicializar (basura)</span>
+    Lista       <span class="code-keyword">DB</span> <span class="code-value">50 DUP(0)</span> <span class="code-comment">; Arreglo de 50 bytes, todos en 0</span></code></pre>
+
+                <div class="note">
+                    <div class="note-title">¿Qué significa el "?" y DUP?</div>
+                    <p style="margin:0"><code>?</code> significa "solo reservar espacio, sin inicializar" (queda con cualquier valor que hubiera en memoria). <code>DUP(0)</code> significa "duplicar": crea 50 copias del valor 0.</p>
+                </div>
+
+                <h3>Formato Little Endian</h3>
+                <p>Cuando se almacena un dato de 16 bits (word) en memoria, se guarda <strong>primero la parte baja y luego la parte alta</strong>.</p>
+
+                <div class="note warning">
+                    <div class="note-title">Ejemplo</div>
+                    <p style="margin:0">El valor <code>BE20h</code> se almacena como: dirección X → <code>20h</code> (byte bajo), dirección X+1 → <code>BEh</code> (byte alto). ¡Está "al revés"!</p>
+                </div>
+
+                <h3>Acceder a una variable</h3>
+                <p>Para leer o escribir el valor de una variable, usas su nombre directamente:</p>
+                <pre><code><span class="code-keyword">mov</span> <span class="code-reg">ax</span>, NumeroPrimo   <span class="code-comment">; Copia el valor de NumeroPrimo en AX</span>
+<span class="code-keyword">mov</span> Resultado, <span class="code-reg">ax</span>     <span class="code-comment">; Copia el valor de AX en la variable Resultado</span></code></pre>
+
+                <p>Para obtener la dirección de memoria de una variable: <code>mov bx, offset Resultado</code></p>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!--    SECCIÓN: ARREGLOS Y STRINGS            -->
+            <!-- ═══════════════════════════════════════ -->
+            <section id="arreglos">
+                <h2>Arreglos y Strings</h2>
+                <p class="section-subtitle">Múltiples datos en memoria</p>
+
+                <h3>Arreglos de bytes</h3>
+                <pre><code><span class="code-keyword">Pares</span> <span class="code-keyword">DB</span> <span class="code-value">2, 4, 6, 8</span></code></pre>
+                <p>En memoria queda así (4 bytes consecutivos):</p>
+
+                <div class="mem-grid">
+                    <div class="mem-cell highlighted"><span class="addr">Pares[0]</span><span class="val">02h</span></div>
+                    <div class="mem-cell"><span class="addr">Pares[1]</span><span class="val">04h</span></div>
+                    <div class="mem-cell"><span class="addr">Pares[2]</span><span class="val">06h</span></div>
+                    <div class="mem-cell"><span class="addr">Pares[3]</span><span class="val">08h</span></div>
+                </div>
+
+                <p>Para acceder a un elemento: <code>Pares[desplazamiento]</code>, donde el desplazamiento es cuántos bytes avanzar desde el inicio.</p>
+
+                <pre><code><span class="code-keyword">mov</span> <span class="code-reg">cx</span>, <span class="code-value">Pares[1]</span>   <span class="code-comment">; CX = 4 (segundo elemento del arreglo)</span></code></pre>
+
+                <h3>Arreglos de words</h3>
+                <pre><code><span class="code-keyword">Numeros</span> <span class="code-keyword">DW</span> <span class="code-value">1002h, 55A1h, 3037h, 000Fh</span></code></pre>
+                <p>Cada word ocupa <strong>2 bytes</strong>, así que el desplazamiento avanza de 2 en 2:</p>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Elemento</th>
+                                <th>Acceso</th>
+                                <th>Desplazamiento en bytes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1002h (primero)</td><td><code>Numeros[0]</code></td><td>0</td></tr>
+                            <tr><td>55A1h (segundo)</td><td><code>Numeros[2]</code></td><td>2</td></tr>
+                            <tr><td>3037h (tercero)</td><td><code>Numeros[4]</code></td><td>4</td></tr>
+                            <tr><td>000Fh (cuarto)</td><td><code>Numeros[6]</code></td><td>6</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Strings</h3>
+                <p>Un string es simplemente un arreglo de caracteres ASCII. Se declara con DB:</p>
+                <pre><code><span class="code-keyword">Nombre</span> <span class="code-keyword">DB</span> <span class="code-string">"Mariano"</span>   <span class="code-comment">; Equivale a: DB 4Dh, 61h, 72h, 69h, 61h, 6Eh, 6Fh</span></code></pre>
+                <p>Cada carácter ocupa 1 byte (código ASCII). 'M'=4Dh, 'a'=61h, etc.</p>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!--    SECCIÓN: INTERRUPCIONES               -->
+            <!-- ═══════════════════════════════════════ -->
+            <section id="interrupciones">
+                <h2>Interrupciones (INT 21h)</h2>
+                <p class="section-subtitle">Llamar al sistema operativo para entrada/salida</p>
+
+                <p>Las <strong>interrupciones por software</strong> son como "peticiones al sistema operativo". Usamos la instrucción <code>INT 21h</code> con un código de función en <code>AH</code> para indicar qué servicio queremos.</p>
+
+                <h3>Servicios más usados</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Función</th>
+                                <th>AH</th>
+                                <th>Descripción</th>
+                                <th>Parámetros</th>
+                                <th>Resultado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Leer carácter</strong></td>
+                                <td><code>01h</code></td>
+                                <td>Lee un carácter del teclado</td>
+                                <td>Ninguno</td>
+                                <td>AL = código ASCII</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Escribir carácter</strong></td>
+                                <td><code>02h</code></td>
+                                <td>Muestra un carácter en pantalla</td>
+                                <td>DL = código ASCII</td>
+                                <td>—</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Escribir string</strong></td>
+                                <td><code>09h</code></td>
+                                <td>Muestra un string en pantalla</td>
+                                <td>DX = dirección del string (terminado en '$')</td>
+                                <td>—</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Terminar programa</strong></td>
+                                <td><code>4Ch</code></td>
+                                <td>Finaliza la ejecución</td>
+                                <td>AL = código de retorno (00h = éxito)</td>
+                                <td>—</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>Ejemplo: Mostrar un string</h4>
+                <pre><code><span class="code-directive">.DATA</span>
+    <span class="code-keyword">mensaje</span> <span class="code-keyword">DB</span> <span class="code-string">"Hola mundo$"</span>   <span class="code-comment">; ¡Debe terminar con '$'!</span>
+
+<span class="code-directive">.CODE</span>
+    <span class="code-comment">; ... inicialización ...</span>
+    <span class="code-keyword">mov</span> <span class="code-reg">ah</span>, <span class="code-value">09h</span>               <span class="code-comment">; Función: mostrar string</span>
+    <span class="code-keyword">mov</span> <span class="code-reg">dx</span>, <span class="code-value">offset mensaje</span>     <span class="code-comment">; DX = dirección del string</span>
+    <span class="code-keyword">int</span> <span class="code-value">21h</span>                   <span class="code-comment">; Ejecutar</span></code></pre>
+
+                <div class="note">
+                    <div class="note-title">¿Por qué interrupciones y no leer directamente?</div>
+                    <p style="margin:0">Porque la CPU es mucho más rápida que el teclado. Si esperáramos a que el usuario presione una tecla, el programa se "congelaría". Con interrupciones, el teclado se lee de forma independiente al procesamiento, guardando las teclas en un buffer temporal.</p>
+                </div>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!--    EJERCICIOS RESUELTOS                  -->
+            <!-- ═══════════════════════════════════════ -->
+            <h2 style="margin-bottom:8px;">Ejercicios Resueltos Paso a Paso</h2>
+            <p class="section-subtitle">Aquí es donde realmente se aprende</p>
+
+            <!-- EJERCICIO 1 -->
+            <section id="ej1">
+                <div class="exercise-card">
+                    <div class="ex-title">Ejercicio 1</div>
+                    <div class="ex-desc">Almacenar los siguientes valores en los registros indicados, usando notación hexadecimal:<br>
+                        a) AX = 00000000b &nbsp; b) BX = 01010101b &nbsp; c) CX = 00001111b &nbsp; d) DX = 11001110b
+                    </div>
+                </div>
+
+                <h3>Resolución</h3>
+
+                <p><strong>Paso 1:</strong> Convertir cada valor binario a hexadecimal (recordemos que cada dígito hexa = 4 bits).</p>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Registro</th><th>Valor binario</th><th>En hexadecimal</th><th>Cómo se obtiene</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>AX</td>
+                                <td><code>00000000b</code></td>
+                                <td><code>00h</code></td>
+                                <td>0000 = 0, 0000 = 0</td>
+                            </tr>
+                            <tr>
+                                <td>BX</td>
+                                <td><code>01010101b</code></td>
+                                <td><code>55h</code></td>
+                                <td>0101 = 5, 0101 = 5</td>
+                            </tr>
+                            <tr>
+                                <td>CX</td>
+                                <td><code>00001111b</code></td>
+                                <td><code>0Fh</code></td>
+                                <td>0000 = 0, 1111 = F</td>
+                            </tr>
+                            <tr>
+                                <td>DX</td>
+                                <td><code>11001110b</code></td>
+                                <td><code>CEh</code></td>
+                                <td>1100 = C, 1110 = E</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p><strong>Paso 2:</strong> Escribir el programa usando MOV con los valores hexadecimales:</p>
+
+                <pre><code><span class="code-directive">.MODEL SMALL</span>
+<span class="code-directive">.STACK</span>
+<span class="code-directive">.DATA</span>
+<span class="code-directive">.CODE</span>
+<span class="code-label">inicio:</span>
+    <span class="code-keyword">mov</span> <span class="code-reg">ax</span>, <span class="code-value">@data</span>
+    <span class="code-keyword">mov</span> <span class="code-reg">ds</span>, <span class="code-reg">ax</span>
+
+    <span class="code-keyword">mov</span> <span class="code-reg">ax</span>, <span class="code-value">00h</span>     <span class="code-comment">; AX = 00000000b = 00h</span>
+    <span class="code-keyword">mov</span> <span class="code-reg">bx</span>, <span class="code-value">55h</span>     <span class="code-comment">; BX = 01010101b = 55h</span>
+    <span class="code-keyword">mov</span> <span class="code-reg">cx</span>, <span class="code-value">0Fh</span>     <span class="code-comment">; CX = 00001111b = 0Fh</span>
+    <span class="code-keyword">mov</span> <span class="code-reg">dx</span>, <span class="code-value">CEh</span>     <span class="code-comment">; DX = 11001110b = CEh</span>
+
+    <span class="code-keyword">mov</span> <span class="code-reg">ax</span>, <span class="code-value">4C00h</span>
+    <span class="code-keyword">int</span> <span class="code-value">21h</span>
+<span class="code-label">END inicio</span></code></pre>
+
+                <div class="note tip">
+                    <div class="note-title">Explicación en palabras</div>
+                    <p style="margin:0">Cada línea <code>mov</code> simplemente "mete" un valor en un registro. Es como asignar una variable: <code>int AX = 0;</code>, <code>int BX = 85;</code>, etc. Usamos hexadecimal porque es la convención en Assembler y es más compacto que escribir los ceros y unos.</p>
+                </div>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- EJERCICIO 2 -->
+            <section id="ej2">
+                <div class="exercise-card">
+                    <div class="ex-title">Ejercicio 2</div>
+                    <div class="ex-desc">Copiar el contenido de <em>CX</em> en los registros AX, BX y DX. Al finalizar, los cuatro registros deben contener el mismo valor.</div>
+                </div>
+
+                <h3>Resolución</h3>
+
+                <p>La idea es simple: usar MOV para copiar CX a cada uno de los otros registros. Pero <strong>no podemos copiar de CX directamente a memoria</strong>, así que el plan es directo:</p>
+
+                <pre><code><span class="code-keyword">mov</span> <span class="code-reg">cx</span>, <span class="code-value">0ABCDh</span>   <span class="code-comment">; Cargamos un valor de ejemplo en CX</span>
+                        <span class="code-comment">; (podría ser cualquier valor)</span>
+
+<span class="code-keyword">mov</span> <span class="code-reg">ax</span>, <span class="code-reg">cx</span>        <span class="code-comment">; Paso 1: copiar CX → AX. Ahora AX = CX</span>
+<span class="code-keyword">mov</span> <span class="code-reg">bx</span>, <span class="code-reg">cx</span>        <span class="code-comment">; Paso 2: copiar CX → BX. Ahora BX = CX</span>
+<span class="code-keyword">mov</span> <span class="code-reg">dx</span>, <span class="code-reg">cx</span>        <span class="code-comment">; Paso 3: copiar CX → DX. Ahora DX = CX</span></code></pre>
+
+                <p><strong>Estado final:</strong></p>
+                <div class="reg-vis">
+                    <div class="reg-box changed"><div class="reg-name">AX</div><div class="reg-value">ABCDh</div></div>
+                    <div class="reg-box changed"><div class="reg-name">BX</div><div class="reg-value">ABCDh</div></div>
+                    <div class="reg-box changed"><div class="reg-name">CX</div><div class="reg-value">ABCDh</div></div>
+                    <div class="reg-box changed"><div class="reg-name">DX</div><div class="reg-value">ABCDh</div></div>
+                </div>
+
+                <div class="note tip">
+                    <div class="note-title">Explicación</div>
+                    <p style="margin:0"><code>mov ax, cx</code> no borra CX. Es una <strong>copia</strong>, no un corte-pegar. El valor de CX se mantiene intacto después de cada copia. Como hacer <code>int AX = CX;</code> en C.</p>
+                </div>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- EJERCICIO 3 -->
+            <section id="ej3">
+                <div class="exercise-card">
+                    <div class="ex-title">Ejercicio 3</div>
+                    <div class="ex-desc">Sumar los contenidos de los cuatro registros de propósito general (AX + BX + CX + DX) y guardar el resultado en AX.</div>
+                </div>
+
+                <h3>Resolución</h3>
+
+                <p>En alto nivel sería: <code>AX = AX + BX + CX + DX</code>. En Assembler, como ADD siempre suma al <strong>primer operando</strong>, encadenamos las sumas:</p>
+
+                <pre><code><span class="code-comment">; Primero cargamos valores de ejemplo</span>
+<span class="code-keyword">mov</span> <span class="code-reg">ax</span>, <span class="code-value">10</span>     <span class="code-comment">; AX = 10</span>
+<span class="code-keyword">mov</span> <span class="code-reg">bx</span>, <span class="code-value">20</span>     <span class="code-comment">; BX = 20</span>
+<span class="code-keyword">mov</span> <span class="code-reg">cx</span>, <span class="code-value">30</span>     <span class="code-comment">; CX = 30</span>
+<span class="code-keyword">mov</span> <span class="code-reg">dx</span>, <span class="code-value">40</span>     <span class="code-comment">; DX = 40</span>
+
+<span class="code-comment">; Ahora sumamos todo en AX (encadenando)</span>
+<span class="code-keyword">add</span> <span class="code-reg">ax</span>, <span class="code-reg">bx</span>     <span class="code-comment">; AX = AX + BX = 10 + 20 = 30</span>
+<span class="code-keyword">add</span> <span class="code-reg">ax</span>, <span class="code-reg">cx</span>     <span class="code-comment">; AX = AX + CX = 30 + 30 = 60</span>
+<span class="code-keyword">add</span> <span class="code-reg">ax</span>, <span class="code-reg">dx</span>     <span class="code-comment">; AX = AX + DX = 60 + 40 = 100</span></code></pre>
+
+                <div class="note">
+                    <div class="note-title">¿Por qué encadenar?</div>
+                    <p style="margin:0">En Assembler <code>ADD</code> solo puede sumar <strong>dos operandos</strong> a la vez. No puedes escribir <code>ADD AX, BX, CX, DX</code> como harías en un lenguaje de alto nivel. Por eso sumamos paso a paso, acumulando todo en AX.</p>
+                </div>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- EJERCICIO 4 -->
+            <section id="ej4">
+                <div class="exercise-card">
+                    <div class="ex-title">Ejercicio 4</div>
+                    <div class="ex-desc">La edad de una persona está en <em>AX</em> y el año actual en <em>CX</em>. Calcular y almacenar en <em>DX</em> el año de nacimiento.</div>
+                </div>
+
+                <h3>Resolución</h3>
+
+                <p>La lógica es: <strong>año de nacimiento = año actual - edad</strong>. En alto nivel: <code>DX = CX - AX</code>.</p>
+
+                <pre><code><span class="code-keyword">mov</span> <span class="code-reg">ax</span>, <span class="code-value">25</span>       <span class="code-comment">; AX = 25 (edad de la persona)</span>
+<span class="code-keyword">mov</span> <span class="code-reg">cx</span>, <span class="code-value">2025</span>     <span class="code-comment">; CX = 2025 (año actual)</span>
+
+<span class="code-keyword">mov</span> <span class="code-reg">dx</span>, <span class="code-reg">cx</span>       <span class="code-comment">; DX = CX (copiar año actual a DX)</span>
+<span class="code-keyword">sub</span> <span class="code-reg">dx</span>, <span class="code-reg">ax</span>       <span class="code-comment">; DX = DX - AX = 2025 - 25 = 2000</span></code></pre>
+
+                <div class="note">
+                    <div class="note-title">¿Por qué no <code>SUB CX, AX</code> directamente?</div>
+                    <p style="margin:0">¡Porque <code>SUB</code> guarda el resultado en el <strong>primer operando</strong>! Si escribieras <code>SUB CX, AX</code>, el resultado quedaría en CX, no en DX. El enunciado pide que quede en DX. Por eso primero copiamos CX a DX y luego restamos.</p>
+                </div>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- EJERCICIO 5 -->
+            <section id="ej5">
+                <div class="exercise-card">
+                    <div class="ex-title">Ejercicio 5</div>
+                    <div class="ex-desc">Trazar paso a paso la ejecución del siguiente código. Indicar los valores hexadecimales de AX, BX, CX y DX al finalizar.</div>
+                </div>
+
+                <pre><code><span class="code-keyword">mov</span> <span class="code-reg">ax</span>, <span class="code-value">500</span>
+<span class="code-keyword">mov</span> <span class="code-reg">bx</span>, <span class="code-value">1Ah</span>
+<span class="code-keyword">sub</span> <span class="code-reg">ax</span>, <span class="code-reg">bx</span>
+<span class="code-keyword">mov</span> <span class="code-reg">cx</span>, <span class="code-reg">ax</span>
+<span class="code-keyword">dec</span> <span class="code-reg">cx</span>
+<span class="code-keyword">mov</span> <span class="code-reg">dx</span>, <span class="code-value">11110011111b</span>
+<span class="code-keyword">inc</span> <span class="code-reg">dx</span></code></pre>
+
+                <h3>Trazado completo</h3>
+
+                <div class="step-container">
+                    <div class="step active-step open">
+                        <div class="step-header" onclick="this.parentElement.classList.toggle('open')">
+                            <div class="step-number">1</div>
+                            <div class="step-code"><code>mov ax, 500</code></div>
+                            <div class="step-arrow">▸</div>
+                        </div>
+                        <div class="step-body">
+                            <p>Cargamos el valor decimal 500 en AX. Convirtamos: 500 en hexadecimal = <code>01F4h</code>.</p>
+                            <div class="step-result">
+                                AX = <span class="changed">01F4h</span> &nbsp;|&nbsp; BX = 0000h &nbsp;|&nbsp; CX = 0000h &nbsp;|&nbsp; DX = 0000h
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-header" onclick="this.parentElement.classList.toggle('open')">
+                            <div class="step-number">2</div>
+                            <div class="step-code"><code>mov bx, 1Ah</code></div>
+                            <div class="step-arrow">▸</div>
+                        </div>
+                        <div class="step-body">
+                            <p>Cargamos 1Ah (26 en decimal) en BX.</p>
+                            <div class="step-result">
+                                AX = 01F4h &nbsp;|&nbsp; BX = <span class="changed">001Ah</span> &nbsp;|&nbsp; CX = 0000h &nbsp;|&nbsp; DX = 0000h
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-header" onclick="this.parentElement.classList.toggle('open')">
+                            <div class="step-number">3</div>
+                            <div class="step-code"><code>sub ax, bx</code></div>
+                            <div class="step-arrow">▸</span></div>
+                        </div>
+                        <div class="step-body">
+                            <p>Restamos BX de AX: AX = AX - BX = 500 - 26 = 474. En hex: 474 = <code>01DAh</code>.</p>
+                            <div class="step-result">
+                                AX = <span class="changed">01DAh</span> &nbsp;|&nbsp; BX = 001Ah &nbsp;|&nbsp; CX = 0000h &nbsp;|&nbsp; DX = 0000h
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-header" onclick="this.parentElement.classList.toggle('open')">
+                            <div class="step-number">4</div>
+                            <div class="step-code"><code>mov cx, ax</code></div>
+                            <div class="step-arrow">▸</div>
+                        </div>
+                        <div class="step-body">
+                            <p>Copiamos AX en CX. Ahora CX también vale 01DAh.</p>
+                            <div class="step-result">
+                                AX = 01DAh &nbsp;|&nbsp; BX = 001Ah &nbsp;|&nbsp; CX = <span class="changed">01DAh</span> &nbsp;|&nbsp; DX = 0000h
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-header" onclick="this.parentElement.classList.toggle('open')">
+                            <div class="step-number">5</div>
+                            <div class="step-code"><code>dec cx</code></div>
+                            <div class="step-arrow">▸</div>
+                        </div>
+                        <div class="step-body">
+                            <p>Decrementamos CX en 1: CX = 01DAh - 1 = <code>01D9h</code> (473 en decimal).</p>
+                            <div class="step-result">
+                                AX = 01DAh &nbsp;|&nbsp; BX = 001Ah &nbsp;|&nbsp; CX = <span class="changed">01D9h</span> &nbsp;|&nbsp; DX = 0000h
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-header" onclick="this.parentElement.classList.toggle('open')">
+                            <div class="step-number">6</div>
+                            <div class="step-code"><code>mov dx, 11110011111b</code></div>
+                            <div class="step-arrow">▸</div>
+                        </div>
+                        <div class="step-body">
+                            <p>Cargamos el valor binario <code>11110011111b</code> en DX. Convirtamos: 11110011111 = 1×2¹⁰ + 1×2⁹ + 1×2⁸ + 1×2⁷ + 0×2⁶ + 0×2⁵ + 1×2⁴ + 1×2³ + 1×2² + 1×2¹ + 1×2⁰ = 1024+512+256+128+16+8+4+2+1 = 1951. En hex: 1951 = <code>079Fh</code>.</p>
+                            <div class="step-result">
+                                AX = 01DAh &nbsp;|&nbsp; BX = 001Ah &nbsp;|&nbsp; CX = 01D9h &nbsp;|&nbsp; DX = <span class="changed">079Fh</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-header" onclick="this.parentElement.classList.toggle('open')">
+                            <div class="step-number">7</div>
+                            <div class="step-code"><code>inc dx</code></div>
+                            <div class="step-arrow">▸</div>
+                        </div>
+                        <div class="step-body">
+                            <p>Incrementamos DX en 1: DX = 079Fh + 1 = <code>07A0h</code> (1952 en decimal).</p>
+                            <div class="step-result" style="border: 1px solid var(--accent);">
+                                <strong>RESULTADO FINAL:</strong><br>
+                                AX = <span class="changed">01DAh</span> &nbsp;|&nbsp; BX = <span class="changed">001Ah</span> &nbsp;|&nbsp; CX = <span class="changed">01D9h</span> &nbsp;|&nbsp; DX = <span class="changed">07A0h</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- EJERCICIO 6 -->
+            <section id="ej6">
+                <div class="exercise-card">
+                    <div class="ex-title">Ejercicio 6</div>
+                    <div class="ex-desc">Resolver la operación <em>(355 + 281 - 1) - (413 - 78)</em> y almacenar el resultado en DX.</div>
+                </div>
+
+                <h3>Resolución</h3>
+
+                <p><strong>Plan:</strong> Resolver cada paréntesis por separado (guardando cada resultado en un registro diferente) y luego restar.</p>
+
+                <pre><code><span class="code-comment">; ══ Resolver el primer paréntesis: (355 + 281 - 1) ══</span>
+<span class="code-keyword">mov</span> <span class="code-reg">dx</span>, <span class="code-value">355</span>      <span class="code-comment">; DX = 355</span>
+<span class="code-keyword">add</span> <span class="code-reg">dx</span>, <span class="code-value">281</span>      <span class="code-comment">; DX = 355 + 281 = 636</span>
+<span class="code-keyword">dec</span> <span class="code-reg">dx</span>           <span class="code-comment">; DX = 636 - 1 = 635</span>
+
+<span class="code-comment">; ══ Resolver el segundo paréntesis: (413 - 78) ══</span>
+<span class="code-keyword">mov</span> <span class="code-reg">ax</span>, <span class="code-value">413</span>      <span class="code-comment">; AX = 413</span>
+<span class="code-keyword">sub</span> <span class="code-reg">ax</span>, <span class="code-value">78</span>       <span class="code-comment">; AX = 413 - 78 = 335</span>
+
+<span class="code-comment">; ══ Restar los dos paréntesis ══</span>
+<span class="code-keyword">sub</span> <span class="code-reg">dx</span>, <span class="code-reg">ax</span>       <span class="code-comment">; DX = 635 - 335 = 300</span></code></pre>
+
+                <div class="reg-vis">
+                    <div class="reg-box"><div class="reg-name">AX</div><div class="reg-value">014Fh</div><div class="reg-hex">(335)</div></div>
+                    <div class="reg-box"><div class="reg-name">BX</div><div class="reg-value">0000h</div></div>
+                    <div class="reg-box"><div class="reg-name">CX</div><div class="reg-value">0000h</div></div>
+                    <div class="reg-box changed"><div class="reg-name">DX</div><div class="reg-value">012Ch</div><div class="reg-hex">(300)</div></div>
+                </div>
+
+                <div class="note tip">
+                    <div class="note-title">Estrategia</div>
+                    <p style="margin:0">Cuando tengas una expresión compleja, resuelve <strong>un paréntesis a la vez</strong>, guardando cada resultado parcial en un registro diferente. Al final, combina los resultados parciales. Es exactamente lo que harías mentalmente en un lenguaje de alto nivel, pero desglosado paso a paso.</p>
+                </div>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- EJERCICIO 7 -->
+            <section id="ej7">
+                <div class="exercise-card">
+                    <div class="ex-title">Ejercicio 7</div>
+                    <div class="ex-desc">Declarar variables y arreglos. Indicar el contenido del segmento de datos en hexadecimal.</div>
+                </div>
+
+                <h3>Resolución de las declaraciones</h3>
+
+                <pre><code><span class="code-directive">.DATA</span>
+    <span class="code-keyword">numeroPrimo</span> <span class="code-keyword">DB</span> <span class="code-value">7</span>
+    <span class="code-keyword">primoGrande</span> <span class="code-keyword">DW</span> <span class="code-value">9973</span>
+    <span class="code-keyword">impares</span>     <span class="code-keyword">DB</span> <span class="code-value">1, 3, 7, 9</span>
+    <span class="code-keyword">arreglo_5</span>   <span class="code-keyword">DB</span> <span class="code-value">5 DUP(0Fh)</span>
+    <span class="code-keyword">nombre</span>      <span class="code-keyword">DB</span> <span class="code-string">"Luis"</span></code></pre>
+
+                <h4>a) <code>numeroPrimo DB 7</code></h4>
+                <p>Es un byte con valor 7. En hex: <code>07h</code>. Ocupa 1 byte en memoria.</p>
+
+                <div class="mem-grid">
+                    <div class="mem-cell highlighted"><span class="addr">+0</span><span class="val">07h</span></div>
+                </div>
+
+                <h4>b) <code>primoGrande DW 9973</code></h4>
+                <p>Es un word con valor 9973. 9973 en hex = <code>26F5h</code>. Se almacena en little endian:</p>
+
+                <div class="mem-grid">
+                    <div class="mem-cell highlighted"><span class="addr">+1</span><span class="val">F5h</span></div>
+                    <div class="mem-cell highlighted"><span class="addr">+2</span><span class="val">26h</span></div>
+                </div>
+
+                <h4>c) <code>impares DB 1, 3, 7, 9</code></h4>
+                <p>Cuatro bytes consecutivos:</p>
+
+                <div class="mem-grid">
+                    <div class="mem-cell highlighted"><span class="addr">+3</span><span class="val">01h</span></div>
+                    <div class="mem-cell highlighted"><span class="addr">+4</span><span class="val">03h</span></div>
+                    <div class="mem-cell highlighted"><span class="addr">+5</span><span class="val">07h</span></div>
+                    <div class="mem-cell highlighted"><span class="addr">+6</span><span class="val">09h</span></div>
+                </div>
+
+                <h4>d) <code>arreglo_5 DB 5 DUP(0Fh)</code></h4>
+                <p>Cinco bytes, todos con el valor 0Fh:</p>
+
+                <div class="mem-grid">
+                    <div class="mem-cell highlighted"><span class="addr">+7</span><span class="val">0Fh</span></div>
+                    <div class="mem-cell highlighted"><span class="addr">+8</span><span class="val">0Fh</span></div>
+                    <div class="mem-cell highlighted"><span class="addr">+9</span><span class="val">0Fh</span></div>
+                    <div class="mem-cell highlighted"><span class="addr">+10</span><span class="val">0Fh</span></div>
+                    <div class="mem-cell highlighted"><span class="addr">+11</span><span class="val">0Fh</span></div>
+                </div>
+
+                <h4>e) <code>nombre DB "Luis"</code></h4>
+                <p>Cuatro caracteres ASCII: L=4Ch, u=75h, i=69h, s=73h</p>
+
+                <div class="mem-grid">
+                    <div class="mem-cell highlighted"><span class="addr">+12</span><span class="val">4Ch</span></div>
+                    <div class="mem-cell highlighted"><span class="addr">+13</span><span class="val">75h</span></div>
+                    <div class="mem-cell highlighted"><span class="addr">+14</span><span class="val">69h</span></div>
+                    <div class="mem-cell highlighted"><span class="addr">+15</span><span class="val">73h</span></div>
+                </div>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- EJERCICIO 8 -->
+            <section id="ej8">
+                <div class="exercise-card">
+                    <div class="ex-title">Ejercicio 8 — Loop con Arreglo</div>
+                    <div class="ex-desc">En la dirección 3000h comienza un arreglo de bytes con los primeros 10 números pares. ¿Qué hace este código?</div>
+                </div>
+
+                <pre><code><span class="code-keyword">mov</span> <span class="code-reg">ax</span>, <span class="code-value">0</span>           <span class="code-comment">; Limpiar AX (acumulador = 0)</span>
+<span class="code-keyword">mov</span> <span class="code-reg">si</span>, <span class="code-value">0</span>           <span class="code-comment">; SI = índice, empieza en 0</span>
+<span class="code-keyword">mov</span> <span class="code-reg">cx</span>, <span class="code-value">10</span>          <span class="code-comment">; CX = 10 (contador de iteraciones)</span>
+<span class="code-label">siguiente:</span>
+    <span class="code-keyword">add</span> <span class="code-reg">al</span>, <span class="code-value">ds:[3000h + si]</span>  <span class="code-comment">; AL = AL + arreglo[SI]</span>
+    <span class="code-keyword">inc</span> <span class="code-reg">si</span>                   <span class="code-comment">; SI++ (siguiente elemento)</span>
+    <span class="code-keyword">loop</span> <span class="code-label">siguiente</span>            <span class="code-comment">; CX--, si CX≠0 volver a "siguiente"</span></code></pre>
+
+                <h3>Explicación detallada</h3>
+
+                <p>Este código <strong>suma todos los elementos del arreglo</strong> y guarda el resultado en AL.</p>
+
+                <p>Veamos qué hace cada parte:</p>
+
+                <ul>
+                    <li><code>SI</code> es un registro que funciona como <strong>índice</strong> (como la <code>i</code> en un <code>for</code>).</li>
+                    <li><code>DS:[3000h + SI]</code> accede al byte en la posición 3000h + SI de la memoria. Es como escribir <code>arreglo[i]</code>.</li>
+                    <li><code>LOOP siguiente</code> es una instrucción especial: decrementa CX en 1 y, si CX no es cero, salta a la etiqueta "siguiente". Es como un <code>for</code> con CX como contador.</li>
+                </ul>
+
+                <div class="note">
+                    <div class="note-title">Equivalente en C</div>
+                    <pre style="margin:8px 0 0"><code><span class="code-keyword">int</span> AL = 0;
+<span class="code-keyword">for</span> (<span class="code-keyword">int</span> SI = 0; SI < 10; SI++) {
+    AL = AL + arreglo[SI];
+}</code></pre>
+                </div>
+
+                <p><strong>Valores del arreglo:</strong> 0, 2, 4, 6, 8, 10, 12, 14, 16, 18</p>
+                <p><strong>Suma total:</strong> 0+2+4+6+8+10+12+14+16+18 = <strong>90</strong> (5Ah)</p>
+                <p><strong>Resultado final:</strong> AL = 5Ah (90 decimal)</p>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!--    SIMULADOR                             -->
+            <!-- ═══════════════════════════════════════ -->
+            <section id="simulador">
+                <h2>Simulador de Ejecución</h2>
+                <p class="section-subtitle">Escribe instrucciones y observa cómo cambian los registros</p>
+
+                <div class="simulator">
+                    <div class="sim-header">
+                        <div class="sim-dot red"></div>
+                        <div class="sim-dot yellow"></div>
+                        <div class="sim-dot green"></div>
+                        <div class="sim-title">ASM8086 Simulator</div>
+                    </div>
+                    <div class="sim-body">
+                        <div class="sim-input-area">
+                            <textarea id="sim-code" spellcheck="false">mov ax, 100
+mov bx, 50
+add ax, bx
+mov cx, ax
+sub cx, 25
+mov dx, cx
+inc dx
+dec ax</textarea>
+                        </div>
+
+                        <div class="sim-controls">
+                            <button class="btn primary" onclick="simStep()">▶ Ejecutar paso a paso</button>
+                            <button class="btn" onclick="simRunAll()">⏩ Ejecutar todo</button>
+                            <button class="btn danger" onclick="simReset()">↺ Reiniciar</button>
+                        </div>
+
+                        <div class="sim-registers">
+                            <div class="sim-reg" id="sreg-AX"><div class="sim-reg-name">AX</div><div class="sim-reg-val">0000h</div></div>
+                            <div class="sim-reg" id="sreg-BX"><div class="sim-reg-name">BX</div><div class="sim-reg-val">0000h</div></div>
+                            <div class="sim-reg" id="sreg-CX"><div class="sim-reg-name">CX</div><div class="sim-reg-val">0000h</div></div>
+                            <div class="sim-reg" id="sreg-DX"><div class="sim-reg-name">DX</div><div class="sim-reg-val">0000h</div></div>
+                        </div>
+
+                        <div class="sim-log" id="sim-log">
+                            <div class="log-line info">Escribe instrucciones arriba y presiona "Ejecutar paso a paso".</div>
+                            <div class="log-line info">Instrucciones soportadas: MOV, ADD, SUB, INC, DEC, XCHG</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!--    HOJA DE REFERENCIA                    -->
+            <!-- ═══════════════════════════════════════ -->
+            <section id="cheatsheet">
+                <h2>Hoja de Referencia Rápida</h2>
+                <p class="section-subtitle">Todo lo esencial en un solo lugar</p>
+
+                <h3>Registros de propósito general</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>16 bits</th><th>Parte alta</th><th>Parte baja</th><th>Tipo</th></tr></thead>
+                        <tbody>
+                            <tr><td>AX</td><td>AH</td><td>AL</td><td>Acumulador</td></tr>
+                            <tr><td>BX</td><td>BH</td><td>BL</td><td>Base</td></tr>
+                            <tr><td>CX</td><td>CH</td><td>CL</td><td>Contador</td></tr>
+                            <tr><td>DX</td><td>DH</td><td>DL</td><td>Datos</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Instrucciones</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Instrucción</th><th>Sintaxis</th><th>Efecto</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>MOV</code></td><td><code>MOV dest, fuente</code></td><td>dest = fuente</td></tr>
+                            <tr><td><code>ADD</code></td><td><code>ADD dest, op2</code></td><td>dest = dest + op2</td></tr>
+                            <tr><td><code>SUB</code></td><td><code>SUB dest, op2</code></td><td>dest = dest - op2</td></tr>
+                            <tr><td><code>INC</code></td><td><code>INC dest</code></td><td>dest = dest + 1</td></tr>
+                            <tr><td><code>DEC</code></td><td><code>DEC dest</code></td><td>dest = dest - 1</td></tr>
+                            <tr><td><code>XCHG</code></td><td><code>XCHG op1, op2</code></td><td>Intercambia op1 y op2</td></tr>
+                            <tr><td><code>LOOP</code></td><td><code>LOOP etiqueta</code></td><td>CX--; si CX≠0, saltar</td></tr>
+                            <tr><td><code>INT</code></td><td><code>INT 21h</code></td><td>Llamar al DOS</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Declaración de variables</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Sintaxis</th><th>Significado</th><th>Ejemplo</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>nombre DB valor</code></td><td>Byte (8 bits)</td><td><code>edad DB 25</code></td></tr>
+                            <tr><td><code>nombre DW valor</code></td><td>Word (16 bits)</td><td><code>anio DW 2025</code></td></tr>
+                            <tr><td><code>nombre DB ?</code></td><td>Byte sin inicializar</td><td><code>temp DB ?</code></td></tr>
+                            <tr><td><code>nombre DW ?</code></td><td>Word sin inicializar</td><td><code>res DW ?</code></td></tr>
+                            <tr><td><code>nombre DB n DUP(v)</code></td><td>n bytes con valor v</td><td><code>buf DB 50 DUP(0)</code></td></tr>
+                            <tr><td><code>nombre DB "texto"</code></td><td>String (ASCII)</td><td><code>msg DB "Hola$"</code></td></tr>
+                            <tr><td><code>nombre DB a,b,c</code></td><td>Arreglo de bytes</td><td><code>nums DB 1,2,3</code></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Conversión rápida binario → hexadecimal</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Binario</th><th>Hex</th><th>Binario</th><th>Hex</th><th>Binario</th><th>Hex</th><th>Binario</th><th>Hex</th></tr></thead>
+                        <tbody>
+                            <tr><td>0000</td><td>0</td><td>0100</td><td>4</td><td>1000</td><td>8</td><td>1100</td><td>C</td></tr>
+                            <tr><td>0001</td><td>1</td><td>0101</td><td>5</td><td>1001</td><td>9</td><td>1101</td><td>D</td></tr>
+                            <tr><td>0010</td><td>2</td><td>0110</td><td>6</td><td>1010</td><td>A</td><td>1110</td><td>E</td></tr>
+                            <tr><td>0011</td><td>3</td><td>0111</td><td>7</td><td>1011</td><td>B</td><td>1111</td><td>F</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Números con signo (8 bits)</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Valor</th><th>SyM</th><th>Ca1</th><th>Ca2</th></tr></thead>
+                        <tbody>
+                            <tr><td>+0</td><td>00000000</td><td>00000000</td><td>00000000</td></tr>
+                            <tr><td>+1</td><td>00000001</td><td>00000001</td><td>00000001</td></tr>
+                            <tr><td>+127</td><td>01111111</td><td>01111111</td><td>01111111</td></tr>
+                            <tr><td>-1</td><td>10000001</td><td>11111110</td><td>11111111</td></tr>
+                            <tr><td>-127</td><td>11111111</td><td>10000000</td><td>10000001</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Plantilla de programa</h3>
+                <pre><code><span class="code-directive">.MODEL SMALL</span>
+<span class="code-directive">.STACK</span>
+<span class="code-directive">.DATA</span>
+    <span class="code-comment">; Variables aquí</span>
+<span class="code-directive">.CODE</span>
+<span class="code-label">inicio:</span>
+    <span class="code-keyword">mov</span> <span class="code-reg">ax</span>, <span class="code-value">@data</span>
+    <span class="code-keyword">mov</span> <span class="code-reg">ds</span>, <span class="code-reg">ax</span>
+    <span class="code-comment">; Tu código aquí</span>
+    <span class="code-keyword">mov</span> <span class="code-reg">ax</span>, <span class="code-value">4C00h</span>
+    <span class="code-keyword">int</span> <span class="code-value">21h</span>
+<span class="code-label">END inicio</span></code></pre>
+
+            </section>
+
+        </main>
+    </div>
+
+    <div class="donation-backdrop" id="donation-modal" aria-hidden="true">
+        <div class="donation-card" role="dialog" aria-modal="true" aria-labelledby="donation-title">
+            <button class="donation-close-btn" type="button" aria-label="Cerrar cartel de donaciones" data-close-donations>&times;</button>
+            <p class="donation-kicker">Si te sirvió</p>
+            <h3 id="donation-title">Podés colaborar con una donación</h3>
+            <p class="donation-copy">Si esta guía te ayudó a estudiar, podés apoyar el proyecto con un aporte.</p>
+            <div class="donation-alias">
+                <div class="donation-alias-meta">
+                    <span class="donation-alias-label">Alias BNA+</span>
+                    <strong>estudio.juegos.piano</strong>
+                </div>
+                <button class="donation-copy-btn" type="button" data-copy-alias>Copiar alias</button>
+            </div>
+            <div class="donation-actions">
+                <button class="donation-secondary" type="button" data-close-donations>Seguir viendo</button>
+            </div>
+            <p class="donation-feedback" id="donation-feedback" aria-live="polite"></p>
+        </div>
+    </div>
+
+    <script>
+        // ─── CONVERTER ───
+        function convertFrom(source) {
+            let decEl = document.getElementById('conv-dec');
+            let binEl = document.getElementById('conv-bin');
+            let hexEl = document.getElementById('conv-hex');
+
+            let val;
+            try {
+                if (source === 'dec') {
+                    val = parseInt(decEl.value.trim());
+                    if (isNaN(val)) { binEl.value = ''; hexEl.value = ''; return; }
+                    binEl.value = val.toString(2);
+                    hexEl.value = val.toString(16).toUpperCase();
+                } else if (source === 'bin') {
+                    val = parseInt(binEl.value.trim(), 2);
+                    if (isNaN(val)) { decEl.value = ''; hexEl.value = ''; return; }
+                    decEl.value = val.toString();
+                    hexEl.value = val.toString(16).toUpperCase();
+                } else if (source === 'hex') {
+                    val = parseInt(hexEl.value.trim(), 16);
+                    if (isNaN(val)) { decEl.value = ''; binEl.value = ''; return; }
+                    decEl.value = val.toString();
+                    binEl.value = val.toString(2);
+                }
+            } catch (e) {}
+        }
+
+        // ─── SIMULATOR ───
+        let simRegs = { AX: 0, BX: 0, CX: 0, DX: 0 };
+        let simLines = [];
+        let simPC = 0;
+        let simRunning = false;
+
+        function parseReg(r) {
+            r = r.toUpperCase().trim();
+            const map = {
+                'AX': () => simRegs.AX, 'BX': () => simRegs.BX,
+                'CX': () => simRegs.CX, 'DX': () => simRegs.DX,
+                'AH': () => (simRegs.AX >> 8) & 0xFF, 'AL': () => simRegs.AX & 0xFF,
+                'BH': () => (simRegs.BX >> 8) & 0xFF, 'BL': () => simRegs.BX & 0xFF,
+                'CH': () => (simRegs.CX >> 8) & 0xFF, 'CL': () => simRegs.CX & 0xFF,
+                'DH': () => (simRegs.DX >> 8) & 0xFF, 'DL': () => simRegs.DX & 0xFF,
+            };
+            return map[r] ? map[r]() : null;
+        }
+
+        function setReg(r, val) {
+            r = r.toUpperCase().trim();
+            val = val & 0xFFFF;
+            if (r === 'AX') simRegs.AX = val;
+            else if (r === 'BX') simRegs.BX = val;
+            else if (r === 'CX') simRegs.CX = val;
+            else if (r === 'DX') simRegs.DX = val;
+            else if (r === 'AH') simRegs.AX = (val & 0xFF) << 8 | (simRegs.AX & 0xFF);
+            else if (r === 'AL') simRegs.AX = (simRegs.AX & 0xFF00) | (val & 0xFF);
+            else if (r === 'BH') simRegs.BX = (val & 0xFF) << 8 | (simRegs.BX & 0xFF);
+            else if (r === 'BL') simRegs.BX = (simRegs.BX & 0xFF00) | (val & 0xFF);
+            else if (r === 'CH') simRegs.CX = (val & 0xFF) << 8 | (simRegs.CX & 0xFF);
+            else if (r === 'CL') simRegs.CX = (simRegs.CX & 0xFF00) | (val & 0xFF);
+            else if (r === 'DH') simRegs.DX = (val & 0xFF) << 8 | (simRegs.DX & 0xFF);
+            else if (r === 'DL') simRegs.DX = (simRegs.DX & 0xFF00) | (val & 0xFF);
+        }
+
+        function getRegVal(r) {
+            r = r.toUpperCase().trim();
+            if (['AX','BX','CX','DX','AH','AL','BH','BL','CH','CL','DH','DL'].includes(r)) {
+                return parseReg(r);
+            }
+            return null;
+        }
+
+        function parseOperand(op) {
+            op = op.trim();
+            let rv = getRegVal(op);
+            if (rv !== null) return { type: 'reg', name: op.toUpperCase(), value: rv };
+
+            let val;
+            if (op.endsWith('h') || op.endsWith('H')) {
+                val = parseInt(op.slice(0, -1), 16);
+            } else if (op.endsWith('b') || op.endsWith('B')) {
+                val = parseInt(op.slice(0, -1), 2);
+            } else {
+                val = parseInt(op, 10);
+            }
+            if (!isNaN(val)) return { type: 'imm', value: val };
+            return null;
+        }
+
+        function formatHex(n) {
+            n = n & 0xFFFF;
+            let s = n.toString(16).toUpperCase();
+            while (s.length < 4) s = '0' + s;
+            return s + 'h';
+        }
+
+        function updateRegDisplay() {
+            ['AX', 'BX', 'CX', 'DX'].forEach(r => {
+                let el = document.getElementById('sreg-' + r);
+                el.querySelector('.sim-reg-val').textContent = formatHex(simRegs[r]);
+            });
+        }
+
+        function flashReg(name) {
+            let el = document.getElementById('sreg-' + name);
+            el.classList.add('flash');
+            setTimeout(() => el.classList.remove('flash'), 600);
+        }
+
+        function addLog(msg, cls = '') {
+            let log = document.getElementById('sim-log');
+            let div = document.createElement('div');
+            div.className = 'log-line ' + cls;
+            div.innerHTML = msg;
+            log.appendChild(div);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function simInit() {
+            simLines = document.getElementById('sim-code').value
+                .split('\n')
+                .map(l => l.replace(/;.*/, '').trim())
+                .filter(l => l.length > 0);
+            simPC = 0;
+        }
+
+        function executeLine(line) {
+            let parts = line.split(/[\s,]+/).filter(p => p.length > 0);
+            if (parts.length === 0) return;
+
+            let cmd = parts[0].toUpperCase();
+
+            if (cmd === 'MOV' && parts.length >= 3) {
+                let dest = parts[1].toUpperCase();
+                let srcOp = parseOperand(parts.slice(2).join(' '));
+                if (!srcOp) { addLog('Error: operando inválido en ' + line, 'error'); return; }
+                let oldVal = getRegVal(dest);
+                setReg(dest, srcOp.value);
+                let mainReg = dest.length === 2 ? dest[0] + 'X' : dest;
+                flashReg(mainReg);
+                addLog(`<code>${line}</code> → <span class="changed">${dest} = ${formatHex(getRegVal(dest))}</span>`);
+            }
+            else if (cmd === 'ADD' && parts.length >= 3) {
+                let dest = parts[1].toUpperCase();
+                let srcOp = parseOperand(parts.slice(2).join(' '));
+                if (!srcOp) { addLog('Error: operando inválido', 'error'); return; }
+                let current = getRegVal(dest);
+                let result = current + srcOp.value;
+                setReg(dest, result);
+                let mainReg = dest.length === 2 ? dest[0] + 'X' : dest;
+                flashReg(mainReg);
+                addLog(`<code>${line}</code> → <span class="changed">${dest} = ${formatHex(current)} + ${formatHex(srcOp.value & 0xFFFF)} = ${formatHex(getRegVal(dest))}</span>`);
+            }
+            else if (cmd === 'SUB' && parts.length >= 3) {
+                let dest = parts[1].toUpperCase();
+                let srcOp = parseOperand(parts.slice(2).join(' '));
+                if (!srcOp) { addLog('Error: operando inválido', 'error'); return; }
+                let current = getRegVal(dest);
+                let result = current - srcOp.value;
+                setReg(dest, result);
+                let mainReg = dest.length === 2 ? dest[0] + 'X' : dest;
+                flashReg(mainReg);
+                addLog(`<code>${line}</code> → <span class="changed">${dest} = ${formatHex(current)} - ${formatHex(srcOp.value & 0xFFFF)} = ${formatHex(getRegVal(dest))}</span>`);
+            }
+            else if (cmd === 'INC' && parts.length >= 2) {
+                let dest = parts[1].toUpperCase();
+                let current = getRegVal(dest);
+                setReg(dest, current + 1);
+                let mainReg = dest.length === 2 ? dest[0] + 'X' : dest;
+                flashReg(mainReg);
+                addLog(`<code>${line}</code> → <span class="changed">${dest} = ${formatHex(current)} + 1 = ${formatHex(getRegVal(dest))}</span>`);
+            }
+            else if (cmd === 'DEC' && parts.length >= 2) {
+                let dest = parts[1].toUpperCase();
+                let current = getRegVal(dest);
+                setReg(dest, current - 1);
+                let mainReg = dest.length === 2 ? dest[0] + 'X' : dest;
+                flashReg(mainReg);
+                addLog(`<code>${line}</code> → <span class="changed">${dest} = ${formatHex(current)} - 1 = ${formatHex(getRegVal(dest))}</span>`);
+            }
+            else if (cmd === 'XCHG' && parts.length >= 3) {
+                let op1 = parts[1].toUpperCase();
+                let op2 = parts[2].toUpperCase();
+                let v1 = getRegVal(op1);
+                let v2 = getRegVal(op2);
+                setReg(op1, v2);
+                setReg(op2, v1);
+                let r1 = op1.length === 2 ? op1[0] + 'X' : op1;
+                let r2 = op2.length === 2 ? op2[0] + 'X' : op2;
+                flashReg(r1);
+                flashReg(r2);
+                addLog(`<code>${line}</code> → <span class="changed">${op1} = ${formatHex(getRegVal(op1))}, ${op2} = ${formatHex(getRegVal(op2))}</span>`);
+            }
+            else {
+                addLog(`Instrucción no reconocida: <code>${line}</code>`, 'error');
+            }
+        }
+
+        function simStep() {
+            if (!simRunning) {
+                simReset();
+                simInit();
+                simRunning = true;
+                addLog('── Inicio de ejecución ──', 'info');
+            }
+            if (simPC >= simLines.length) {
+                addLog('── Fin del programa ──', 'info');
+                simRunning = false;
+                return;
+            }
+            executeLine(simLines[simPC]);
+            simPC++;
+            updateRegDisplay();
+        }
+
+        function simRunAll() {
+            simReset();
+            simInit();
+            simRunning = true;
+            addLog('── Ejecución completa ──', 'info');
+            while (simPC < simLines.length) {
+                executeLine(simLines[simPC]);
+                simPC++;
+            }
+            updateRegDisplay();
+            addLog('── Fin del programa ──', 'info');
+            simRunning = false;
+        }
+
+        function simReset() {
+            simRegs = { AX: 0, BX: 0, CX: 0, DX: 0 };
+            simPC = 0;
+            simRunning = false;
+            updateRegDisplay();
+            document.getElementById('sim-log').innerHTML =
+                '<div class="log-line info">Simulador reiniciado. Listo para ejecutar.</div>';
+            ['AX','BX','CX','DX'].forEach(r => {
+                document.getElementById('sreg-' + r).classList.remove('flash');
+            });
+        }
+
+        // ─── Active nav link tracking ───
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        function updateActiveNav() {
+            let scrollY = window.scrollY + 120;
+            let current = '';
+            sections.forEach(section => {
+                if (section.offsetTop <= scrollY) {
+                    current = section.id;
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActiveNav);
+        updateActiveNav();
+
+        // Close mobile menu on link click
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                document.querySelector('.sidebar').classList.remove('open');
+            });
+        });
+
+        // Donation prompt
+        const donationModal = document.getElementById('donation-modal');
+        const donationFeedback = document.getElementById('donation-feedback');
+        const donationOpeners = document.querySelectorAll('[data-open-donations]');
+        const donationClosers = document.querySelectorAll('[data-close-donations]');
+        const donationCopyButtons = document.querySelectorAll('[data-copy-alias]');
+        const donationAlias = 'estudio.juegos.piano';
+        let donationAutoClosed = false;
+
+        function copyDonationAlias() {
+            if (navigator.clipboard && window.isSecureContext) {
+                return navigator.clipboard.writeText(donationAlias);
+            }
+
+            const helper = document.createElement('textarea');
+            helper.value = donationAlias;
+            helper.setAttribute('readonly', '');
+            helper.style.position = 'fixed';
+            helper.style.opacity = '0';
+            document.body.appendChild(helper);
+            helper.select();
+            document.execCommand('copy');
+            document.body.removeChild(helper);
+            return Promise.resolve();
+        }
+
+        function openDonationModal(fromAuto = false) {
+            if (!donationModal) return;
+            if (fromAuto && donationAutoClosed) return;
+            donationModal.classList.add('is-open');
+            donationModal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDonationModal(markAutoClosed = true) {
+            if (!donationModal) return;
+            if (markAutoClosed) donationAutoClosed = true;
+            donationModal.classList.remove('is-open');
+            donationModal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        }
+
+        donationOpeners.forEach(btn => {
+            btn.addEventListener('click', () => openDonationModal(false));
+        });
+
+        donationClosers.forEach(btn => {
+            btn.addEventListener('click', () => closeDonationModal(true));
+        });
+
+        donationCopyButtons.forEach(btn => {
+            btn.addEventListener('click', async () => {
+                try {
+                    await copyDonationAlias();
+                    if (donationFeedback) donationFeedback.textContent = 'Alias copiado.';
+                } catch (error) {
+                    if (donationFeedback) donationFeedback.textContent = 'No pude copiarlo automaticamente. Alias: ' + donationAlias;
+                }
+            });
+        });
+
+        if (donationModal) {
+            donationModal.addEventListener('click', e => {
+                if (e.target === donationModal) closeDonationModal(true);
+            });
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && donationModal && donationModal.classList.contains('is-open')) {
+                closeDonationModal(true);
+            }
+        });
+
+        window.setTimeout(() => openDonationModal(true), 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía completa + ejercicios MIMO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=DM+Serif+Display&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07070e;--s:#0e0e1a;--s2:#151525;--acc:#e8a525;--g:#00e87b;--b:#5b8aff;--p:#d4a0ff;--txt:#ddd8cc;--mut:#706a60;--red:#ff4466;--cb:#0a0a15;--bd:#1e1e30;--gl:rgba(232,165,37,.15)}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Source Serif 4',Georgia,serif;background:var(--bg);color:var(--txt);line-height:1.72;font-size:16px}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+.layout{display:flex;min-height:100vh;position:relative;z-index:1}
+.side{width:270px;min-width:270px;background:var(--s);border-right:1px solid var(--bd);padding:24px 0;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:10}
+.side::-webkit-scrollbar{width:3px}.side::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+.side-logo{padding:0 20px 20px;border-bottom:1px solid var(--bd);margin-bottom:12px}
+.side-logo h1{font-family:'DM Serif Display',serif;font-size:18px;color:var(--acc)}
+.side-logo p{font-size:10px;color:var(--mut);font-family:'IBM Plex Mono',monospace;margin-top:3px;text-transform:uppercase;letter-spacing:.15em}
+.ng{padding:6px 10px}
+.ngt{font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.2em;color:var(--acc);padding:8px 8px 4px;opacity:.7}
+.nl{display:block;padding:5px 10px;color:var(--mut);text-decoration:none;font-size:12px;border-radius:5px;transition:all .2s;font-family:'Source Serif 4',serif}
+.nl:hover{color:var(--txt);background:rgba(232,165,37,.06)}.nl.act{color:var(--acc);background:var(--gl)}
+.main{flex:1;max-width:940px;padding:40px 48px 140px}
+h2{font-family:'DM Serif Display',serif;font-size:30px;color:var(--acc);margin-bottom:6px;line-height:1.2}
+h3{font-family:'DM Serif Display',serif;font-size:21px;color:var(--txt);margin:30px 0 10px}
+h4{font-family:'IBM Plex Mono',monospace;font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--g);margin:22px 0 8px}
+h5{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--b);margin:16px 0 6px;letter-spacing:.05em}
+.sub{font-size:16px;color:var(--mut);margin-bottom:28px;font-style:italic}
+p{margin-bottom:14px}
+.hl{color:var(--acc);font-weight:600}.gr{color:var(--g)}.bl{color:var(--b)}.rd{color:var(--red)}.pr{color:var(--p)}
+.div{height:1px;background:linear-gradient(90deg,var(--acc),transparent);margin:48px 0 32px;opacity:.3}
+pre{background:var(--cb);border:1px solid var(--bd);border-left:3px solid var(--acc);border-radius:8px;padding:16px 20px;overflow-x:auto;margin:12px 0 18px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;line-height:1.8;color:#c0bbb0;white-space:pre}
+code{font-family:'IBM Plex Mono',monospace;font-size:.84em;background:var(--s2);padding:2px 5px;border-radius:3px;color:var(--g)}
+pre code{background:0 0;padding:0;font-size:inherit}
+.cc{color:#55504a}.ck{color:var(--acc)}.cv{color:var(--g)}.cr{color:var(--b)}.cl{color:var(--p)}.cs{color:#ff8866}.cd{color:#ff6aa5}
+.tw{overflow-x:auto;margin:16px 0 22px;border-radius:8px;border:1px solid var(--bd)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:var(--s2);font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--acc);padding:9px 12px;text-align:left;border-bottom:1px solid var(--bd)}
+td{padding:8px 12px;border-bottom:1px solid rgba(30,30,48,.5);vertical-align:top}
+tr:last-child td{border-bottom:none}tr:hover td{background:rgba(232,165,37,.02)}
+.note{background:linear-gradient(135deg,rgba(232,165,37,.08),rgba(232,165,37,.02));border:1px solid rgba(232,165,37,.2);border-radius:8px;padding:14px 18px;margin:16px 0 22px}
+.note .nt{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--acc);margin-bottom:5px}
+.tip{background:linear-gradient(135deg,rgba(0,232,123,.08),rgba(0,232,123,.02));border-color:rgba(0,232,123,.2)}.tip .nt{color:var(--g)}
+.warn{background:linear-gradient(135deg,rgba(255,68,102,.08),rgba(255,68,102,.02));border-color:rgba(255,68,102,.2)}.warn .nt{color:var(--red)}
+.blue{background:linear-gradient(135deg,rgba(91,138,255,.08),rgba(91,138,255,.02));border-color:rgba(91,138,255,.2)}.blue .nt{color:var(--b)}
+.eq{background:var(--s);border:1px solid var(--bd);border-radius:6px;padding:12px 20px;margin:12px 0;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--acc)}
+.stk{display:flex;flex-direction:column;align-items:center;gap:0;margin:16px auto;width:fit-content}
+.stk-cell{width:310px;min-height:40px;border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:12px;background:var(--s);padding:5px 10px;position:relative}
+.stk-cell.hl-cell{border-color:var(--acc);background:rgba(232,165,37,.08)}
+.stk-cell.gr-cell{border-color:var(--g);background:rgba(0,232,123,.06)}
+.stk-cell.bp-cell{border-color:var(--b);background:rgba(91,138,255,.08)}
+.stk-addr{position:absolute;right:-105px;font-size:10px;color:var(--mut);font-family:'IBM Plex Mono',monospace}
+.stk-label{position:absolute;left:-95px;font-size:9px;color:var(--acc);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.06em;text-align:right;width:85px}
+.stk-arrow{position:absolute;right:-145px;font-size:10px;color:var(--acc);font-family:'IBM Plex Mono',monospace}
+.mem-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(85px,1fr));gap:3px;margin:12px 0}
+.mc{background:var(--cb);border:1px solid var(--bd);border-radius:3px;padding:6px 3px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:10px}
+.mc .ad{font-size:8px;color:var(--mut);display:block}.mc .vl{color:var(--acc);font-weight:600}.mc .as{font-size:8px;color:var(--mut);display:block;margin-top:1px}
+.mc.hi{border-color:var(--g);background:rgba(0,232,123,.08)}
+.reg-row{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+.reg-b{background:var(--s);border:1px solid var(--bd);border-radius:8px;padding:12px;min-width:130px;text-align:center;flex:1}
+.reg-b.ch{border-color:var(--g);box-shadow:0 0 16px rgba(0,232,123,.1)}
+.reg-n{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--acc);margin-bottom:5px;letter-spacing:.1em}
+.reg-v{font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:700;color:var(--txt)}
+.reg-h{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut);margin-top:3px}
+.reg-p{display:flex;gap:8px;justify-content:center;margin-top:6px;padding-top:6px;border-top:1px dashed var(--bd)}
+.reg-p span{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--mut)}.reg-p strong{color:var(--b);font-size:9.5px}
+.ex-card{background:linear-gradient(135deg,rgba(91,138,255,.06),rgba(91,138,255,.01));border:1px solid rgba(91,138,255,.2);border-radius:10px;padding:18px;margin:18px 0}
+.ex-card .et{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--b);margin-bottom:5px}
+.ex-card .ed{font-size:13px;color:var(--txt);margin-bottom:6px}
+.ex-card .ed em{color:var(--acc);font-style:normal}
+.ans{display:none;margin-top:12px;padding-top:14px;border-top:1px dashed var(--bd);animation:fadeIn .35s ease}
+.ans.show{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.btn{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:9px 18px;border:1px solid var(--bd);background:var(--s2);color:var(--txt);border-radius:6px;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:5px;margin:5px 4px 5px 0}
+.btn:hover{border-color:var(--acc);background:var(--gl);color:var(--acc)}
+.term{background:#000;border:1px solid #333;border-radius:8px;padding:16px;margin:12px 0;font-family:'IBM Plex Mono',monospace;font-size:13px;color:#0f0;min-height:36px;position:relative;overflow:hidden}
+.term::before{content:'C:\ASM>';position:absolute;top:5px;left:10px;font-size:9px;color:#555}
+.term .out{padding-top:14px}
+.term .cursor{display:inline-block;width:7px;height:15px;background:#0f0;animation:blink 1s infinite;vertical-align:middle;margin-left:2px}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+.flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0}
+.flow-s{background:var(--s);border:1px solid var(--bd);border-radius:6px;padding:9px 14px;text-align:center}
+.flow-s .fl{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--acc);letter-spacing:.08em;text-transform:uppercase}
+.flow-s .fv{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--txt);margin-top:2px}
+.flow-a{color:var(--acc);font-size:16px}
+.iter-tbl td.hl-row{background:rgba(232,165,37,.08)}
+.mobile-btn{display:none;position:fixed;top:10px;left:10px;z-index:100;background:var(--s2);border:1px solid var(--bd);border-radius:5px;padding:7px 11px;color:var(--acc);font-family:'IBM Plex Mono',monospace;font-size:15px;cursor:pointer}
+ol,ul{padding-left:20px;margin:8px 0 16px}li{margin-bottom:5px;color:var(--mut)}li strong{color:var(--txt)}
+.ref-card{background:var(--s);border:1px solid var(--bd);border-radius:10px;padding:18px;margin:14px 0}
+.ref-card h5{margin-top:0}
+.bit-vis{display:flex;gap:2px;justify-content:center;margin:10px 0}
+.bit{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;border-radius:3px;background:var(--s2);border:1px solid var(--bd);color:var(--txt)}
+.bit.one{background:rgba(0,232,123,.15);border-color:var(--g);color:var(--g)}
+.bit.zero{background:rgba(112,106,96,.1);color:var(--mut)}
+.bit-lbl{display:flex;gap:2px;justify-content:center;margin-top:2px}
+.bit-lbl span{width:28px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--mut)}
+
+/* Donation prompt */
+.donation-launch{
+  display:block;width:calc(100% - 24px);margin:10px 12px 6px;
+  padding:10px 12px;border:0;border-radius:8px;
+  background:linear-gradient(135deg,#39e88a,#e8a525);
+  color:#08110b;font:inherit;font-weight:700;cursor:pointer;
+  box-shadow:0 10px 20px rgba(0,0,0,.18);
+  transition:transform .18s ease,opacity .18s ease;
+}
+.donation-launch:hover{transform:translateY(-1px);opacity:.96}
+.donation-backdrop{
+  position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+  padding:18px;background:rgba(4,6,10,.72);backdrop-filter:blur(8px);z-index:400;
+}
+.donation-backdrop.is-open{display:flex}
+.donation-card{
+  position:relative;width:min(540px,100%);padding:22px 22px 18px;
+  background:var(--surface, var(--s));color:var(--text, var(--txt));
+  border:1px solid var(--border, var(--bd));border-radius:14px;
+  box-shadow:0 24px 60px rgba(0,0,0,.45);
+}
+.donation-kicker{
+  margin:0;font-family:'IBM Plex Mono',monospace;font-size:.68rem;
+  font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent, var(--acc));
+}
+.donation-card h3{
+  margin:.3rem 0 .6rem;color:var(--text, var(--txt));font-family:inherit;
+  font-size:1.5rem;line-height:1.2;
+}
+.donation-copy{
+  margin:0 0 .9rem;color:var(--text-muted, var(--mut));font-size:.95rem;line-height:1.5;
+}
+.donation-alias{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 16px;margin:12px 0 14px;
+  border:1px solid var(--border, var(--bd));border-radius:10px;background:var(--surface2, var(--s2));
+}
+.donation-alias-meta{display:grid;gap:4px}
+.donation-alias-label{
+  font-family:'IBM Plex Mono',monospace;font-size:.68rem;
+  text-transform:uppercase;letter-spacing:.14em;color:var(--accent, var(--acc));
+}
+.donation-alias strong{
+  font-family:'IBM Plex Mono',monospace;font-size:1rem;word-break:break-word;
+}
+.donation-copy-btn,.donation-secondary{
+  appearance:none;border-radius:999px;border:1px solid var(--border, var(--bd));
+  background:rgba(255,255,255,.04);color:var(--text, var(--txt));padding:.65rem 1rem;
+  cursor:pointer;font:inherit;transition:transform .18s ease,border-color .18s ease,background .18s ease;
+}
+.donation-copy-btn{
+  background:linear-gradient(135deg,#39e88a,#e8a525);color:#08110b;
+  font-weight:700;border-color:transparent;white-space:nowrap;
+}
+.donation-copy-btn:hover,.donation-secondary:hover,.donation-close-btn:hover{transform:translateY(-1px)}
+.donation-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.donation-close-btn{
+  position:absolute;top:10px;right:12px;border:0;background:transparent;
+  color:var(--text-muted, var(--mut));font-size:1.4rem;cursor:pointer;line-height:1;
+}
+.donation-feedback{
+  min-height:1.2em;margin-top:10px;color:#39e88a;font-size:.9rem;
+}
+@media(max-width:640px){
+  .donation-alias{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:900px){.mobile-btn{display:block}.side{position:fixed;left:-280px;top:0;height:100vh;z-index:99;transition:left .3s}.side.open{left:0}.main{padding:44px 18px 80px}.reg-row{flex-direction:column}}
+</style>
+</head>
+<body>
+<button class="mobile-btn" onclick="document.querySelector('.side').classList.toggle('open')">☰</button>
+<div class="layout">
+
+<nav class="side">
+<div class="side-logo"><h1>Guía completa + ejercicios MIMO</h1><p>Guía completa + Ejercicios</p></div>
+
+<div class="ng"><div class="ngt">Páginas</div>
+<a href="index.html" class="nl">Parcial arqui 1 TyP</a>
+<a href="index2.html" class="nl">Assembler Teórico</a>
+<a href="index3.html" class="nl">Assembler Práctico MIMO</a>
+<a href="index4.html" class="nl">Assembler Ejercicios resueltos MIMO</a>
+<a href="index5.html" class="nl">Guía completa + ejercicios MIMO</a>
+<a href="index6.html" class="nl">Guía completa Claude</a>
+<button class="donation-launch" type="button" data-open-donations>Donaciones</button>
+</div>
+
+<div class="ng"><div class="ngt">Referencia</div>
+<a href="#ref" class="nl">Guía de Referencia</a>
+<a href="#ref-reg" class="nl">↳ Registros</a>
+<a href="#ref-mem" class="nl">↳ Segmentos y Memoria</a>
+<a href="#ref-pila" class="nl">↳ La Pila (SP/BP)</a>
+<a href="#ref-inst" class="nl">↳ Instrucciones</a>
+<a href="#ref-dir" class="nl">↳ Directivas</a>
+<a href="#ref-ascii" class="nl">↳ Tabla ASCII</a>
+<a href="#ref-resumen" class="nl">↳ Tabla Resumen</a>
+</div>
+
+<div class="ng"><div class="ngt">Ejercicio 1</div>
+<a href="#e1" class="nl">Código y enunciado</a>
+<a href="#e1-a" class="nl">a) Registro BX</a>
+<a href="#e1-b" class="nl">b) Dirección ss:[bp+4]</a>
+<a href="#e1-c" class="nl">c) Diagrama de Pila</a>
+<a href="#e1-d" class="nl">d) Mapa de Memoria</a>
+</div>
+
+<div class="ng"><div class="ngt">Ejercicio 2</div>
+<a href="#e2" class="nl">Código y enunciado</a>
+<a href="#e2-a" class="nl">a) Valor de RET</a>
+<a href="#e2-b" class="nl">b) Salida por Pantalla</a>
+<a href="#e2-c" class="nl">c) Mapa de Memoria</a>
+</div>
+
+<div class="ng"><div class="ngt">Ejercicio 3</div>
+<a href="#e3" class="nl">Código y enunciado</a>
+<a href="#e3-mem" class="nl">Mapa de Memoria</a>
+<a href="#e3-reg" class="nl">Estado de Registros</a>
+<a href="#e3-stk" class="nl">Diagrama de Pila</a>
+<a href="#e3-out" class="nl">Salida de Pantalla</a>
+<a href="#e3-ax" class="nl">AX tras 3ra iteración</a>
+</div>
+</nav>
+
+<!-- ═══════════════════ MAIN ═══════════════════ -->
+<main class="main">
+
+<!-- ══════════════════════════════════════════════ -->
+<!--         REFERENCIA COMPLETA                   -->
+<!-- ══════════════════════════════════════════════ -->
+<section id="ref">
+<h2>Guía de Referencia Completa</h2>
+<p class="sub">Todo lo que necesitás entender antes de resolver los ejercicios</p>
+
+<div class="note blue"><div class="nt">Cómo usar esta guía</div>
+<p style="margin:0">Esta sección explica <strong>cada registro, cada instrucción y cada directiva</strong> que aparece en los ejercicios. Si algo te aparece en el código y no lo entendés, buscálo acá. Al final hay una <strong>tabla resumen</strong> con todo junto.</p>
+</div>
+</section>
+
+<div class="div"></div>
+
+<!-- ═══════════ REGISTROS ═══════════ -->
+<section id="ref-reg">
+<h3>Los Registros — ¿Qué son?</h3>
+
+<p>Un <span class="hl">registro</span> es un lugar de almacenamiento <strong>dentro del propio procesador</strong>. Son como "variables ultra-rápidas" que la CPU usa directamente. Hay varios tipos:</p>
+
+<h4>Registros de Propósito General</h4>
+<p>Son los que más vas a usar. Cada uno tiene 16 bits y se puede dividir en dos mitades de 8 bits:</p>
+
+<div class="tw"><table>
+<tr><th>Registro</th><th>Nombre</th><th>Parte Alta (8b)</th><th>Parte Baja (8b)</th><th>Se usa típicamente para...</th></tr>
+<tr><td><strong>AX</strong></td><td>Acumulador</td><td><code>AH</code></td><td><code>AL</code></td><td>Resultados de operaciones, llamadas al DOS (AH=función)</td></tr>
+<tr><td><strong>BX</strong></td><td>Base</td><td><code>BH</code></td><td><code>BL</code></td><td>Almacenar direcciones de memoria, datos temporales</td></tr>
+<tr><td><strong>CX</strong></td><td>Contador</td><td><code>CH</code></td><td><code>CL</code></td><td>Bucles (LOOP decrementa CX automáticamente)</td></tr>
+<tr><td><strong>DX</strong></td><td>Datos</td><td><code>DH</code></td><td><code>DL</code></td><td>Llamadas al DOS (DL=carácter a imprimir), datos temporales</td></tr>
+</table></div>
+
+<div class="note tip"><div class="nt">Ejemplo visual</div>
+<p style="margin:0">Si AX = 0038h, entonces:</p>
+<div class="bit-vis">
+<div class="bit zero">0</div><div class="bit zero">0</div><div class="bit zero">0</div><div class="bit zero">0</div><div class="bit zero">0</div><div class="bit zero">0</div><div class="bit zero">0</div><div class="bit zero">0</div><div class="bit one">0</div><div class="bit one">0</div><div class="bit one">1</div><div class="bit one">1</div><div class="bit one">1</div><div class="bit zero">0</div><div class="bit zero">0</div><div class="bit zero">0</div>
+</div>
+<div class="bit-lbl"><span>15</span><span>14</span><span>13</span><span>12</span><span>11</span><span>10</span><span>9</span><span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span><span>0</span></div>
+<p style="margin:6px 0 0;text-align:center;font-size:13px"><span class="bl">← AH = 00h (bits 15-8) →</span> &nbsp;&nbsp; <span class="gr">← AL = 38h (bits 7-0) →</span></p>
+<p style="margin:4px 0 0;font-size:13px">Trabajar con AH o AL es como usar solo la mitad del casillero.</p>
+</div>
+
+<h4>Registros de Segmento</h4>
+<p>La memoria del 8086 se divide en <strong>segmentos</strong> de hasta 64KB. Cada registro de segmento "apunta" al inicio de un área:</p>
+
+<div class="tw"><table>
+<tr><th>Registro</th><th>Nombre</th><th>¿Qué apunta?</th><th>En los ejercicios...</th></tr>
+<tr><td><strong>DS</strong></td><td>Data Segment</td><td>Inicio del segmento de <strong>datos</strong> (variables)</td><td>Se inicializa con <code>mov ds, @data</code></td></tr>
+<tr><td><strong>SS</strong></td><td>Stack Segment</td><td>Inicio del segmento de <strong>pila</strong></td><td>Se asigna automáticamente</td></tr>
+<tr><td><strong>CS</strong></td><td>Code Segment</td><td>Inicio del segmento de <strong>código</strong></td><td>Se asigna automáticamente</td></tr>
+<tr><td><strong>ES</strong></td><td>Extra Segment</td><td>Segmento <strong>adicional</strong> para datos</td><td>No se usa en estos ejercicios</td></tr>
+</table></div>
+
+<div class="note"><div class="nt">¿Por qué "mov ds, @data"?</div>
+<p style="margin:0"><code>@data</code> es un valor especial que el ensamblador reemplaza por la dirección donde empiezan tus variables. La instrucción <code>mov ds, ax</code> (con @data previamente en AX) hace que DS apunte a tus datos. Sin esto, cuando intentés leer una variable, el procesador buscaría en el lugar equivocado.</p>
+</div>
+
+<h4>Registros de Pila: SP y BP</h4>
+<p>Estos dos son <strong>fundamentales</strong> para las subrutinas:</p>
+
+<div class="ref-card">
+<h5>SP — Stack Pointer (Puntero de Pila)</h5>
+<p><span class="hl">SP</span> siempre apunta al <strong>último dato que se apiló</strong> (el "tope" de la pila). Funciona así:</p>
+<ul>
+<li>Cuando hacés <code>PUSH</code>, SP <strong>baja 2</strong> (la pila crece hacia abajo)</li>
+<li>Cuando hacés <code>POP</code>, SP <strong>sube 2</strong> (la pila se encoge)</li>
+<li>No se modifica directamente con MOV; se modifica con PUSH, POP, CALL, RET</li>
+</ul>
+<p><strong>Ejemplo:</strong> Si SS=0710h y la pila está vacía con SP=0100h:</p>
+<ul>
+<li>Después de <code>push ax</code>: SP = <span class="gr">00FEh</span> (bajó 2)</li>
+<li>Después de otro <code>push bx</code>: SP = <span class="gr">00FCh</span> (bajó 2 más)</li>
+</ul>
+</div>
+
+<div class="ref-card">
+<h5>BP — Base Pointer (Puntero Base)</h5>
+<p><span class="hl">BP</span> se usa como <strong>punto de referencia fijo</strong> dentro de una subrutina para acceder a los parámetros que se pasaron por la pila.</p>
+<p><strong>¿Por qué es necesario?</strong> Porque SP cambia cada vez que hacés PUSH o POP dentro de la subrutina, así que no podés usar SP para encontrar los parámetros (se "mueve"). BP se fija una vez y queda quieto.</p>
+<p>El patrón clásico es:</p>
+<pre><code><span class="ck">push bp</span>     <span class="cc">; 1. Guardamos el BP viejo en la pila</span>
+<span class="ck">mov bp, sp</span>  <span class="cc">; 2. BP = SP actual. Ahora BP es nuestra "referencia"</span>
+             <span class="cc">;    todo parámetro queda en BP+4, BP+6, etc.</span></code></pre>
+</div>
+
+<h4>Registros Especiales: IP y FLAGS</h4>
+
+<div class="ref-card">
+<h5>IP — Instruction Pointer</h5>
+<p><span class="hl">IP</span> guarda la dirección de la <strong>siguiente instrucción</strong> que la CPU va a ejecutar. La CPU lo incrementa automáticamente después de cada instrucción. Cuando se ejecuta <code>CALL</code>, la CPU guarda IP en la pila y lo cambia a la dirección de la subrutina. Con <code>RET</code>, lo recupera de la pila y vuelve a donde estaba.</p>
+</div>
+
+<div class="ref-card">
+<h5>FLAGS — Registro de Banderas</h5>
+<p><span class="hl">FLAGS</span> es un registro especial que la CPU actualiza automáticamente después de cada operación aritmética o lógica. Las banderas más importantes son:</p>
+<ul>
+<li><strong>ZF</strong> (Zero Flag) = 1 si el resultado fue <strong>cero</strong></li>
+<li><strong>CF</strong> (Carry Flag) = 1 si hubo <strong>acarreo</strong> (préstamo en resta)</li>
+<li><strong>SF</strong> (Sign Flag) = 1 si el resultado es <strong>negativo</strong> (bit más significativo = 1)</li>
+<li><strong>OF</strong> (Overflow Flag) = 1 si hubo <strong>desbordamiento</strong> con signo</li>
+</ul>
+<p>Las instrucciones <code>CMP</code> y los saltos condicionales (<code>JE</code>, <code>JB</code>, <code>JL</code>...) leen estas banderas.</p>
+</div>
+</section>
+
+<div class="div"></div>
+
+<!-- ═══════════ SEGMENTOS Y MEMORIA ═══════════ -->
+<section id="ref-mem">
+<h3>Segmentos y Memoria</h3>
+
+<h4>Direcciones de memoria: Segmento:Offset</h4>
+<p>En el 8086, cada posición de memoria se identifica con <strong>dos números</strong>:</p>
+<div class="eq">Segmento : Offset &nbsp;&nbsp;→&nbsp;&nbsp; Ejemplo: 0720:0003</div>
+<p>Esto funciona como un "mes:día" en un calendario. El segmento selecciona un bloque de memoria y el offset indica la posición dentro de ese bloque.</p>
+
+<h4>Las variables en memoria</h4>
+<p>Cuando declarás variables en <code>.DATA</code>, el ensamblador las pone una detrás de otra en el segmento de datos. Ejemplo:</p>
+<pre><code><span class="cd">.data</span>
+  <span class="cv">var1</span> <span class="ck">DB</span> <span class="cr">11</span>         <span class="cc">; offset 0000 — 1 byte con valor 0Bh</span>
+  <span class="cv">var2</span> <span class="ck">DB</span> <span class="cr">43h</span>        <span class="cc">; offset 0001 — 1 byte con valor 43h</span>
+  <span class="cv">var3</span> <span class="ck">DB</span> <span class="cs">"ABC"</span>      <span class="cc">; offset 0002 — 3 bytes: 41h, 42h, 43h</span></code></pre>
+
+<h4><code>offset</code> vs contenido</h4>
+<p>Cuando escribís <code>mov ax, var2</code>, leés el <strong>contenido</strong> de var2 (AX = 0043h).</p>
+<p>Cuando escribís <code>mov ax, offset var2</code>, obtenés la <strong>dirección</strong> de var2 (AX = 0001h).</p>
+<p>La diferencia es como preguntar "¿qué hay en la casa?" vs "¿cuál es la dirección de la casa?".</p>
+
+<h4>Little Endian (orden de bytes)</h4>
+<p>Cuando un dato ocupa <strong>2 bytes</strong> (word), en memoria se guarda "al revés": el byte bajo primero y el byte alto después.</p>
+<div class="tw"><table>
+<tr><th>Valor</th><th>Dirección menor</th><th>Dirección mayor</th><th>¿Por qué?</th></tr>
+<tr><td>0035h</td><td><strong>35h</strong> (bajo)</td><td><strong>00h</strong> (alto)</td><td>Convención del 8086</td></tr>
+<tr><td>0720h</td><td><strong>20h</strong> (bajo)</td><td><strong>07h</strong> (alto)</td><td>Siempre el byte bajo va primero</td></tr>
+</table></div>
+</section>
+
+<div class="div"></div>
+
+<!-- ═══════════ LA PILA EN DETALLE ═══════════ -->
+<section id="ref-pila">
+<h3>La Pila en Detalle — Paso a Paso</h3>
+
+<p>La pila es una zona de memoria que funciona como una <strong>torre de platos</strong>: el último que ponés es el primero que sacás (LIFO).</p>
+
+<h4>Cómo funciona PUSH (apilar)</h4>
+<ol>
+<li>SP baja 2 (la pila crece hacia direcciones más bajas)</li>
+<li>El valor se escribe en la posición SS:SP</li>
+</ol>
+<p><strong>Ejemplo con PUSH AX (AX = 0033h, SP = 0100h):</strong></p>
+<pre><code><span class="cc">Antes:  SP = 0100h</span>
+<span class="ck">push ax</span>
+<span class="cc">Paso 1: SP = SP - 2 = 00FEh</span>
+<span class="cc">Paso 2: SS:[00FEh] = 0033h  (el valor de AX)</span>
+<span class="cc">Después: SP = 00FEh</span></code></pre>
+
+<h4>Cómo funciona POP (desapilar)</h4>
+<ol>
+<li>El valor se lee de SS:SP</li>
+<li>SP sube 2</li>
+</ol>
+
+<h4>Cómo funciona CALL (llamar subrutina)</h4>
+<ol>
+<li>SP baja 2</li>
+<li>Se guarda IP (la dirección de retorno) en SS:SP</li>
+<li>IP cambia a la dirección de la subrutina</li>
+</ol>
+<p>Es como poner un "marcapáginas" en un libro antes de saltar a otro capítulo.</p>
+
+<h4>Cómo funciona RET (volver)</h4>
+<ol>
+<li>Se lee IP de SS:SP</li>
+<li>SP sube 2</li>
+<li>La ejecución continúa donde quedó</li>
+</ol>
+
+<h4>Cómo funciona RET N (volver y limpiar parámetros)</h4>
+<p>Hace lo mismo que RET, pero además suma N a SP. Esto "borra" los parámetros que se habían pusheado antes del CALL.</p>
+<div class="eq">ret 4 &nbsp;→&nbsp; saca retorno + suma 4 a SP = limpia 2 parámetros</div>
+
+<h4>La estructura del "marco de pila" (Stack Frame)</h4>
+<p>Después de <code>push bp</code> y <code>mov bp, sp</code> dentro de la subrutina, la pila queda así:</p>
+<div class="tw"><table>
+<tr><th>Posición</th><th>Contenido</th><th>Quién lo puso</th></tr>
+<tr><td><code>SS:[BP + 6]</code></td><td>1er parámetro (el primer push)</td><td>Tu código (antes del CALL)</td></tr>
+<tr><td><code>SS:[BP + 4]</code></td><td>Último parámetro (el último push)</td><td>Tu código (antes del CALL)</td></tr>
+<tr><td><code>SS:[BP + 2]</code></td><td>Dirección de retorno (IP)</td><td>La instrucción CALL</td></tr>
+<tr><td><code>SS:[BP + 0]</code></td><td>BP anterior</td><td>Tu código (push bp)</td></tr>
+</table></div>
+
+<div class="note warn"><div class="nt">¿Por qué BP+4 y no BP+0?</div>
+<p style="margin:0">Porque las posiciones BP+0 y BP+2 están ocupadas por el <strong>BP guardado</strong> y la <strong>dirección de retorno</strong>. Los parámetros empiezan en BP+4. Si pusheaste más parámetros antes, el más viejo queda en BP+6, BP+8, etc. (en orden inverso a como los pusheaste).</p>
+</div>
+</section>
+
+<div class="div"></div>
+
+<!-- ═══════════ INSTRUCCIONES ═══════════ -->
+<section id="ref-inst">
+<h3>Cada Instrucción Explicada</h3>
+
+<!-- MOV -->
+<div class="ref-card">
+<h5>MOV — Mover (copiar) un valor</h5>
+<pre><code><span class="ck">mov</span> <span class="cr">destino</span>, <span class="cv">fuente</span>    <span class="cc">; destino = fuente</span></code></pre>
+<p>Copia el valor de la fuente al destino. <strong>No borra</strong> la fuente. Es como <code>=</code> en C. El destino <strong>no puede ser un número</strong>.</p>
+<pre><code><span class="ck">mov</span> <span class="cr">ax</span>, <span class="cr">5</span>        <span class="cc">; AX = 5</span>
+<span class="ck">mov</span> <span class="cr">bx</span>, <span class="cr">ax</span>       <span class="cc">; BX = AX = 5 (AX sigue valiendo 5)</span></code></pre>
+</div>
+
+<!-- PUSH -->
+<div class="ref-card">
+<h5>PUSH — Apilar un valor en la pila</h5>
+<pre><code><span class="ck">push</span> <span class="cv">valor</span>   <span class="cc">; SP -= 2, luego guarda 'valor' en SS:[SP]</span></code></pre>
+<p>Pone un valor "arriba" de la pila. SP baja 2 automáticamente. El valor puede ser un registro o una variable (word).</p>
+</div>
+
+<!-- POP -->
+<div class="ref-card">
+<h5>POP — Desapilar (sacar de la pila)</h5>
+<pre><code><span class="ck">pop</span> <span class="cr">destino</span>   <span class="cc">; Lee SS:[SP], guarda en 'destino', luego SP += 2</span></code></pre>
+<p>Saca el último valor apilado. SP sube 2. Es el reverso de PUSH.</p>
+</div>
+
+<!-- CALL -->
+<div class="ref-card">
+<h5>CALL — Llamar a una subrutina</h5>
+<pre><code><span class="ck">call</span> <span class="cl">etiqueta</span>   <span class="cc">; Guarda IP en la pila, salta a 'etiqueta'</span></code></pre>
+<p>Apila la dirección de retorno (IP) y salta a la subrutina. Es como un "GOTO con marcapáginas".</p>
+</div>
+
+<!-- RET -->
+<div class="ref-card">
+<h5>RET / RET N — Volver de una subrutina</h5>
+<pre><code><span class="ck">ret</span>       <span class="cc">; Saca IP de la pila, vuelve al llamador</span>
+<span class="ck">ret</span> <span class="cr">4</span>    <span class="cc">; Hace ret + suma 4 a SP (limpia parámetros)</span></code></pre>
+<p><code>ret N</code> limpia N bytes de parámetros. Si pusheados 2 parámetros (4 bytes) antes del CALL, usás <code>ret 4</code>.</p>
+</div>
+
+<!-- CMP -->
+<div class="ref-card">
+<h5>CMP — Comparar (sin guardar resultado)</h5>
+<pre><code><span class="ck">cmp</span> <span class="cv">op1</span>, <span class="cv">op2</span>   <span class="cc">; Calcula op1 - op2 internamente, solo actualiza FLAGS</span></code></pre>
+<p>Resta op2 de op1 <strong>sin guardar el resultado</strong>. Solo modifica las banderas (ZF, CF, SF, OF). Se usa siempre seguido de un salto condicional.</p>
+</div>
+
+<!-- SALTOS CONDICIONALES -->
+<div class="ref-card">
+<h5>Saltos Condicionales — Después de CMP</h5>
+<p>Estos saltos leen las banderas que dejó CMP:</p>
+<div class="tw"><table>
+<tr><th>Instrucción</th><th>Significado</th><th>Condición</th><th>Tipo</th></tr>
+<tr><td><code>JE</code> / <code>JZ</code></td><td>Jump if Equal</td><td>ZF = 1 (op1 == op2)</td><td>Ambos</td></tr>
+<tr><td><code>JNE</code> / <code>JNZ</code></td><td>Jump if Not Equal</td><td>ZF = 0 (op1 != op2)</td><td>Ambos</td></tr>
+<tr><td><code>JB</code> / <code>JNAE</code></td><td>Jump if Below</td><td>CF = 1 (op1 &lt; op2 <strong>sin signo</strong>)</td><td>Sin signo</td></tr>
+<tr><td><code>JA</code> / <code>JNBE</code></td><td>Jump if Above</td><td>CF = 0 y ZF = 0 (op1 &gt; op2 <strong>sin signo</strong>)</td><td>Sin signo</td></tr>
+<tr><td><code>JBE</code></td><td>Jump if Below or Equal</td><td>CF = 1 o ZF = 1</td><td>Sin signo</td></tr>
+<tr><td><code>JAE</code></td><td>Jump if Above or Equal</td><td>CF = 0</td><td>Sin signo</td></tr>
+<tr><td><code>JL</code> / <code>JNGE</code></td><td>Jump if Less</td><td>SF ≠ OF (op1 &lt; op2 <strong>con signo</strong>)</td><td>Con signo</td></tr>
+<tr><td><code>JG</code> / <code>JNLE</code></td><td>Jump if Greater</td><td>SF = OF y ZF = 0</td><td>Con signo</td></tr>
+</table></div>
+
+<div class="note warn"><div class="nt">¡Cuidado! JB vs JL</div>
+<p style="margin:0"><strong>JB</strong> (Jump if Below) se usa para comparar números <strong>sin signo</strong> (0 a 255 o 0 a 65535). <strong>JL</strong> (Jump if Less) se usa para comparar números <strong>con signo</strong> (-128 a 127). El Ejercicio 1 usa <code>JB</code> y <code>JA</code> porque compara caracteres ASCII (valores sin signo). El Ejercicio 3 usa <code>JL</code> porque la tabla usada en clase asume comparación con signo.</p>
+</div>
+</div>
+
+<!-- LOOP -->
+<div class="ref-card">
+<h5>LOOP — Repetir usando CX como contador</h5>
+<pre><code><span class="cl">etiqueta:</span>
+    <span class="cc">; ... cuerpo del bucle ...</span>
+    <span class="ck">loop</span> <span class="cl">etiqueta</span>   <span class="cc">; CX = CX - 1; si CX ≠ 0, saltar a etiqueta</span></code></pre>
+<p>LOOP es como un <code>for</code> con CX como contador. Primero decrementa CX en 1, y si CX no llegó a cero, salta a la etiqueta. Si CX es cero, continúa con la siguiente instrucción.</p>
+<p><strong>Importante:</strong> CX debe cargarse con el número de iteraciones <strong>antes</strong> del bucle.</p>
+</div>
+
+<!-- ADD / SUB -->
+<div class="ref-card">
+<h5>ADD y SUB — Sumar y restar</h5>
+<pre><code><span class="ck">add</span> <span class="cr">destino</span>, <span class="cv">op2</span>   <span class="cc">; destino = destino + op2</span>
+<span class="ck">sub</span> <span class="cr">destino</span>, <span class="cv">op2</span>   <span class="cc">; destino = destino - op2</span></code></pre>
+<p>El resultado <strong>siempre</strong> se guarda en el primer operando. El segundo operando puede ser un registro o un número.</p>
+</div>
+
+<!-- INC / DEC -->
+<div class="ref-card">
+<h5>INC y DEC — Incrementar y decrementar en 1</h5>
+<pre><code><span class="ck">inc</span> <span class="cr">destino</span>   <span class="cc">; destino = destino + 1</span>
+<span class="ck">dec</span> <span class="cr">destino</span>   <span class="cc">; destino = destino - 1</span></code></pre>
+<p>Equivalentes a <code>ADD destino, 1</code> y <code>SUB destino, 1</code>, pero más rápidos.</p>
+</div>
+
+<!-- INT -->
+<div class="ref-card">
+<h5>INT 21h — Llamar al sistema operativo (DOS)</h5>
+<p>Ejecuta un servicio del DOS. El número de servicio va en <code>AH</code>. Los más usados:</p>
+<div class="tw"><table>
+<tr><th>AH</th><th>Qué hace</th><th>Parámetros</th><th>Resultado</th></tr>
+<tr><td><code>01h</code></td><td>Leer carácter del teclado</td><td>—</td><td>AL = carácter ASCII</td></tr>
+<tr><td><code>02h</code></td><td>Escribir un carácter en pantalla</td><td>DL = carácter</td><td>—</td></tr>
+<tr><td><code>09h</code></td><td>Escribir un string en pantalla</td><td>DX = dirección del string (hasta '$')</td><td>—</td></tr>
+<tr><td><code>4Ch</code></td><td>Terminar el programa</td><td>AL = código de salida</td><td>—</td></tr>
+</table></div>
+</div>
+</section>
+
+<div class="div"></div>
+
+<!-- ═══════════ DIRECTIVAS ═══════════ -->
+<section id="ref-dir">
+<h3>Directivas y Sintaxis Especial</h3>
+
+<div class="tw"><table>
+<tr><th>Elemento</th><th>Tipo</th><th>Qué significa</th><th>Ejemplo</th></tr>
+<tr><td><code>.model small</code></td><td>Directiva</td><td>Indica el modelo de memoria. "Small" = un segmento de código + uno de datos (el más simple)</td><td>Siempre va al principio</td></tr>
+<tr><td><code>.stack</code></td><td>Directiva</td><td>Declara el segmento de pila (tamaño por defecto)</td><td>Siempre va así</td></tr>
+<tr><td><code>.data</code></td><td>Directiva</td><td>Inicia la sección de <strong>variables</strong></td><td>Todas las variables van acá</td></tr>
+<tr><td><code>.code</code></td><td>Directiva</td><td>Inicia la sección de <strong>código</strong></td><td>Todas las instrucciones van acá</td></tr>
+<tr><td><code>DB</code></td><td>Declaración</td><td>Reserva un <strong>byte</strong> (8 bits) de memoria</td><td><code>dato DB 11</code></td></tr>
+<tr><td><code>DW</code></td><td>Declaración</td><td>Reserva un <strong>word</strong> (16 bits) de memoria</td><td><code>dato DW 100</code></td></tr>
+<tr><td><code>DUP</code></td><td>Declaración</td><td>Duplica un valor N veces (para arreglos)</td><td><code>arr DB 5 DUP(0)</code> = 5 bytes en 0</td></tr>
+<tr><td><code>?</code></td><td>Valor</td><td>Sin inicializar (contiene "basura")</td><td><code>res DB ?</code></td></tr>
+<tr><td><code>proc / endp</code></td><td>Directiva</td><td>Marca el inicio y fin de una <strong>subrutina</strong></td><td><code>sub proc ... sub endp</code></td></tr>
+<tr><td><code>END etiqueta</code></td><td>Directiva</td><td>Fin del programa. La etiqueta indica dónde empezar</td><td><code>END inicio</code></td></tr>
+<tr><td><code>@data</code></td><td>Token</td><td>Valor que el ensamblador reemplaza por la <strong>dirección del segmento de datos</strong></td><td><code>mov ax, @data</code></td></tr>
+<tr><td><code>offset</code></td><td>Operador</td><td>Obtiene la <strong>dirección</strong> (offset) de una variable</td><td><code>mov dx, offset var3</code></td></tr>
+<tr><td><code>DS:[...]</code></td><td>Direccionamiento</td><td>Accede a memoria usando el segmento de datos</td><td><code>mov dl, ds:[bx]</code></td></tr>
+<tr><td><code>SS:[...]</code></td><td>Direccionamiento</td><td>Accede a memoria usando el segmento de pila</td><td><code>mov bx, ss:[bp+4]</code></td></tr>
+</table></div>
+
+<div class="note"><div class="nt">Los comentarios</div>
+<p style="margin:0">En Assembler los comentarios empiezan con <code>;</code>. Todo lo que sigue hasta el fin de línea es un comentario y el ensamblador lo ignora. Son <strong>muy importantes</strong> porque cada instrucción hace muy poco y es fácil perderse.</p>
+</div>
+</section>
+
+<div class="div"></div>
+
+<!-- ═══════════ ASCII ═══════════ -->
+<section id="ref-ascii">
+<h3>Tabla ASCII — Los más usados</h3>
+<div class="tw"><table>
+<tr><th>Char</th><th>Hex</th><th>Dec</th><th></th><th>Char</th><th>Hex</th><th>Dec</th><th></th><th>Char</th><th>Hex</th><th>Dec</th></tr>
+<tr><td><code>'0'</code></td><td>30h</td><td>48</td><td></td><td><code>'A'</code></td><td>41h</td><td>65</td><td></td><td><code>'a'</code></td><td>61h</td><td>97</td></tr>
+<tr><td><code>'1'</code></td><td>31h</td><td>49</td><td></td><td><code>'B'</code></td><td>42h</td><td>66</td><td></td><td><code>'b'</code></td><td>62h</td><td>98</td></tr>
+<tr><td><code>'2'</code></td><td>32h</td><td>50</td><td></td><td><code>'C'</code></td><td>43h</td><td>67</td><td></td><td><code>'c'</code></td><td>63h</td><td>99</td></tr>
+<tr><td><code>'3'</code></td><td>33h</td><td>51</td><td></td><td><code>'D'</code></td><td>44h</td><td>68</td><td></td><td><code>' '</code></td><td>20h</td><td>32</td></tr>
+<tr><td><code>'4'</code></td><td>34h</td><td>52</td><td></td><td><code>'E'</code></td><td>45h</td><td>69</td><td></td><td><code>'$'</code></td><td>24h</td><td>36</td></tr>
+<tr><td><code>'5'</code></td><td>35h</td><td>53</td><td></td><td><code>'F'</code></td><td>46h</td><td>70</td><td></td><td><code>':'</code></td><td>3Ah</td><td>58</td></tr>
+<tr><td><code>'6'</code></td><td>36h</td><td>54</td><td></td><td><code>'L'</code></td><td>4Ch</td><td>76</td><td></td><td><code>'#'</code></td><td>23h</td><td>35</td></tr>
+<tr><td><code>'7'</code></td><td>37h</td><td>55</td><td></td><td><code>'M'</code></td><td>4Dh</td><td>77</td><td></td><td><code>'.'</code></td><td>2Eh</td><td>46</td></tr>
+<tr><td><code>'8'</code></td><td>38h</td><td>56</td><td></td><td><code>'R'</code></td><td>52h</td><td>82</td><td></td><td><code>'n'</code></td><td>6Eh</td><td>110</td></tr>
+<tr><td><code>'9'</code></td><td>39h</td><td>57</td><td></td><td><code>'Z'</code></td><td>5Ah</td><td>90</td><td></td><td><code>'r'</code></td><td>72h</td><td>114</td></tr>
+</table></div>
+<div class="note tip"><div class="nt">Truco</div>
+<p style="margin:0">Los dígitos '0'-'9' van del <strong>30h al 39h</strong>. Para convertir ASCII a número: <code>número = carácter - '0'</code> (o sea, carácter - 30h). Ej: '7' (37h) - '0' (30h) = 7.</p>
+</div>
+</section>
+
+<div class="div"></div>
+
+<!-- ═══════════ TABLA RESUMEN ═══════════ -->
+<section id="ref-resumen">
+<h3>Tabla Resumen — Todo Junto</h3>
+
+<h4>Registros</h4>
+<div class="tw"><table>
+<tr><th>Reg</th><th>Bits</th><th>Partes</th><th>Tipo</th><th>Uso principal en estos ejercicios</th></tr>
+<tr><td>AX</td><td>16</td><td>AH (alto), AL (bajo)</td><td>Propósito general</td><td>Acumular resultados, INT 21h (AH=nro función)</td></tr>
+<tr><td>BX</td><td>16</td><td>BH, BL</td><td>Propósito general</td><td>Guardar direcciones, leer parámetros de pila</td></tr>
+<tr><td>CX</td><td>16</td><td>CH, CL</td><td>Propósito general</td><td>Contador para LOOP</td></tr>
+<tr><td>DX</td><td>16</td><td>DH, DL</td><td>Propósito general</td><td>INT 21h (DL=carácter), offsets</td></tr>
+<tr><td>DS</td><td>16</td><td>—</td><td>Segmento</td><td>Apunta a donde están las variables (.DATA)</td></tr>
+<tr><td>SS</td><td>16</td><td>—</td><td>Segmento</td><td>Apunta a la pila (Stack)</td></tr>
+<tr><td>CS</td><td>16</td><td>—</td><td>Segmento</td><td>Apunta al código (no se toca manualmente)</td></tr>
+<tr><td>SP</td><td>16</td><td>—</td><td>Pila</td><td>Tope de la pila. Cambia con PUSH/POP/CALL/RET</td></tr>
+<tr><td>BP</td><td>16</td><td>—</td><td>Pila</td><td>Referencia fija para acceder a parámetros</td></tr>
+<tr><td>IP</td><td>16</td><td>—</td><td>Control</td><td>Siguiente instrucción a ejecutar (no visible)</td></tr>
+<tr><td>FLAGS</td><td>16</td><td>ZF,CF,SF,OF...</td><td>Control</td><td>Resultado de CMP, controla saltos condicionales</td></tr>
+</table></div>
+
+<h4>Instrucciones</h4>
+<div class="tw"><table>
+<tr><th>Inst.</th><th>Sintaxis</th><th>Qué hace</th><th>En palabras</th></tr>
+<tr><td>MOV</td><td><code>MOV dest, src</code></td><td>dest = src</td><td>Copia src en dest (no borra src)</td></tr>
+<tr><td>PUSH</td><td><code>PUSH val</code></td><td>SP-=2; [SP]=val</td><td>Apila val en la pila</td></tr>
+<tr><td>POP</td><td><code>POP dest</code></td><td>dest=[SP]; SP+=2</td><td>Desapila y guarda en dest</td></tr>
+<tr><td>CALL</td><td><code>CALL etiq</code></td><td>Guarda IP en pila, salta</td><td>Llama a una subrutina</td></tr>
+<tr><td>RET</td><td><code>RET</code></td><td>Recupera IP de pila</td><td>Vuelve de la subrutina</td></tr>
+<tr><td>RET N</td><td><code>RET 4</code></td><td>RET + SP+=N</td><td>Vuelve y limpia N bytes de parámetros</td></tr>
+<tr><td>CMP</td><td><code>CMP op1, op2</code></td><td>op1-op2 (solo flags)</td><td>Compara: resta sin guardar resultado</td></tr>
+<tr><td>JE</td><td><code>JE etiq</code></td><td>Salta si ZF=1</td><td>Salta si son iguales</td></tr>
+<tr><td>JB</td><td><code>JB etiq</code></td><td>Salta si CF=1</td><td>Salta si op1 &lt; op2 (sin signo)</td></tr>
+<tr><td>JA</td><td><code>JA etiq</code></td><td>Salta si CF=0 y ZF=0</td><td>Salta si op1 &gt; op2 (sin signo)</td></tr>
+<tr><td>JL</td><td><code>JL etiq</code></td><td>Salta si SF≠OF</td><td>Salta si op1 &lt; op2 (con signo)</td></tr>
+<tr><td>ADD</td><td><code>ADD dest, op2</code></td><td>dest = dest + op2</td><td>Suma op2 a dest</td></tr>
+<tr><td>SUB</td><td><code>SUB dest, op2</code></td><td>dest = dest - op2</td><td>Resta op2 de dest</td></tr>
+<tr><td>INC</td><td><code>INC dest</code></td><td>dest = dest + 1</td><td>Incrementa en 1</td></tr>
+<tr><td>DEC</td><td><code>DEC dest</code></td><td>dest = dest - 1</td><td>Decrementa en 1</td></tr>
+<tr><td>LOOP</td><td><code>LOOP etiq</code></td><td>CX--; si CX≠0 salta</td><td>Repite hasta que CX=0</td></tr>
+<tr><td>INT</td><td><code>INT 21h</code></td><td>Llama al DOS</td><td>Ejecuta servicio del SO (ver AH)</td></tr>
+</table></div>
+
+<h4>Directivas</h4>
+<div class="tw"><table>
+<tr><th>Directiva</th><th>Qué hace</th></tr>
+<tr><td><code>.model small</code></td><td>Modelo de memoria simple (un segmento de código + uno de datos)</td></tr>
+<tr><td><code>.stack</code></td><td>Declara la pila con tamaño por defecto</td></tr>
+<tr><td><code>.data</code></td><td>Comienza la sección de variables</td></tr>
+<tr><td><code>.code</code></td><td>Comienza la sección de código</td></tr>
+<tr><td><code>DB</code></td><td>Declara variable de 1 byte (8 bits)</td></tr>
+<tr><td><code>DW</code></td><td>Declara variable de 1 word (16 bits)</td></tr>
+<tr><td><code>DUP(n)</code></td><td>Repite un valor n veces (arreglos)</td></tr>
+<tr><td><code>proc / endp</code></td><td>Define una subrutina (procedimiento)</td></tr>
+<tr><td><code>END etiq</code></td><td>Fin del programa, etiq = punto de entrada</td></tr>
+<tr><td><code>@data</code></td><td>Dirección del segmento de datos</td></tr>
+<tr><td><code>offset var</code></td><td>Obtiene la dirección (no el contenido) de una variable</td></tr>
+</table></div>
+
+<h4>Fórmulas útiles</h4>
+<div class="tw"><table>
+<tr><th>Concepto</th><th>Fórmula</th><th>Ejemplo</th></tr>
+<tr><td>BP + parámetros</td><td><code>[BP+4]</code> = último push, <code>[BP+6]</code> = penúltimo</td><td>Si push offset + push long → long=[BP+4], offset=[BP+6]</td></tr>
+<tr><td>RET N</td><td>N = 2 × (cantidad de parámetros)</td><td>2 parámetros → ret 4</td></tr>
+<tr><td>LOOP</td><td>Repite CX veces</td><td>mov cx,6 / loop etiq → ejecuta 6 veces</td></tr>
+<tr><td>ASCII dígito → número</td><td>número = carácter - 30h</td><td>'5' (35h) - '0' (30h) = 5</td></tr>
+<tr><td>Word en memoria</td><td>Byte bajo primero, byte alto después</td><td>0035h → [35h][00h]</td></tr>
+</table></div>
+</section>
+
+<div class="div"></div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!--              EJERCICIO 1                       -->
+<!-- ══════════════════════════════════════════════ -->
+<section id="e1">
+<h2>Ejercicio 1 — Subrutina de Conversión ASCII</h2>
+<p class="sub">Convertir un carácter de dígito a su valor numérico usando la pila</p>
+
+<div class="ex-card">
+<div class="et">Código del programa</div>
+<pre><code><span class="cd">stack</span>
+<span class="cd">.data</span>
+  <span class="cv">dato1</span>      <span class="ck">db</span> <span class="cr">3</span>          <span class="cc">; 1 byte con valor 3</span>
+  <span class="cv">dato2</span>      <span class="ck">dw</span> <span class="cs">"3"</span>        <span class="cc">; 1 word con ASCII de '3' = 0033h</span>
+  <span class="cv">resultado</span>  <span class="ck">db</span> <span class="cr">?</span>          <span class="cc">; 1 byte sin inicializar</span>
+<span class="cd">.code</span>
+<span class="cl">inicio:</span>
+  <span class="ck">mov</span> <span class="cr">ax</span>, <span class="cv">@data</span>            <span class="cc">; AX = dirección del segmento de datos</span>
+  <span class="ck">mov</span> <span class="cr">ds</span>, <span class="cr">ax</span>               <span class="cc">; DS = AX. Ahora DS apunta a nuestros datos</span>
+  <span class="ck">mov</span> <span class="cr">ax</span>, <span class="cv">dato2</span>            <span class="cc">; AX = contenido de dato2 = 0033h</span>
+  <span class="ck">push</span> <span class="cr">ax</span>                  <span class="cc">; Apila 0033h en la pila (parámetro)</span>
+  <span class="ck">call</span> <span class="cl">subrutina</span>           <span class="cc">; Llama a la subrutina</span>
+  <span class="ck">mov</span> <span class="cv">resultado</span>, <span class="cr">ah</span>        <span class="cc">; Guarda AH (devuelto por la subrutina) en resultado</span>
+  <span class="ck">mov</span> <span class="cr">ax</span>, <span class="cr">4C00h</span>           <span class="cc">; Función: terminar programa</span>
+  <span class="ck">int</span> <span class="cr">21h</span>                  <span class="cc">; Llama al DOS para terminar</span>
+
+<span class="cl">subrutina</span> <span class="ck">proc</span>
+  <span class="ck">push</span> <span class="cr">bp</span>                  <span class="cc">; Guarda el BP anterior en la pila</span>
+  <span class="ck">mov</span> <span class="cr">bp</span>, <span class="cr">sp</span>               <span class="cc">; BP = SP. Ahora BP es nuestra referencia</span>
+  <span class="ck">mov</span> <span class="cr">bx</span>, <span class="cv">ss:[bp+4]</span>      <span class="cc">; ← (Ref.nro1) Lee parámetro de la pila → BX</span>
+  <span class="ck">cmp</span> <span class="cr">bl</span>, <span class="cs">"0"</span>             <span class="cc">; ¿BL &lt; '0'? (compara sin signo)</span>
+  <span class="ck">jb</span> <span class="cl">label1</span>               <span class="cc">; Si es menor que '0', no es dígito → ir a label1</span>
+  <span class="ck">cmp</span> <span class="cr">bl</span>, <span class="cs">"9"</span>             <span class="cc">; ¿BL &gt; '9'?</span>
+  <span class="ck">ja</span> <span class="cl">label1</span>               <span class="cc">; Si es mayor que '9', no es dígito → ir a label1</span>
+  <span class="ck">sub</span> <span class="cr">bl</span>, <span class="cs">"0"</span>             <span class="cc">; BL = BL - 30h. Convierte ASCII → número</span>
+  <span class="ck">mov</span> <span class="cr">ah</span>, <span class="cr">bl</span>              <span class="cc">; AH = resultado (para devolver al llamador)</span>
+  <span class="ck">pop</span> <span class="cr">bp</span>                   <span class="cc">; Restaura el BP anterior</span>
+  <span class="ck">ret</span> <span class="cr">2</span>                    <span class="cc">; Vuelve + limpia 2 bytes (1 parámetro)</span>
+<span class="cl">label1:</span>
+  <span class="ck">mov</span> <span class="cr">ah</span>, <span class="cs">"#"</span>             <span class="cc">; No era dígito → AH = '#'</span>
+  <span class="ck">pop</span> <span class="cr">bp</span>                   <span class="cc">; Restaura BP</span>
+  <span class="ck">ret</span> <span class="cr">2</span>                    <span class="cc">; Vuelve + limpia</span>
+<span class="cl">subrutina</span> <span class="ck">endp</span>
+<span class="ck">end</span> <span class="cl">inicio</span></code></pre>
+
+<div class="note blue"><div class="nt">¿Qué hace este programa? (En criollo)</div>
+<p style="margin:0">El programa tiene una "función" (subrutina) que recibe un valor por la pila. Si el byte bajo de ese valor es un carácter entre '0' y '9', lo convierte a número (le resta '0'). Si no, devuelve '#'. Es como hacer: <code>función('3') → devuelve 3</code>.</p>
+</div>
+</div>
+
+<h3>Mapa de datos previo</h3>
+<p>Con DS = 0720:0000:</p>
+<div class="tw"><table>
+<tr><th>Dirección</th><th>Hex</th><th>Variable</th><th>Explicación</th></tr>
+<tr><td>0720:0000</td><td><code>03h</code></td><td>dato1</td><td><code>DB 3</code> → un byte con valor 3</td></tr>
+<tr><td>0720:0001</td><td><code>33h</code></td><td>dato2 (bajo)</td><td rowspan="2"><code>DW "3"</code> → ASCII '3'=33h. Como word = 0033h. Little endian: [33h][00h]</td></tr>
+<tr><td>0720:0002</td><td><code>00h</code></td><td>dato2 (alto)</td></tr>
+<tr><td>0720:0003</td><td><code>??h</code></td><td>resultado</td><td><code>DB ?</code> → sin inicializar</td></tr>
+</table></div>
+</section>
+
+<div class="div"></div>
+
+<!-- EJ 1 — PREGUNTA A -->
+<section id="e1-a">
+<h3>a) Estado de BX luego de <code>mov bx, ss:[bp+4]</code></h3>
+
+<button class="btn" onclick="toggle('ans-e1a')">▶ Ver resolución paso a paso</button>
+<div class="ans" id="ans-e1a">
+
+<h5>Seguimos cada instrucción hasta llegar al punto marcado</h5>
+
+<p><strong>1. <code>mov ax, dato2</code></strong> — Lee la variable dato2. Como es DW (word), el ensamblador lee 2 bytes a partir del offset 0001h:</p>
+<ul>
+<li>Byte bajo (offset 0001h) = <strong>33h</strong></li>
+<li>Byte alto (offset 0002h) = <strong>00h</strong></li>
+</ul>
+<p>AX = 0033h. (AH=00h, AL=33h)</p>
+
+<p><strong>2. <code>push ax</code></strong> — Apila AX=0033h. SP baja de 0100h a 00FEh.</p>
+
+<p><strong>3. <code>call subrutina</code></strong> — Apila la dirección de retorno. SP baja a 00FCh.</p>
+
+<p><strong>4. <code>push bp</code></strong> (dentro de subrutina) — Apila el BP viejo. SP baja a 00FAh.</p>
+
+<p><strong>5. <code>mov bp, sp</code></strong> — BP = 00FAh.</p>
+
+<p><strong>6. <code>mov bx, ss:[bp+4]</code></strong> — Lee de la pila la posición BP+4:</p>
+
+<div class="eq">BP + 4 = 00FAh + 4 = <span class="gr">00FEh</span></div>
+
+<p>En SS:00FEh está el valor que pusheamos con <code>push ax</code>: <strong>0033h</strong>.</p>
+
+<div class="eq">BX = SS:[00FEh] = <span class="gr">0033h</span></div>
+
+<div class="reg-row">
+<div class="reg-b ch"><div class="reg-n">BX</div><div class="reg-v gr">0033h</div>
+<div class="reg-p"><span>BH = </span><strong>00h</strong><span> &nbsp; BL = </span><strong>33h</strong></div></div>
+</div>
+
+<div class="note tip"><div class="nt">En palabras</div>
+<p style="margin:0">BX vale 0033h. BL (el byte bajo) es 33h = ASCII de '3'. BH (el byte alto) es 00h. La subrutina usará BL para verificar si '3' es un dígito válido (lo es, porque está entre '0'=30h y '9'=39h).</p>
+</div>
+</div>
+</section>
+
+<div class="div"></div>
+
+<!-- EJ 1 — PREGUNTA B -->
+<section id="e1-b">
+<h3>b) Dirección apuntada por SS:[BP+4]</h3>
+
+<button class="btn" onclick="toggle('ans-e1b')">▶ Ver resolución</button>
+<div class="ans" id="ans-e1b">
+
+<p>Ya sabemos que después de <code>mov bp, sp</code>, BP = 00FAh.</p>
+
+<div class="eq">BP + 4 = 00FAh + 4 = <span class="gr">00FEh</span></div>
+
+<p>La dirección completa es <strong>SS:00FEh</strong> = <code>0710:00FEh</code>.</p>
+
+<p>En esa posición hay <strong>0033h</strong>, que es el parámetro que pusheamos antes del CALL.</p>
+
+<div class="note"><div class="nt">Recordatorio</div>
+<p style="margin:0"><code>ss:[bp+4]</code> significa: "en el segmento de pila (SS), empezá en donde apunta BP y avanzá 4 bytes". Eso te lleva al último parámetro que se pusheado. Ver la sección <a href="#ref-pila" style="color:var(--g)">"La Pila en Detalle"</a> si necesitás repasar.</p>
+</div>
+</div>
+</section>
+
+<div class="div"></div>
+
+<!-- EJ 1 — PREGUNTA C -->
+<section id="e1-c">
+<h3>c) Diagrama de la pila</h3>
+
+<button class="btn" onclick="toggle('ans-e1c')">▶ Ver diagrama completo</button>
+<div class="ans" id="ans-e1c">
+
+<h5>Estado 0 — Pila vacía (SS=0710h, SP=0100h)</h5>
+<div class="stk">
+<div class="stk-cell" style="border-style:dashed;color:var(--mut)">[vacío]<span class="stk-addr">SS:0100h</span><span class="stk-label">← SP</span></div>
+</div>
+
+<h5>Estado 1 — Después de <code>push ax</code> (AX=0033h)</h5>
+<p>SP baja 2: 0100h → 00FEh. Se escribe 0033h en SS:00FEh.</p>
+<div class="stk">
+<div class="stk-cell" style="border-style:dashed;color:var(--mut)">[vacío]<span class="stk-addr">SS:0100h</span></div>
+<div class="stk-cell hl-cell"><strong>0033h</strong> ← parámetro (AX)<span class="stk-addr">SS:00FEh</span><span class="stk-label">← SP</span></div>
+</div>
+
+<h5>Estado 2 — Después de <code>call subrutina</code></h5>
+<p>CALL apila la dirección de retorno (IP). SP baja 2: 00FEh → 00FCh.</p>
+<div class="stk">
+<div class="stk-cell" style="border-style:dashed;color:var(--mut)">[vacío]<span class="stk-addr">SS:0100h</span></div>
+<div class="stk-cell hl-cell"><strong>0033h</strong> ← parámetro<span class="stk-addr">SS:00FEh</span></div>
+<div class="stk-cell"><em>dir. retorno (IP)</em><span class="stk-addr">SS:00FCh</span><span class="stk-label">← SP</span></div>
+</div>
+
+<h5>Estado 3 — Dentro de subrutina, después de <code>push bp</code> + <code>mov bp, sp</code></h5>
+<p>Se guarda el BP viejo en la pila. SP baja 2: 00FCh → 00FAh. Luego BP = SP = 00FAh.</p>
+<div class="stk">
+<div class="stk-cell" style="border-style:dashed;color:var(--mut)">[vacío]<span class="stk-addr">SS:0100h</span></div>
+<div class="stk-cell hl-cell"><strong>0033h</strong> ← parámetro<span class="stk-addr">SS:00FEh</span><span class="stk-arrow">← BP+4</span></div>
+<div class="stk-cell"><em>dir. retorno</em><span class="stk-addr">SS:00FCh</span><span class="stk-arrow">← BP+2</span></div>
+<div class="stk-cell bp-cell"><strong>BP viejo</strong><span class="stk-addr">SS:00FAh</span><span class="stk-label">← SP = BP</span><span class="stk-arrow">← BP+0</span></div>
+</div>
+
+<p>Ahora BP+4 apunta al parámetro y BP+2 apunta a la dirección de retorno.</p>
+
+<h5>Estado 4 — Después de <code>pop bp</code></h5>
+<p>Se restaura BP. SP sube 2: 00FAh → 00FCh.</p>
+<div class="stk">
+<div class="stk-cell" style="border-style:dashed;color:var(--mut)">[vacío]<span class="stk-addr">SS:0100h</span></div>
+<div class="stk-cell hl-cell"><strong>0033h</strong> ← parámetro<span class="stk-addr">SS:00FEh</span></div>
+<div class="stk-cell"><em>dir. retorno</em><span class="stk-addr">SS:00FCh</span><span class="stk-label">← SP</span></div>
+</div>
+
+<h5>Estado 5 — Después de <code>ret 2</code></h5>
+<p>RET saca la dirección de retorno (SP → 00FEh). Luego suma 2 a SP para limpiar el parámetro (SP → 0100h).</p>
+<div class="stk">
+<div class="stk-cell" style="border-style:dashed;color:var(--mut)">[vacío]<span class="stk-addr">SS:0100h</span><span class="stk-label">← SP</span></div>
+</div>
+
+<p><strong>La pila queda vacía, exactamente como al principio.</strong> El <code>ret 2</code> limpió correctamente el parámetro.</p>
+</div>
+</section>
+
+<div class="div"></div>
+
+<!-- EJ 1 — PREGUNTA D -->
+<section id="e1-d">
+<h3>d) Mapa de memoria después de la ejecución completa</h3>
+
+<button class="btn" onclick="toggle('ans-e1d')">▶ Ver mapa</button>
+<div class="ans" id="ans-e1d">
+
+<div class="tw"><table>
+<tr><th>Dirección</th><th>Hex</th><th>Variable</th><th>¿Cambió?</th><th>Explicación</th></tr>
+<tr><td>0720:0000</td><td><code>03h</code></td><td>dato1</td><td>No</td><td>Sigue valiendo 3</td></tr>
+<tr><td>0720:0001</td><td><code>33h</code></td><td>dato2 (bajo)</td><td>No</td><td>ASCII '3'</td></tr>
+<tr><td>0720:0002</td><td><code>00h</code></td><td>dato2 (alto)</td><td>No</td><td>Parte alta del word</td></tr>
+<tr style="background:rgba(0,232,123,.06)"><td>0720:0003</td><td><code>03h</code></td><td><strong>resultado ★</strong></td><td><strong class="gr">SÍ</strong></td><td>Pasó de basura a 03h (='3' convertido a número)</td></tr>
+</table></div>
+
+<p><strong>Pila:</strong> SS = 0710:0100 (vacía).</p>
+
+<div class="note tip"><div class="nt">El flujo completo</div>
+<p style="margin:0">'3' (33h) entró como parámetro por la pila → la subrutina verificó que es un dígito (entre '0' y '9') → le restó '0' (30h) → obtuvo 3 (03h) → lo puso en AH → el programa principal lo copió a <code>resultado</code>.</p>
+</div>
+</div>
+</section>
+
+<div class="div"></div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!--              EJERCICIO 2                       -->
+<!-- ══════════════════════════════════════════════ -->
+<section id="e2">
+<h2>Ejercicio 2 — Impresión y Limpieza de Pila</h2>
+<p class="sub">Subrutina que imprime un string y un carácter</p>
+
+<div class="ex-card">
+<div class="et">Código del programa</div>
+<pre><code><span class="cd">.model small</span>
+<span class="cd">.stack</span>
+<span class="cd">.data</span>
+  <span class="cv">var1</span>  <span class="ck">DB</span> <span class="cr">11</span>           <span class="cc">; 1 byte con valor 11 = 0Bh</span>
+  <span class="cv">var2</span>  <span class="ck">DB</span> <span class="cr">43h</span>          <span class="cc">; 1 byte con valor 43h = ASCII 'C'</span>
+  <span class="cv">var3</span>  <span class="ck">DB</span> <span class="cs">"Entrada:5"</span>  <span class="cc">; 9 bytes con los caracteres del string</span>
+<span class="cd">.code</span>
+<span class="cl">inicio:</span>
+  <span class="ck">mov</span> <span class="cr">ax</span>, <span class="cv">@data</span>         <span class="cc">; AX = dirección del segmento de datos</span>
+  <span class="ck">mov</span> <span class="cr">ds</span>, <span class="cr">ax</span>            <span class="cc">; DS = AX</span>
+  <span class="ck">push</span> <span class="cr">ax</span>               <span class="cc">; 1er parámetro: el segmento de datos (0720h)</span>
+  <span class="ck">mov</span> <span class="cr">dx</span>, <span class="cv">offset var2</span>
+  <span class="ck">push</span> <span class="cr">dx</span>               <span class="cc">; 2do parámetro: offset de var2 (0001h)</span>
+  <span class="ck">call</span> <span class="cl">subrutina</span>        <span class="cc">; Llama a la subrutina</span>
+  <span class="ck">mov</span> <span class="cr">ax</span>, <span class="cr">4C00h</span>        <span class="cc">; Terminar</span>
+  <span class="ck">int</span> <span class="cr">21h</span>
+
+<span class="cl">subrutina</span> <span class="ck">proc</span>
+  <span class="ck">push</span> <span class="cr">bp</span>               <span class="cc">; Guarda BP viejo en la pila</span>
+  <span class="ck">mov</span> <span class="cr">bp</span>, <span class="cr">sp</span>            <span class="cc">; BP = SP → referencia fija</span>
+  <span class="ck">mov</span> <span class="cr">dx</span>, <span class="cv">offset var3</span>  <span class="cc">; DX = dirección de var3</span>
+  <span class="ck">mov</span> <span class="cr">ah</span>, <span class="cr">09h</span>           <span class="cc">; Función 09h: imprimir string</span>
+  <span class="ck">int</span> <span class="cr">21h</span>               <span class="cc">; → Imprime "Entrada:5"</span>
+  <span class="ck">mov</span> <span class="cr">bx</span>, <span class="cv">ss:[bp+4]</span>   <span class="cc">; BX = 2do parámetro = offset de var2 = 0001h</span>
+  <span class="ck">mov</span> <span class="cr">dl</span>, <span class="cv">ds:[bx]</span>      <span class="cc">; DL = DS:[0001h] = 43h = 'C'</span>
+  <span class="ck">mov</span> <span class="cr">ah</span>, <span class="cr">02h</span>           <span class="cc">; Función 02h: imprimir carácter</span>
+  <span class="ck">int</span> <span class="cr">21h</span>               <span class="cc">; → Imprime 'C'</span>
+  <span class="ck">pop</span> <span class="cr">bp</span>                <span class="cc">; Restaura BP</span>
+  <span class="ck">ret</span> <span class="cr">?</span>                 <span class="cc">; ← (Ref.nro2) ¿Cuánto limpiar?</span>
+<span class="cl">subrutina</span> <span class="ck">endp</span>
+<span class="ck">end</span> <span class="cl">inicio</span></code></pre>
+
+<div class="note blue"><div class="nt">¿Qué hace? (En criollo)</div>
+<p style="margin:0">Pushea dos parámetros (ax y dx) y llama a una subrutina. La subrutina imprime un string ("Entrada:5") y luego lee un byte de la dirección pasada como parámetro e imprime ese byte como carácter ('C').</p>
+</div>
+</div>
+
+<h3>Mapa de datos previo</h3>
+<div class="tw"><table>
+<tr><th>Offset</th><th>Hex</th><th>ASCII</th><th>Variable</th></tr>
+<tr><td>0000</td><td><code>0Bh</code></td><td>·</td><td>var1 (11 decimal = 0Bh)</td></tr>
+<tr><td>0001</td><td><code>43h</code></td><td>'C'</td><td>var2</td></tr>
+<tr><td>0002</td><td><code>45h</code></td><td>'E'</td><td>var3[0]</td></tr>
+<tr><td>0003</td><td><code>6Eh</code></td><td>'n'</td><td>var3[1]</td></tr>
+<tr><td>0004</td><td><code>74h</code></td><td>'t'</td><td>var3[2]</td></tr>
+<tr><td>0005</td><td><code>72h</code></td><td>'r'</td><td>var3[3]</td></tr>
+<tr><td>0006</td><td><code>61h</code></td><td>'a'</td><td>var3[4]</td></tr>
+<tr><td>0007</td><td><code>64h</code></td><td>'d'</td><td>var3[5]</td></tr>
+<tr><td>0008</td><td><code>61h</code></td><td>'a'</td><td>var3[6]</td></tr>
+<tr><td>0009</td><td><code>3Ah</code></td><td>':'</td><td>var3[7]</td></tr>
+<tr><td>000A</td><td><code>35h</code></td><td>'5'</td><td>var3[8]</td></tr>
+</table></div>
+</section>
+
+<div class="div"></div>
+
+<!-- EJ 2 — PREGUNTA A -->
+<section id="e2-a">
+<h3>a) ¿Qué valor de RET asegura una correcta salida de pila?</h3>
+
+<button class="btn" onclick="toggle('ans-e2a')">▶ Ver resolución</button>
+<div class="ans" id="ans-e2a">
+
+<p>Antes del <code>call subrutina</code>, se pushearon <strong>dos parámetros</strong>:</p>
+<ol>
+<li><code>push ax</code> → 2 bytes (0720h)</li>
+<li><code>push dx</code> → 2 bytes (0001h)</li>
+</ol>
+<p>Total de bytes de parámetros: <strong>4 bytes</strong>.</p>
+
+<p>La fórmula es: <code>ret N</code> donde N = 2 × cantidad de parámetros.</p>
+
+<div class="eq">N = 2 × 2 parámetros = <span class="gr">4</span> &nbsp; → &nbsp; <code>ret 4</code></div>
+
+<div class="note"><div class="nt">¿Qué pasa si ponés <code>ret ?</code> o <code>ret</code> a secas?</div>
+<p style="margin:0">Si no ponés el número, el RET solo saca la dirección de retorno de la pila, pero <strong>no limpia los 4 bytes de parámetros</strong>. Quedan como "basura" en la pila. Si la subrutina se llama muchas veces, la pila se va llenando de basura hasta desbordar.</p>
+</div>
+
+<p><strong>Respuesta:</strong> <code>ret <span class="gr">4</span></code></p>
+</div>
+</section>
+
+<div class="div"></div>
+
+<!-- EJ 2 — PREGUNTA B -->
+<section id="e2-b">
+<h3>b) Salida por pantalla</h3>
+
+<button class="btn" onclick="toggle('ans-e2b')">▶ Ver resolución</button>
+<div class="ans" id="ans-e2b">
+
+<h5>Primera impresión: INT 21h con AH=09h</h5>
+<pre><code><span class="ck">mov</span> <span class="cr">dx</span>, <span class="cv">offset var3</span>   <span class="cc">; DX = 0002h (dirección de "Entrada:5")</span>
+<span class="ck">mov</span> <span class="cr">ah</span>, <span class="cr">09h</span>           <span class="cc">; Función: imprimir string hasta encontrar '$'</span>
+<span class="ck">int</span> <span class="cr">21h</span>               <span class="cc">; → Imprime: Entrada:5</span></code></pre>
+
+<p>La función 09h imprime desde la dirección en DX hasta encontrar un '$'. Si no hay '$', imprime indefinidamente (para este ejercicio asumimos que imprime "Entrada:5").</p>
+
+<h5>Segunda impresión: INT 21h con AH=02h</h5>
+<pre><code><span class="ck">mov</span> <span class="cr">bx</span>, <span class="cv">ss:[bp+4]</span>   <span class="cc">; BX = 0001h (el offset de var2 que pusheamos)</span>
+<span class="ck">mov</span> <span class="cr">dl</span>, <span class="cv">ds:[bx]</span>      <span class="cc">; DL = DS:[0001h] = 43h = 'C'</span>
+<span class="ck">mov</span> <span class="cr">ah</span>, <span class="cr">02h</span>           <span class="cc">; Función: imprimir un carácter</span>
+<span class="ck">int</span> <span class="cr">21h</span>               <span class="cc">; → Imprime: C</span></code></pre>
+
+<p>Primero se lee el offset de var2 de la pila (0001h). Luego se lee el byte en DS:0001h, que es 43h = 'C'. Finalmente se imprime ese carácter.</p>
+
+<h5>Resultado total en pantalla:</h5>
+<div class="term"><div class="out">Entrada:5C<span class="cursor"></span></div></div>
+
+<div class="flow">
+<div class="flow-s"><div class="fl">INT 09h</div><div class="fv">"Entrada:5"</div></div>
+<span class="flow-a">+</span>
+<div class="flow-s"><div class="fl">INT 02h</div><div class="fv">"C"</div></div>
+<span class="flow-a">=</span>
+<div class="flow-s"><div class="fl">Pantalla</div><div class="fv gr">Entrada:5C</div></div>
+</div>
+</div>
+</section>
+
+<div class="div"></div>
+
+<!-- EJ 2 — PREGUNTA C -->
+<section id="e2-c">
+<h3>c) Mapa de memoria después de la ejecución completa</h3>
+
+<button class="btn" onclick="toggle('ans-e2c')">▶ Ver mapa</button>
+<div class="ans" id="ans-e2c">
+
+<div class="tw"><table>
+<tr><th>Dirección</th><th>Hex</th><th>ASCII</th><th>Variable</th><th>¿Cambió?</th></tr>
+<tr><td>0720:0000</td><td><code>0Bh</code></td><td>·</td><td>var1</td><td>No</td></tr>
+<tr><td>0720:0001</td><td><code>43h</code></td><td>'C'</td><td>var2</td><td>No</td></tr>
+<tr><td>0720:0002</td><td><code>45h</code></td><td>'E'</td><td>var3[0]</td><td>No</td></tr>
+<tr><td>0720:0003</td><td><code>6Eh</code></td><td>'n'</td><td>var3[1]</td><td>No</td></tr>
+<tr><td>0720:0004</td><td><code>74h</code></td><td>'t'</td><td>var3[2]</td><td>No</td></tr>
+<tr><td>0720:0005</td><td><code>72h</code></td><td>'r'</td><td>var3[3]</td><td>No</td></tr>
+<tr><td>0720:0006</td><td><code>61h</code></td><td>'a'</td><td>var3[4]</td><td>No</td></tr>
+<tr><td>0720:0007</td><td><code>64h</code></td><td>'d'</td><td>var3[5]</td><td>No</td></tr>
+<tr><td>0720:0008</td><td><code>61h</code></td><td>'a'</td><td>var3[6]</td><td>No</td></tr>
+<tr><td>0720:0009</td><td><code>3Ah</code></td><td>':'</td><td>var3[7]</td><td>No</td></tr>
+<tr><td>0720:000A</td><td><code>35h</code></td><td>'5'</td><td>var3[8]</td><td>No</td></tr>
+</table></div>
+
+<p><strong>Nada cambió.</strong> Este programa solo <strong>lee</strong> la memoria para imprimir. No escribe ningún valor nuevo. La pila queda vacía (SS = 0710:0100).</p>
+</div>
+</section>
+
+<div class="div"></div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!--              EJERCICIO 3                       -->
+<!-- ══════════════════════════════════════════════ -->
+<section id="e3">
+<h2>Ejercicio 3 — Buscar el Mayor en un Arreglo</h2>
+<p class="sub">Subrutina que recorre un arreglo de words y devuelve el mayor</p>
+
+<div class="ex-card">
+<div class="et">Código del programa</div>
+<pre><code><span class="cd">.model small</span>
+<span class="cd">.stack</span>
+<span class="cd">.data</span>
+  <span class="cv">arreglo</span>  <span class="ck">dw</span> <span class="cs">'5','6','1','4','8','7'</span>  <span class="cc">; 6 words (12 bytes)</span>
+  <span class="cv">str1</span>     <span class="ck">db</span> <span class="cs">'El mayor es: $'</span>          <span class="cc">; String para imprimir</span>
+  <span class="cv">mayor</span>    <span class="ck">dw</span> <span class="cr">?</span>                        <span class="cc">; Word sin inicializar</span>
+  <span class="cv">long</span>     <span class="ck">dw</span> <span class="cr">6</span>                        <span class="cc">; Longitud del arreglo</span>
+<span class="cd">.code</span>
+<span class="cl">inicio:</span>
+  <span class="ck">mov</span> <span class="cr">ax</span>, <span class="cv">@data</span>
+  <span class="ck">mov</span> <span class="cr">ds</span>, <span class="cr">ax</span>
+  <span class="ck">push</span> <span class="cv">offset arreglo</span>  <span class="cc">; 1er parámetro: dirección del arreglo</span>
+  <span class="ck">push</span> <span class="cv">long</span>             <span class="cc">; 2do parámetro: longitud (6)</span>
+  <span class="ck">call</span> <span class="cl">mayorArreglo</span>
+  <span class="ck">mov</span> <span class="cr">bx</span>, <span class="cr">ax</span>           <span class="cc">; BX = resultado (AX devuelto por subrutina)</span>
+  <span class="ck">mov</span> <span class="cv">mayor</span>, <span class="cr">bx</span>        <span class="cc">; Guarda en variable 'mayor'</span>
+  <span class="ck">mov</span> <span class="cr">dx</span>, <span class="cv">offset str1</span>
+  <span class="ck">mov</span> <span class="cr">ah</span>, <span class="cr">09h</span>
+  <span class="ck">int</span> <span class="cr">21h</span>               <span class="cc">; Imprime "El mayor es: "</span>
+  <span class="ck">mov</span> <span class="cr">dl</span>, <span class="cr">bl</span>           <span class="cc">; DL = byte bajo de BX (= mayor)</span>
+  <span class="ck">mov</span> <span class="cr">ah</span>, <span class="cr">02h</span>
+  <span class="ck">int</span> <span class="cr">21h</span>               <span class="cc">; Imprime el carácter del mayor</span>
+  <span class="ck">mov</span> <span class="cr">ax</span>, <span class="cr">4c00h</span>
+  <span class="ck">int</span> <span class="cr">21h</span>
+
+<span class="cl">mayorArreglo</span> <span class="ck">proc</span>
+  <span class="ck">push</span> <span class="cr">bp</span>              <span class="cc">; Guarda BP viejo</span>
+  <span class="ck">mov</span> <span class="cr">bp</span>, <span class="cr">sp</span>           <span class="cc">; BP = SP (referencia fija)</span>
+  <span class="ck">mov</span> <span class="cr">bx</span>, <span class="cv">ss:[bp+6]</span>  <span class="cc">; BX = 1er parámetro = offset arreglo</span>
+  <span class="ck">mov</span> <span class="cr">cx</span>, <span class="cv">ss:[bp+4]</span>  <span class="cc">; CX = 2do parámetro = longitud (6)</span>
+  <span class="ck">mov</span> <span class="cr">ax</span>, <span class="cr">0</span>           <span class="cc">; AX = 0 (mayor actual)</span>
+<span class="cl">iterar:</span>
+  <span class="ck">cmp</span> <span class="cv">ds:[bx]</span>, <span class="cr">ax</span>     <span class="cc">; ¿elemento_actual &lt; AX?</span>
+  <span class="ck">jl</span> <span class="cl">menor</span>              <span class="cc">; Si es menor (con signo), salta</span>
+  <span class="hl-code"><span class="ck">mov</span> <span class="cr">ax</span>, <span class="cv">ds:[bx]</span></span>     <span class="cc">; ← X: Actualiza AX con el nuevo mayor</span>
+<span class="cl">menor:</span>
+  <span class="ck">add</span> <span class="cr">bx</span>, <span class="cr">2</span>           <span class="cc">; Avanza al siguiente word (+2 bytes)</span>
+  <span class="ck">loop</span> <span class="cl">iterar</span>          <span class="cc">; CX--; si CX≠0 vuelve a iterar</span>
+  <span class="ck">pop</span> <span class="cr">bp</span>               <span class="cc">; Restaura BP</span>
+  <span class="ck">ret</span> <span class="cr">4</span>                <span class="cc">; Vuelve + limpia 2 parámetros (4 bytes)</span>
+<span class="cl">mayorArreglo</span> <span class="ck">endp</span>
+<span class="ck">END</span> <span class="cl">inicio</span></code></pre>
+
+<div class="note blue"><div class="nt">¿Qué hace? (En criollo)</div>
+<p style="margin:0">Recibe la dirección de un arreglo y su longitud. Recorre el arreglo comparando cada elemento con el mayor encontrado hasta ahora (empezando de 0). Devuelve el mayor en AX. Es como <code>int mayor = 0; for(i=0;i&lt;6;i++) if(arr[i]>mayor) mayor=arr[i];</code></p>
+</div>
+
+<h5>Valores del arreglo (son caracteres ASCII como words):</h5>
+<div class="tw"><table>
+<tr><th>Pos.</th><th>Char</th><th>ASCII</th><th>Word</th><th>Little Endian</th></tr>
+<tr><td>[0]</td><td>'5'</td><td>35h = 53</td><td>0035h</td><td>35h, 00h</td></tr>
+<tr><td>[1]</td><td>'6'</td><td>36h = 54</td><td>0036h</td><td>36h, 00h</td></tr>
+<tr><td>[2]</td><td>'1'</td><td>31h = 49</td><td>0031h</td><td>31h, 00h</td></tr>
+<tr><td>[3]</td><td>'4'</td><td>34h = 52</td><td>0034h</td><td>34h, 00h</td></tr>
+<tr><td>[4]</td><td>'8'</td><td>38h = 56</td><td>0038h</td><td>38h, 00h</td></tr>
+<tr><td>[5]</td><td>'7'</td><td>37h = 55</td><td>0037h</td><td>37h, 00h</td></tr>
+</table></div>
+<p>El programa busca el mayor de [53, 54, 49, 52, 56, 55]. <strong>El mayor es 56 = 0038h = '8'.</strong></p>
+</section>
+
+<div class="div"></div>
+
+<!-- EJ 3 — MEMORIA -->
+<section id="e3-mem">
+<h3>[2,5 pts] Mapa de memoria</h3>
+
+<button class="btn" onclick="toggle('ans-e3mem')">▶ Ver mapa completo</button>
+<div class="ans" id="ans-e3mem">
+
+<div class="tw"><table>
+<tr><th>Dirección</th><th>Hex</th><th>ASCII</th><th>Variable</th></tr>
+<tr><td>0720:0000</td><td><code>35h</code></td><td>'5'</td><td rowspan="2">arreglo[0] → 0035h</td></tr>
+<tr><td>0720:0001</td><td><code>00h</code></td><td>·</td></tr>
+<tr><td>0720:0002</td><td><code>36h</code></td><td>'6'</td><td rowspan="2">arreglo[1] → 0036h</td></tr>
+<tr><td>0720:0003</td><td><code>00h</code></td><td>·</td></tr>
+<tr><td>0720:0004</td><td><code>31h</code></td><td>'1'</td><td rowspan="2">arreglo[2] → 0031h</td></tr>
+<tr><td>0720:0005</td><td><code>00h</code></td><td>·</td></tr>
+<tr><td>0720:0006</td><td><code>34h</code></td><td>'4'</td><td rowspan="2">arreglo[3] → 0034h</td></tr>
+<tr><td>0720:0007</td><td><code>00h</code></td><td>·</td></tr>
+<tr><td>0720:0008</td><td><code>38h</code></td><td>'8'</td><td rowspan="2">arreglo[4] → 0038h (¡el mayor!)</td></tr>
+<tr><td>0720:0009</td><td><code>00h</code></td><td>·</td></tr>
+<tr><td>0720:000A</td><td><code>37h</code></td><td>'7'</td><td rowspan="2">arreglo[5] → 0037h</td></tr>
+<tr><td>0720:000B</td><td><code>00h</code></td><td>·</td></tr>
+<tr><td>0720:000C</td><td><code>45h</code></td><td>'E'</td><td rowspan="13">str1 = "El mayor es: $"</td></tr>
+<tr><td>0720:000D</td><td><code>6Ch</code></td><td>'l'</td></tr>
+<tr><td>0720:000E</td><td><code>20h</code></td><td>' '</td></tr>
+<tr><td>0720:000F</td><td><code>6Dh</code></td><td>'m'</td></tr>
+<tr><td>0720:0010</td><td><code>61h</code></td><td>'a'</td></tr>
+<tr><td>0720:0011</td><td><code>79h</code></td><td>'y'</td></tr>
+<tr><td>0720:0012</td><td><code>6Fh</code></td><td>'o'</td></tr>
+<tr><td>0720:0013</td><td><code>72h</code></td><td>'r'</td></tr>
+<tr><td>0720:0014</td><td><code>20h</code></td><td>' '</td></tr>
+<tr><td>0720:0015</td><td><code>65h</code></td><td>'e'</td></tr>
+<tr><td>0720:0016</td><td><code>73h</code></td><td>'s'</td></tr>
+<tr><td>0720:0017</td><td><code>3Ah</code></td><td>':'</td></tr>
+<tr><td>0720:0018</td><td><code>20h</code></td><td>' '</td></tr>
+<tr><td>0720:0019</td><td><code>24h</code></td><td>'$'</td></tr>
+<tr style="background:rgba(0,232,123,.06)"><td>0720:001A</td><td><code>38h</code></td><td>'8'</td><td rowspan="2"><strong>mayor ★ (0038h)</strong></td></tr>
+<tr style="background:rgba(0,232,123,.06)"><td>0720:001B</td><td><code>00h</code></td><td>·</td></tr>
+<tr><td>0720:001C</td><td><code>06h</code></td><td>·</td><td rowspan="2">long (0006h)</td></tr>
+<tr><td>0720:001D</td><td><code>00h</code></td><td>·</td></tr>
+</table></div>
+
+<p><strong>Único cambio:</strong> <code>mayor</code> (offset 001Ah) pasó de basura a <strong>0038h</strong>.</p>
+</div>
+</section>
+
+<div class="div"></div>
+
+<!-- EJ 3 — REGISTROS -->
+<section id="e3-reg">
+<h3>[2 pts] Estado de los registros</h3>
+
+<button class="btn" onclick="toggle('ans-e3reg')">▶ Ver tabla de seguimiento</button>
+<div class="ans" id="ans-e3reg">
+
+<h4>Durante el bucle de la subrutina</h4>
+<div class="tw iter-tbl"><table>
+<tr><th>Iter</th><th>CX</th><th>BX</th><th>ds:[bx]</th><th>Dec</th><th>AX antes</th><th>cmp: ¿menor?</th><th>¿Llega a X?</th><th>AX después</th></tr>
+<tr class="hl-row"><td>1</td><td>6→5</td><td>0000h</td><td>0035h</td><td>53</td><td>0000h (0)</td><td>No (53≥0)</td><td>Sí</td><td><strong class="gr">0035h</strong></td></tr>
+<tr><td>2</td><td>5→4</td><td>0002h</td><td>0036h</td><td>54</td><td>0035h (53)</td><td>No (54≥53)</td><td>Sí</td><td><strong class="gr">0036h</strong></td></tr>
+<tr class="hl-row"><td>3</td><td>4→3</td><td>0004h</td><td>0031h</td><td>49</td><td>0036h (54)</td><td><strong class="bl">Sí</strong> (49&lt;54)</td><td><strong class="rd">No</strong></td><td>0036h</td></tr>
+<tr><td>4</td><td>3→2</td><td>0006h</td><td>0034h</td><td>52</td><td>0036h (54)</td><td><strong class="bl">Sí</strong> (52&lt;54)</td><td><strong class="rd">No</strong></td><td>0036h</td></tr>
+<tr class="hl-row"><td>5</td><td>2→1</td><td>0008h</td><td>0038h</td><td>56</td><td>0036h (54)</td><td>No (56≥54)</td><td>Sí</td><td><strong class="gr">0038h</strong></td></tr>
+<tr><td>6</td><td>1→0</td><td>000Ah</td><td>0037h</td><td>55</td><td>0038h (56)</td><td><strong class="bl">Sí</strong> (55&lt;56)</td><td><strong class="rd">No</strong></td><td>0038h</td></tr>
+</table></div>
+
+<h4>Registros al final del programa</h4>
+<div class="reg-row">
+<div class="reg-b ch"><div class="reg-n">AX</div><div class="reg-v gr">0038h</div><div class="reg-h">Retornado por subrutina</div></div>
+<div class="reg-b ch"><div class="reg-n">BX</div><div class="reg-v gr">0038h</div><div class="reg-h">mov bx, ax</div></div>
+<div class="reg-b"><div class="reg-n">CX</div><div class="reg-v">0000h</div><div class="reg-h">loop lo dejó en 0</div></div>
+<div class="reg-b"><div class="reg-n">DX</div><div class="reg-v">0938h</div><div class="reg-h">DL=38h de la última int</div></div>
+</div>
+</div>
+</section>
+
+<div class="div"></div>
+
+<!-- EJ 3 — PILA -->
+<section id="e3-stk">
+<h3>[2,5 pts] Diagrama de la pila</h3>
+<p>SS = 0710, pila vacía en 0100h</p>
+
+<button class="btn" onclick="toggle('ans-e3stk')">▶ Ver diagrama</button>
+<div class="ans" id="ans-e3stk">
+
+<h5>Estado 1 — Después de los dos PUSH en main</h5>
+<p><code>push offset arreglo</code> = 0000h, luego <code>push long</code> = 0006h (lee el contenido de la variable long, no el offset).</p>
+<div class="stk">
+<div class="stk-cell" style="border-style:dashed;color:var(--mut)">[vacío]<span class="stk-addr">SS:0100h</span></div>
+<div class="stk-cell hl-cell"><strong>0006h</strong> (long)<span class="stk-addr">SS:00FEh</span></div>
+<div class="stk-cell hl-cell"><strong>0000h</strong> (offset arr)<span class="stk-addr">SS:00FCh</span><span class="stk-label">← SP</span></div>
+</div>
+
+<h5>Estado 2 — Después de CALL + PUSH BP + MOV BP,SP</h5>
+<div class="stk">
+<div class="stk-cell" style="border-style:dashed;color:var(--mut)">[vacío]<span class="stk-addr">SS:0100h</span></div>
+<div class="stk-cell hl-cell"><strong>0006h</strong> (long)<span class="stk-addr">SS:00FEh</span><span class="stk-arrow">← BP+4</span></div>
+<div class="stk-cell hl-cell"><strong>0000h</strong> (offset arr)<span class="stk-addr">SS:00FCh</span><span class="stk-arrow">← BP+6</span></div>
+<div class="stk-cell"><em>dir. retorno</em><span class="stk-addr">SS:00FAh</span><span class="stk-arrow">← BP+2</span></div>
+<div class="stk-cell bp-cell"><strong>BP viejo</strong><span class="stk-addr">SS:00F8h</span><span class="stk-label">← SP=BP</span><span class="stk-arrow">← BP+0</span></div>
+</div>
+
+<p>La subrutina lee: <code>ss:[bp+6]</code> = 0000h (dirección del arreglo) y <code>ss:[bp+4]</code> = 0006h (longitud).</p>
+
+<h5>Estado 3 — Después de POP BP + RET 4</h5>
+<p><code>pop bp</code> → SP=00FAh. <code>ret 4</code> → saca retorno (SP=00FCh) + suma 4 (SP=0100h).</p>
+<div class="stk">
+<div class="stk-cell" style="border-style:dashed;color:var(--mut)">[vacío]<span class="stk-addr">SS:0100h</span><span class="stk-label">← SP</span></div>
+</div>
+
+<p><strong>Pila vacía.</strong> Los 4 bytes de parámetros fueron limpiados por <code>ret 4</code>.</p>
+</div>
+</section>
+
+<div class="div"></div>
+
+<!-- EJ 3 — PANTALLA -->
+<section id="e3-out">
+<h3>[2 pts] Salida por pantalla</h3>
+
+<button class="btn" onclick="toggle('ans-e3out')">▶ Ver salida</button>
+<div class="ans" id="ans-e3out">
+
+<p>Después de la subrutina, AX = 0038h. El programa hace:</p>
+
+<pre><code><span class="ck">mov</span> <span class="cr">bx</span>, <span class="cr">ax</span>           <span class="cc">; BX = 0038h</span>
+<span class="ck">mov</span> <span class="cv">mayor</span>, <span class="cr">bx</span>        <span class="cc">; Guarda 0038h en 'mayor'</span>
+<span class="ck">mov</span> <span class="cr">dx</span>, <span class="cv">offset str1</span>  <span class="cc">; DX = dirección de "El mayor es: $"</span>
+<span class="ck">mov</span> <span class="cr">ah</span>, <span class="cr">09h</span>
+<span class="ck">int</span> <span class="cr">21h</span>               <span class="cc">; → Imprime "El mayor es: "</span>
+<span class="ck">mov</span> <span class="cr">dl</span>, <span class="cr">bl</span>           <span class="cc">; DL = 38h = ASCII '8'</span>
+<span class="ck">mov</span> <span class="cr">ah</span>, <span class="cr">02h</span>
+<span class="ck">int</span> <span class="cr">21h</span>               <span class="cc">; → Imprime '8'</span></code></pre>
+
+<div class="term"><div class="out">El mayor es: 8<span class="cursor"></span></div></div>
+
+<div class="note"><div class="nt">¿Por qué imprime '8' y no 56?</div>
+<p style="margin:0">INT 21h / AH=02h imprime el <strong>carácter</strong> cuyo ASCII está en DL. DL = 38h = '8'. El arreglo tiene los ASCII de los dígitos, así que el mayor ASCII (38h = '8') se imprime directamente como el dígito '8'.</p>
+</div>
+</div>
+</section>
+
+<div class="div"></div>
+
+<!-- EJ 3 — AX DESPUÉS DE 3RA ITERACIÓN -->
+<section id="e3-ax">
+<h3>[1 pt] ¿Qué valor toma AX en la posición marcada (X) luego de la 3ra iteración?</h3>
+
+<button class="btn" onclick="toggle('ans-e3ax')">▶ Ver respuesta</button>
+<div class="ans" id="ans-e3ax">
+
+<h5>Análisis de la 3ra iteración</h5>
+<ul>
+<li>BX = 0004h → apunta a arreglo[2] = 0031h (=49 = '1')</li>
+<li>AX = 0036h (=54 = '6') ← era el mayor hasta ahora</li>
+<li><code>cmp ds:[bx], ax</code> → compara 49 con 54 (resta internamente: 49 - 54 = -5)</li>
+<li>Como 49 &lt; 54, <code>jl menor</code> <strong>sí salta</strong></li>
+<li><strong>No llega a la línea X</strong>, AX no se modifica</li>
+</ul>
+
+<div class="eq">AX = <span class="gr">0036h</span> &nbsp;(= 54 = ASCII '6')</div>
+
+<div class="note tip"><div class="nt">En palabras</div>
+<p style="margin:0">El '1' (31h=49) es más chico que el mayor actual '6' (36h=54), así que el salto <code>jl menor</code> se activa y se saltea la línea de actualización. AX queda con 0036h.</p>
+</div>
+</div>
+</section>
+
+</main>
+</div>
+
+<div class="donation-backdrop" id="donation-modal" aria-hidden="true">
+  <div class="donation-card" role="dialog" aria-modal="true" aria-labelledby="donation-title">
+    <button class="donation-close-btn" type="button" aria-label="Cerrar cartel de donaciones" data-close-donations>&times;</button>
+    <p class="donation-kicker">Si te sirvió</p>
+    <h3 id="donation-title">Podés colaborar con una donación</h3>
+    <p class="donation-copy">Si esta guía te ayudó a estudiar, podés apoyar el proyecto con un aporte.</p>
+    <div class="donation-alias">
+      <div class="donation-alias-meta">
+        <span class="donation-alias-label">Alias BNA+</span>
+        <strong>estudio.juegos.piano</strong>
+      </div>
+      <button class="donation-copy-btn" type="button" data-copy-alias>Copiar alias</button>
+    </div>
+    <div class="donation-actions">
+      <button class="donation-secondary" type="button" data-close-donations>Seguir viendo</button>
+    </div>
+    <p class="donation-feedback" id="donation-feedback" aria-live="polite"></p>
+  </div>
+</div>
+
+<script>
+function toggle(id){const el=document.getElementById(id);el.classList.toggle('show')}
+document.querySelectorAll('.nl').forEach(l=>{l.addEventListener('click',()=>{document.querySelector('.side').classList.remove('open')})});
+
+// Donation prompt
+const donationModal = document.getElementById('donation-modal');
+const donationFeedback = document.getElementById('donation-feedback');
+const donationOpeners = document.querySelectorAll('[data-open-donations]');
+const donationClosers = document.querySelectorAll('[data-close-donations]');
+const donationCopyButtons = document.querySelectorAll('[data-copy-alias]');
+const donationAlias = 'estudio.juegos.piano';
+let donationAutoClosed = false;
+
+function copyDonationAlias() {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(donationAlias);
+  }
+
+  const helper = document.createElement('textarea');
+  helper.value = donationAlias;
+  helper.setAttribute('readonly', '');
+  helper.style.position = 'fixed';
+  helper.style.opacity = '0';
+  document.body.appendChild(helper);
+  helper.select();
+  document.execCommand('copy');
+  document.body.removeChild(helper);
+  return Promise.resolve();
+}
+
+function openDonationModal(fromAuto = false) {
+  if (!donationModal) return;
+  if (fromAuto && donationAutoClosed) return;
+  donationModal.classList.add('is-open');
+  donationModal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDonationModal(markAutoClosed = true) {
+  if (!donationModal) return;
+  if (markAutoClosed) donationAutoClosed = true;
+  donationModal.classList.remove('is-open');
+  donationModal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+donationOpeners.forEach(btn => {
+  btn.addEventListener('click', () => openDonationModal(false));
+});
+
+donationClosers.forEach(btn => {
+  btn.addEventListener('click', () => closeDonationModal(true));
+});
+
+donationCopyButtons.forEach(btn => {
+  btn.addEventListener('click', async () => {
+    try {
+      await copyDonationAlias();
+      if (donationFeedback) donationFeedback.textContent = 'Alias copiado.';
+    } catch (error) {
+      if (donationFeedback) donationFeedback.textContent = 'No pude copiarlo automaticamente. Alias: ' + donationAlias;
+    }
+  });
+});
+
+if (donationModal) {
+  donationModal.addEventListener('click', e => {
+    if (e.target === donationModal) closeDonationModal(true);
+  });
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && donationModal && donationModal.classList.contains('is-open')) {
+    closeDonationModal(true);
+  }
+});
+
+window.setTimeout(() => openDonationModal(true), 30000);
+</script>
+</body>
+</html>

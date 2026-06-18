@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assembler Práctico MIMO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#08080c;--surface:#111118;--surface2:#1a1a24;--border:#252535;
+  --accent:#d4a843;--accent2:#4ecdc4;--accent3:#e86f6f;
+  --text:#e8e2d6;--text-muted:#7a7568;--text-dim:#55514a;
+  --code-bg:#0c0c14;--code-border:#2a2a3a;
+  --green:#6fcf97;--red:#e86f6f;--blue:#6fa8dc;
+  --sidebar-w:280px;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'Source Serif 4',Georgia,serif;background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;display:flex}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 15% 10%,rgba(212,168,67,0.04) 0%,transparent 50%),radial-gradient(ellipse at 85% 80%,rgba(78,205,196,0.03) 0%,transparent 50%);pointer-events:none;z-index:0}
+
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;padding:1.5rem 0;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.sidebar-header{padding:0 1.2rem 1rem;border-bottom:1px solid var(--border);margin-bottom:0.5rem}
+.sidebar-header h1{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:var(--accent);line-height:1.3}
+.sidebar-header p{font-size:0.7rem;color:var(--text-muted);margin-top:0.2rem}
+.nav-sec{font-family:'Syne',sans-serif;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:var(--text-dim);padding:0.8rem 1.2rem 0.3rem}
+.sidebar a{display:block;padding:0.25rem 1.2rem;font-size:0.75rem;color:var(--text-muted);text-decoration:none;border-left:3px solid transparent;transition:all 0.2s;line-height:1.35}
+.sidebar a:hover{color:var(--text);background:rgba(255,255,255,0.02)}
+.sidebar a.active{color:var(--accent);border-left-color:var(--accent);background:rgba(212,168,67,0.05)}
+
+.main{margin-left:var(--sidebar-w);flex:1;min-width:0;padding:2.5rem 3rem 5rem;max-width:920px}
+@media(max-width:1100px){.sidebar{display:none}.main{margin-left:0;padding:1.5rem 1.2rem 4rem}}
+.mobile-toggle{display:none;position:fixed;top:0.8rem;left:0.8rem;z-index:200;background:var(--surface);border:1px solid var(--border);color:var(--accent);font-size:1.2rem;padding:0.4rem 0.6rem;border-radius:6px;cursor:pointer}
+@media(max-width:1100px){.mobile-toggle{display:block}}
+.mobile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99}
+.mobile-overlay.show{display:block}
+
+.ex{margin-bottom:3.5rem;scroll-margin-top:1.5rem}
+.ex-label{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:0.12em;margin-bottom:0.3rem;display:flex;align-items:center;gap:0.4rem}
+.ex-label::before{content:'//';color:var(--text-dim)}
+.ex h2{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:0.4rem;line-height:1.2}
+.ex h3{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;color:var(--text);margin:1.8rem 0 0.5rem;padding-top:1rem;border-top:1px solid var(--border)}
+.ex p{margin-bottom:0.8rem;font-size:0.95rem}
+.ex ul,.ex ol{margin:0.4rem 0 0.8rem 1.2rem;font-size:0.93rem}
+.ex li{margin-bottom:0.2rem}
+.ex strong{color:var(--accent);font-weight:600}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:2.5rem 0}
+
+.problem{background:rgba(78,205,196,0.06);border-left:3px solid var(--accent2);padding:0.9rem 1.1rem;margin:0.8rem 0;border-radius:0 6px 6px 0;font-size:0.9rem}
+.problem::before{content:'📋 Enunciado';display:block;font-family:'Syne',sans-serif;font-weight:700;font-size:0.75rem;color:var(--accent2);margin-bottom:0.3rem}
+.explain{background:rgba(212,168,67,0.06);border-left:3px solid var(--accent);padding:0.9rem 1.1rem;margin:0.8rem 0;border-radius:0 6px 6px 0;font-size:0.88rem;line-height:1.6}
+.explain::before{content:'💡 Explicación';display:block;font-family:'Syne',sans-serif;font-weight:700;font-size:0.75rem;color:var(--accent);margin-bottom:0.3rem}
+.explain p:last-child{margin-bottom:0}
+.answer{background:rgba(111,207,151,0.06);border-left:3px solid var(--green);padding:0.9rem 1.1rem;margin:0.8rem 0;border-radius:0 6px 6px 0;font-size:0.88rem}
+.answer::before{content:'✅ Respuesta';display:block;font-family:'Syne',sans-serif;font-weight:700;font-size:0.75rem;color:var(--green);margin-bottom:0.3rem}
+
+.code-block{background:var(--code-bg);border:1px solid var(--code-border);border-radius:8px;padding:1rem 1.2rem;margin:0.6rem 0;overflow-x:auto;font-family:'DM Mono',monospace;font-size:0.8rem;line-height:1.65;color:var(--text);position:relative}
+.code-block .lbl{position:absolute;top:0;right:0;font-size:0.55rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-dim);background:var(--surface2);padding:0.15rem 0.5rem;border-radius:0 8px 0 6px;font-family:'Syne',sans-serif;font-weight:600}
+.c-comment{color:var(--text-dim);font-style:italic}.c-kw{color:var(--accent)}.c-reg{color:var(--accent2)}.c-num{color:var(--green)}.c-str{color:var(--accent3)}.c-dir{color:var(--blue)}.c-lbl{color:var(--red)}
+
+.styled-table{width:100%;border-collapse:collapse;margin:0.6rem 0;font-size:0.85rem}
+.styled-table th{font-family:'Syne',sans-serif;font-weight:600;text-align:left;padding:0.4rem 0.6rem;background:var(--surface2);color:var(--accent);border-bottom:2px solid var(--border);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em}
+.styled-table td{padding:0.35rem 0.6rem;border-bottom:1px solid var(--border)}
+.styled-table code{font-family:'DM Mono',monospace;font-size:0.82em;background:var(--code-bg);padding:0.1em 0.3em;border-radius:2px}
+
+/* TRACER */
+.tracer-panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin:1rem 0;overflow:hidden}
+.tracer-header{display:flex;align-items:center;justify-content:space-between;padding:0.6rem 1rem;background:var(--surface2);border-bottom:1px solid var(--border)}
+.tracer-header h4{font-family:'Syne',sans-serif;font-size:0.8rem;font-weight:700;color:var(--accent2)}
+.tracer-btns{display:flex;gap:0.4rem}
+.tracer-btn{font-family:'DM Mono',monospace;font-size:0.7rem;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.25rem 0.7rem;border-radius:4px;cursor:pointer;transition:all 0.2s}
+.tracer-btn:hover{border-color:var(--accent);color:var(--accent)}
+.tracer-btn.primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.tracer-btn.primary:hover{opacity:0.85}
+.tracer-body{display:grid;grid-template-columns:1fr 220px;gap:0}
+@media(max-width:700px){.tracer-body{grid-template-columns:1fr}}
+.tracer-code{padding:0.8rem;border-right:1px solid var(--border);overflow-x:auto;max-height:350px;overflow-y:auto}
+.tracer-code .line{font-family:'DM Mono',monospace;font-size:0.75rem;padding:0.15rem 0.4rem;border-radius:3px;line-height:1.5;white-space:pre}
+.tracer-code .line.active{background:rgba(212,168,67,0.15);color:var(--accent)}
+.tracer-code .line .ln{display:inline-block;width:2rem;color:var(--text-dim);text-align:right;margin-right:0.6rem;font-size:0.65rem}
+.tracer-regs{padding:0.6rem;background:rgba(0,0,0,0.15)}
+.tracer-regs h5{font-family:'Syne',sans-serif;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-dim);margin-bottom:0.4rem}
+.reg-row{display:flex;justify-content:space-between;align-items:center;padding:0.15rem 0;font-family:'DM Mono',monospace;font-size:0.75rem}
+.reg-row .name{color:var(--accent2);min-width:2rem}
+.reg-row .val{color:var(--text)}
+.reg-row .val.changed{color:var(--green);font-weight:500}
+.tracer-comment{font-family:'Source Serif 4',serif;font-size:0.78rem;color:var(--text-muted);padding:0.5rem 0.8rem;border-top:1px solid var(--border);min-height:2rem;font-style:italic}
+.tracer-step-info{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--text-dim);margin-top:0.5rem}
+
+.mem-grid{display:flex;gap:0;margin:0.5rem 0;flex-wrap:wrap}
+.mem-cell{display:flex;flex-direction:column;align-items:center;min-width:55px}
+.mem-addr{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--text-dim)}
+.mem-val{font-family:'DM Mono',monospace;font-size:0.75rem;padding:0.25rem 0.4rem;background:var(--surface2);border:1px solid var(--border);border-radius:3px;text-align:center;min-width:45px}
+.mem-cell.hl .mem-val{border-color:var(--accent);color:var(--accent)}
+.mem-lbl{font-size:0.55rem;color:var(--text-muted);margin-top:0.1rem}
+
+.accordion-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;background:var(--surface2);border:1px solid var(--border);padding:0.6rem 1rem;border-radius:8px;cursor:pointer;color:var(--text);font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:600;transition:all 0.2s}
+.accordion-toggle:hover{border-color:var(--accent)}
+.accordion-toggle .ico{transition:transform 0.3s;color:var(--accent);font-size:0.8rem}
+.accordion-toggle.open .ico{transform:rotate(180deg)}
+.accordion-body{max-height:0;overflow:hidden;transition:max-height 0.4s ease}
+.accordion-body.open{max-height:8000px}
+.accordion-body-inner{padding:0.8rem 0}
+
+.progress-bar{position:fixed;top:0;left:var(--sidebar-w);width:calc(100% - var(--sidebar-w));height:3px;background:var(--surface);z-index:50}
+.progress-fill{height:100%;width:0;background:var(--accent);transition:width 0.1s}
+@media(max-width:1100px){.progress-bar{left:0;width:100%}}
+
+.footer{text-align:center;padding:1.5rem;border-top:1px solid var(--border);margin-top:3rem}
+.footer p{font-size:0.75rem;color:var(--text-dim)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.ex{opacity:0;animation:fadeUp 0.4s ease forwards}
+
+/* Donation prompt */
+.donation-launch{
+  display:block;width:calc(100% - 24px);margin:10px 12px 6px;
+  padding:10px 12px;border:0;border-radius:8px;
+  background:linear-gradient(135deg,#39e88a,#e8a525);
+  color:#08110b;font:inherit;font-weight:700;cursor:pointer;
+  box-shadow:0 10px 20px rgba(0,0,0,.18);
+  transition:transform .18s ease,opacity .18s ease;
+}
+.donation-launch:hover{transform:translateY(-1px);opacity:.96}
+.donation-backdrop{
+  position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+  padding:18px;background:rgba(4,6,10,.72);backdrop-filter:blur(8px);z-index:400;
+}
+.donation-backdrop.is-open{display:flex}
+.donation-card{
+  position:relative;width:min(540px,100%);padding:22px 22px 18px;
+  background:var(--surface);color:var(--text);
+  border:1px solid var(--border);border-radius:14px;
+  box-shadow:0 24px 60px rgba(0,0,0,.45);
+}
+.donation-kicker{
+  margin:0;font-family:'IBM Plex Mono',monospace;font-size:.68rem;
+  font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
+}
+.donation-card h3{
+  margin:.3rem 0 .6rem;color:var(--text);font-family:inherit;
+  font-size:1.5rem;line-height:1.2;
+}
+.donation-copy{
+  margin:0 0 .9rem;color:var(--text-muted);font-size:.95rem;line-height:1.5;
+}
+.donation-alias{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 16px;margin:12px 0 14px;
+  border:1px solid var(--border);border-radius:10px;background:var(--surface2);
+}
+.donation-alias-meta{display:grid;gap:4px}
+.donation-alias-label{
+  font-family:'IBM Plex Mono',monospace;font-size:.68rem;
+  text-transform:uppercase;letter-spacing:.14em;color:var(--accent);
+}
+.donation-alias strong{
+  font-family:'IBM Plex Mono',monospace;font-size:1rem;word-break:break-word;
+}
+.donation-copy-btn,.donation-secondary{
+  appearance:none;border-radius:999px;border:1px solid var(--border);
+  background:rgba(255,255,255,.04);color:var(--text);padding:.65rem 1rem;
+  cursor:pointer;font:inherit;transition:transform .18s ease,border-color .18s ease,background .18s ease;
+}
+.donation-copy-btn{
+  background:linear-gradient(135deg,#39e88a,#e8a525);color:#08110b;
+  font-weight:700;border-color:transparent;white-space:nowrap;
+}
+.donation-copy-btn:hover,.donation-secondary:hover,.donation-close-btn:hover{transform:translateY(-1px)}
+.donation-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.donation-close-btn{
+  position:absolute;top:10px;right:12px;border:0;background:transparent;
+  color:var(--text-muted);font-size:1.4rem;cursor:pointer;line-height:1;
+}
+.donation-feedback{
+  min-height:1.2em;margin-top:10px;color:#39e88a;font-size:.9rem;
+}
+@media(max-width:640px){
+  .donation-alias{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<button class="mobile-toggle" id="mobT">☰</button>
+<div class="mobile-overlay" id="mobO"></div>
+<div class="progress-bar"><div class="progress-fill" id="pFill"></div></div>
+
+<nav class="sidebar" id="side">
+  <div class="sidebar-header"><h1>Assembler Práctico MIMO</h1><p>Assembler Intel 8086</p></div>
+  <div class="nav-sec">Páginas</div>
+  <a href="index.html">Parcial arqui 1 TyP</a>
+  <a href="index2.html">Assembler Teórico</a>
+  <a href="index3.html">Assembler Práctico MIMO</a>
+  <a href="index4.html">Assembler Ejercicios resueltos MIMO</a>
+  <a href="index5.html">Guía completa + ejercicios MIMO</a>
+  <a href="index6.html">Guía completa Claude</a>
+  <button class="donation-launch" type="button" data-open-donations>Donaciones</button>
+  <div class="nav-sec">Introducción</div>
+  <a href="#e1">1. Valores en registros</a>
+  <a href="#e2">2. Copiar entre registros</a>
+  <a href="#e3">3. Sumar 4 registros</a>
+  <a href="#e4">4. Calcular año de nacimiento</a>
+  <a href="#e5">5. Traza paso a paso</a>
+  <div class="nav-sec">Variables</div>
+  <a href="#e6">6. Contenido del segmento</a>
+  <a href="#e7">7. Operaciones con variables</a>
+  <a href="#e8">8. Declarar variables</a>
+  <a href="#e9">9. Iniciales en registros</a>
+  <div class="nav-sec">Memoria</div>
+  <a href="#e10">10. Modos de direccionamiento</a>
+  <a href="#e11">11. Análisis de código</a>
+  <div class="nav-sec">Programación</div>
+  <a href="#e12">12. Sumar arreglo (byte)</a>
+  <a href="#e13">13. Arreglo de words</a>
+  <a href="#e14">14. Copiar arreglo</a>
+  <a href="#e15">15. Longitud de archivo</a>
+  <a href="#e16">16. IEEE 754</a>
+  <a href="#e17">17. ASCII a decimal</a>
+  <a href="#e18">18. Invertir bits</a>
+  <a href="#e19">19. Debug subrutina</a>
+  <div class="nav-sec">Subrutinas</div>
+  <a href="#e20">20. Subrutina mayor</a>
+  <a href="#e21">21. Mayor por dirección</a>
+  <a href="#e22">22. Ambas versiones</a>
+  <a href="#e23">23. characterADecimal</a>
+  <a href="#e24">24. Contar bits 1</a>
+  <a href="#e25">25. Traza de pila</a>
+  <a href="#e26">26. Mayor de arreglo</a>
+  <a href="#e27">27. Longitud de string</a>
+  <a href="#e28">28. Contar palabras</a>
+  <a href="#e29">29. Concatenar strings</a>
+</nav>
+
+<main class="main" id="mainC">
+
+<!-- ============ EJERCICIO 1 ============ -->
+<section class="ex" id="e1">
+<div class="ex-label">Ejercicio 1</div>
+<h2>Almacenar valores en registros (hex)</h2>
+<div class="problem">
+Almacene los siguientes valores en los registros indicados, usando notación hexadecimal:<br>
+a. AX = 00000000b &nbsp; b. BX = 01010101b &nbsp; c. CX = 00001111b &nbsp; d. DX = 110011100b
+</div>
+<h3>Conversión a hexadecimal</h3>
+<table class="styled-table">
+<tr><th>Registro</th><th>Binario</th><th>Hexadecimal</th></tr>
+<tr><td>AX</td><td><code>00000000b</code></td><td><code>00h</code></td></tr>
+<tr><td>BX</td><td><code>01010101b</code></td><td><code>55h</code></td></tr>
+<tr><td>CX</td><td><code>00001111b</code></td><td><code>0Fh</code></td></tr>
+<tr><td>DX</td><td><code>110011100b</code></td><td><code>019Ch</code></td></tr>
+</table>
+<div class="explain">
+<p><strong>¿Cómo se convierte?</strong> Cada 4 bits equivalen a 1 dígito hexadecimal. Para DX, el número binario tiene 9 bits: lo completamos a 16 bits añadiendo ceros a la izquierda (<code>0000000110011100b</code>), luego agrupamos de 4 en 4: <code>0000 0001 1001 1100</code> = <code>019Ch</code>.</p>
+</div>
+<div class="code-block"><span class="lbl">Solución</span>
+<span class="c-dir">.MODEL SMALL</span>
+<span class="c-dir">.STACK</span>
+<span class="c-dir">.DATA</span>
+<span class="c-dir">.CODE</span>
+<span class="c-kw">inicio:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-dir">@data</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ds</span>, <span class="c-reg">ax</span>
+
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">00h</span>       <span class="c-comment">; AX = 00000000b</span>
+    <span class="c-kw">mov</span> <span class="c-reg">bx</span>, <span class="c-num">55h</span>       <span class="c-comment">; BX = 01010101b</span>
+    <span class="c-kw">mov</span> <span class="c-reg">cx</span>, <span class="c-num">0Fh</span>       <span class="c-comment">; CX = 00001111b</span>
+    <span class="c-kw">mov</span> <span class="c-reg">dx</span>, <span class="c-num">019Ch</span>     <span class="c-comment">; DX = 110011100b</span>
+
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">4C00h</span>
+    <span class="c-kw">int</span> <span class="c-num">21h</span>
+<span class="c-kw">END</span> inicio</div>
+</section>
+
+<!-- ============ EJERCICIO 2 ============ -->
+<section class="ex" id="e2">
+<div class="ex-label">Ejercicio 2</div>
+<h2>Copiar CX a AX, BX y DX</h2>
+<div class="problem">
+Escriba un programa que copie el contenido del registro CX en los registros AX, BX y DX.
+</div>
+<div class="explain">
+<p>La instrucción <code>mov destino, fuente</code> copia el valor de <code>fuente</code> en <code>destino</code> sin modificar <code>fuente</code>. Así que podemos usar CX como origen tres veces.</p>
+</div>
+<div class="code-block"><span class="lbl">Solución</span>
+<span class="c-dir">.MODEL SMALL</span>
+<span class="c-dir">.STACK</span>
+<span class="c-dir">.DATA</span>
+<span class="c-dir">.CODE</span>
+<span class="c-kw">inicio:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-dir">@data</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ds</span>, <span class="c-reg">ax</span>
+
+    <span class="c-comment">; Supongamos que CX ya tiene algún valor, ej. CX = 0042h</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-reg">cx</span>       <span class="c-comment">; AX = CX</span>
+    <span class="c-kw">mov</span> <span class="c-reg">bx</span>, <span class="c-reg">cx</span>       <span class="c-comment">; BX = CX</span>
+    <span class="c-kw">mov</span> <span class="c-reg">dx</span>, <span class="c-reg">cx</span>       <span class="c-comment">; DX = CX → ahora AX=BX=DX=CX</span>
+
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">4C00h</span>
+    <span class="c-kw">int</span> <span class="c-num">21h</span>
+<span class="c-kw">END</span> inicio</div>
+</section>
+
+<!-- ============ EJERCICIO 3 ============ -->
+<section class="ex" id="e3">
+<div class="ex-label">Ejercicio 3</div>
+<h2>Sumar los cuatro registros de propósito general</h2>
+<div class="problem">
+Realice un programa que sume los contenidos de los cuatro registros de propósito general y guarde el resultado en AX.
+</div>
+<div class="explain">
+<p>En alto nivel sería: <code>AX = AX + BX + CX + DX</code>. En Assembler, la instrucción <code>ADD destino, fuente</code> suma y guarda en el destino. Vamos acumulando en AX:</p>
+<p>Paso 1: AX = AX + BX. Paso 2: AX = AX + CX (que ahora tiene el valor original AX+BX). Paso 3: AX = AX + DX.</p>
+</div>
+<div class="code-block"><span class="lbl">Solución</span>
+<span class="c-kw">inicio:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-dir">@data</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ds</span>, <span class="c-reg">ax</span>
+
+    <span class="c-comment">; Supongamos AX=10, BX=20, CX=30, DX=40</span>
+    <span class="c-kw">add</span> <span class="c-reg">ax</span>, <span class="c-reg">bx</span>       <span class="c-comment">; AX = AX + BX = 10+20 = 30</span>
+    <span class="c-kw">add</span> <span class="c-reg">ax</span>, <span class="c-reg">cx</span>       <span class="c-comment">; AX = AX + CX = 30+30 = 60</span>
+    <span class="c-kw">add</span> <span class="c-reg">ax</span>, <span class="c-reg">dx</span>       <span class="c-comment">; AX = AX + DX = 60+40 = 100</span>
+
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">4C00h</span>
+    <span class="c-kw">int</span> <span class="c-num">21h</span>
+<span class="c-kw">END</span> inicio</div>
+</section>
+
+<!-- ============ EJERCICIO 4 ============ -->
+<section class="ex" id="e4">
+<div class="ex-label">Ejercicio 4</div>
+<h2>Calcular año de nacimiento</h2>
+<div class="problem">
+Dada la edad de una persona almacenada en AX y el año actual en CX, calcule y almacene en DX el año de nacimiento.
+</div>
+<div class="explain">
+<p>La fórmula es simple: <strong>año de nacimiento = año actual - edad</strong>. Primero copiamos CX a DX, y luego le restamos AX. Otra opción: copiar CX a DX, luego <code>sub dx, ax</code>.</p>
+</div>
+<div class="code-block"><span class="lbl">Solución</span>
+<span class="c-kw">inicio:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-dir">@data</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ds</span>, <span class="c-reg">ax</span>
+
+    <span class="c-comment">; Supongamos AX = 25 (edad), CX = 2025 (año actual)</span>
+    <span class="c-kw">mov</span> <span class="c-reg">dx</span>, <span class="c-reg">cx</span>       <span class="c-comment">; DX = año actual</span>
+    <span class="c-kw">sub</span> <span class="c-reg">dx</span>, <span class="c-reg">ax</span>       <span class="c-comment">; DX = año - edad = año de nacimiento</span>
+    <span class="c-comment">; DX = 2025 - 25 = 2000</span>
+
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">4C00h</span>
+    <span class="c-kw">int</span> <span class="c-num">21h</span>
+<span class="c-kw">END</span> inicio</div>
+</section>
+
+<!-- ============ EJERCICIO 5 ============ -->
+<section class="ex" id="e5">
+<div class="ex-label">Ejercicio 5</div>
+<h2>Traza paso a paso — valores finales</h2>
+<div class="problem">
+Indique qué valores hexadecimales tienen los registros AX, BX, CX y DX al finalizar la ejecución del siguiente fragmento de código. Ejecute paso a paso.
+</div>
+<div class="code-block">
+<span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">500</span>
+<span class="c-kw">mov</span> <span class="c-reg">bx</span>, <span class="c-num">1Ah</span>
+<span class="c-kw">sub</span> <span class="c-reg">ax</span>, <span class="c-reg">bx</span>
+<span class="c-kw">mov</span> <span class="c-reg">cx</span>, <span class="c-reg">ax</span>
+<span class="c-kw">dec</span> <span class="c-reg">cx</span>
+<span class="c-kw">mov</span> <span class="c-reg">dx</span>, <span class="c-num">11110011111b</span>
+<span class="c-kw">inc</span> <span class="c-reg">dx</span></div>
+
+<div id="tracer5"></div>
+
+<div class="answer">
+<strong>Valores finales:</strong> AX = <code>01DAh</code>, BX = <code>001Ah</code>, CX = <code>01D9h</code>, DX = <code>07A0h</code>
+</div>
+</section>
+
+<!-- ============ EJERCICIO 6 ============ -->
+<section class="ex" id="e6">
+<div class="ex-label">Ejercicio 6</div>
+<h2>Contenido del segmento de datos</h2>
+<div class="problem">
+Indique cuál es el contenido del segmento de datos dada la siguiente declaración de variables. Utilice notación hexadecimal.
+</div>
+<div class="code-block">
+<span class="c-dir">a.</span> numeroPrimo <span class="c-kw">DB</span> <span class="c-num">7</span>
+<span class="c-dir">b.</span> primoGrande <span class="c-kw">DW</span> <span class="c-num">9973</span>
+<span class="c-dir">c.</span> impares <span class="c-kw">DB</span> <span class="c-num">1, 3, 7, 9</span>
+<span class="c-dir">d.</span> arreglo_5 <span class="c-kw">DB</span> <span class="c-num">5</span> DUP (<span class="c-num">0Fh</span>)
+<span class="c-dir">e.</span> nombre <span class="c-kw">DB</span> <span class="c-str">"Luis"</span></div>
+
+<h3>a. numeroPrimo DB 7</h3>
+<div class="mem-grid">
+  <div class="mem-cell hl"><span class="mem-val">07h</span><span class="mem-lbl">1 byte</span></div>
+</div>
+<div class="explain"><p>DB reserva 1 byte. El valor 7 en hexa es simplemente <code>07h</code>.</p></div>
+
+<h3>b. primoGrande DW 9973</h3>
+<div class="explain"><p>DW reserva 2 bytes (1 word). Convertimos 9973 a hexadecimal: 9973 ÷ 16 = 623 resto 5, 623 ÷ 16 = 38 resto 15(Fh), 38 ÷ 16 = 2 resto 6, 2 ÷ 16 = 0 resto 2. Entonces 9973 = <code>26F5h</code>. En memoria (little endian):</p></div>
+<div class="mem-grid">
+  <div class="mem-cell hl"><span class="mem-val">F5h</span><span class="mem-lbl">byte bajo</span></div>
+  <div class="mem-cell"><span class="mem-val">26h</span><span class="mem-lbl">byte alto</span></div>
+</div>
+
+<h3>c. impares DB 1, 3, 7, 9</h3>
+<div class="mem-grid">
+  <div class="mem-cell hl"><span class="mem-val">01h</span></div>
+  <div class="mem-cell"><span class="mem-val">03h</span></div>
+  <div class="mem-cell"><span class="mem-val">07h</span></div>
+  <div class="mem-cell"><span class="mem-val">09h</span></div>
+</div>
+
+<h3>d. arreglo_5 DB 5 DUP (0Fh)</h3>
+<div class="mem-grid">
+  <div class="mem-cell hl"><span class="mem-val">0Fh</span></div>
+  <div class="mem-cell"><span class="mem-val">0Fh</span></div>
+  <div class="mem-cell"><span class="mem-val">0Fh</span></div>
+  <div class="mem-cell"><span class="mem-val">0Fh</span></div>
+  <div class="mem-cell"><span class="mem-val">0Fh</span></div>
+</div>
+<div class="explain"><p><code>5 DUP (0Fh)</code> reserva 5 bytes, todos con el valor 0Fh.</p></div>
+
+<h3>e. nombre DB "Luis"</h3>
+<div class="explain"><p>Cada carácter se convierte a su código ASCII hexadecimal.</p></div>
+<div class="mem-grid">
+  <div class="mem-cell hl"><span class="mem-val">4Ch</span><span class="mem-lbl">L</span></div>
+  <div class="mem-cell"><span class="mem-val">75h</span><span class="mem-lbl">u</span></div>
+  <div class="mem-cell"><span class="mem-val">69h</span><span class="mem-lbl">i</span></div>
+  <div class="mem-cell"><span class="mem-val">73h</span><span class="mem-lbl">s</span></div>
+</div>
+</section>
+
+<!-- ============ EJERCICIO 7 ============ -->
+<section class="ex" id="e7">
+<div class="ex-label">Ejercicio 7</div>
+<h2>Operaciones con variables del ejercicio 6</h2>
+<div class="problem">
+Con las declaraciones del ejercicio anterior, indique cómo realizar las siguientes operaciones:<br>
+a. Copiar en AX el valor de primoGrande<br>
+b. Copiar en AL el tercer elemento (7) del arreglo impares<br>
+c. Asignar a los elementos 0, 1 y 2 de arreglo_5 los valores de BL, CL y DL. Cambiar nombre a "Ruiz"
+</div>
+
+<h3>a. Copiar primoGrande en AX</h3>
+<div class="code-block"><span class="c-kw">mov</span> <span class="c-reg">ax</span>, primoGrande  <span class="c-comment">; AX = 26F5h (el valor 9973)</span></div>
+<div class="explain"><p>Como primoGrande es un word (DW) y AX también es de 16 bits, podemos hacerlo directamente con MOV. El ensamblador sabe que tiene que leer 2 bytes (little endian).</p></div>
+
+<h3>b. Copiar impares[2] en AL</h3>
+<div class="code-block"><span class="c-kw">mov</span> <span class="c-reg">al</span>, impares[<span class="c-num">2</span>]  <span class="c-comment">; AL = 07h (tercer elemento)</span></div>
+<div class="explain"><p>El índice entre corchetes indica el <strong>desplazamiento en bytes</strong>. Los elementos del arreglo son bytes, así que el tercer elemento está a 2 bytes del inicio (índices 0, 1, 2). AL es de 8 bits, igual que el elemento.</p></div>
+
+<h3>c. Asignar registros y cambiar nombre</h3>
+<div class="code-block">
+<span class="c-comment">; Asignar BL, CL, DL a elementos 0, 1, 2 de arreglo_5</span>
+<span class="c-kw">mov</span> arreglo_5[<span class="c-num">0</span>], <span class="c-reg">bl</span>
+<span class="c-kw">mov</span> arreglo_5[<span class="c-num">1</span>], <span class="c-reg">cl</span>
+<span class="c-kw">mov</span> arreglo_5[<span class="c-num">2</span>], <span class="c-reg">dl</span>
+
+<span class="c-comment">; Cambiar "Luis" a "Ruiz" (misma longitud)</span>
+<span class="c-kw">mov</span> nombre[<span class="c-num">0</span>], <span class="c-str">'R'</span>
+<span class="c-kw">mov</span> nombre[<span class="c-num">1</span>], <span class="c-str">'u'</span>
+<span class="c-kw">mov</span> nombre[<span class="c-num">2</span>], <span class="c-str">'i'</span>
+<span class="c-kw">mov</span> nombre[<span class="c-num">3</span>], <span class="c-str">'z'</span></div>
+<div class="explain"><p>Como los caracteres ocupan 1 byte cada uno (DB), podemos usar los registros de 8 bits o caracteres entre comillas para modificarlos individualmente.</p></div>
+</section>
+
+<!-- ============ EJERCICIO 8 ============ -->
+<section class="ex" id="e8">
+<div class="ex-label">Ejercicio 8</div>
+<h2>Declaración de variables</h2>
+<div class="problem">
+Declare las siguientes variables. Si no se indica tamaño, utilice el adecuado:<br>
+a. Variable cuenta, word, inicializada en 0<br>
+b. Variable lista, arreglo de 50 bytes inicializados en 0Ah. Variable suma para almacenar 0 a 3000, sin inicializar<br>
+c. Variable dni como string con DNI (incluidos los 2 puntos)
+</div>
+
+<div class="code-block"><span class="lbl">Solución</span>
+<span class="c-dir">.DATA</span>
+    <span class="c-comment">; a. Word = 16 bits (DW), inicializada en 0</span>
+    cuenta <span class="c-kw">DW</span> <span class="c-num">0</span>
+
+    <span class="c-comment">; b. Arreglo de 50 bytes, todos en 0Ah</span>
+    lista <span class="c-kw">DB</span> <span class="c-num">50</span> DUP (<span class="c-num">0Ah</span>)
+
+    <span class="c-comment">; b. Número entre 0 y 3000 → necesita 16 bits (3000 > 255)</span>
+    <span class="c-comment">;    Máximo word: 65535, así que DW es adecuado</span>
+    suma <span class="c-kw">DW</span> ?
+
+    <span class="c-comment">; c. String con formato "XXXXXXXX:YY" (DNI con 2 puntos)</span>
+    <span class="c-comment">;    Ejemplo: "12345678:AB"</span>
+    dni <span class="c-kw">DB</span> <span class="c-str">"12345678:XX"</span></div>
+
+<div class="explain">
+<p><strong>a.</strong> <code>DW</code> = Define Word (16 bits). Se inicializa con 0.</p>
+<p><strong>b.</strong> Para "entre 0 y 3000": 3000 es mayor que 255 (máximo de un byte), así que necesitamos un word (DW). El valor 3000 = 0BB8h, que entra perfecto en 16 bits.</p>
+<p><strong>c.</strong> El DNI como string incluye los dos puntos. Reemplazá "12345678:XX" por tu DNI real.</p>
+</div>
+</section>
+
+<!-- ============ EJERCICIO 9 ============ -->
+<section class="ex" id="e9">
+<div class="ex-label">Ejercicio 9</div>
+<h2>Iniciales en registros AL y AH</h2>
+<div class="problem">
+Declare nombre y apellido. Copie las iniciales en AL (inicial del nombre) y AH (inicial del apellido).
+</div>
+<div class="code-block"><span class="lbl">Solución</span>
+<span class="c-dir">.DATA</span>
+    nombre   <span class="c-kw">DB</span> <span class="c-str">"Juan"</span>
+    apellido <span class="c-kw">DB</span> <span class="c-str">"Perez"</span>
+<span class="c-dir">.CODE</span>
+<span class="c-kw">inicio:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-dir">@data</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ds</span>, <span class="c-reg">ax</span>
+
+    <span class="c-kw">mov</span> <span class="c-reg">al</span>, nombre[<span class="c-num">0</span>]     <span class="c-comment">; AL = 'J' (inicial del nombre)</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ah</span>, apellido[<span class="c-num">0</span>]   <span class="c-comment">; AH = 'P' (inicial del apellido)</span>
+
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">4C00h</span>
+    <span class="c-kw">int</span> <span class="c-num">21h</span>
+<span class="c-kw">END</span> inicio</div>
+<div class="explain">
+<p><code>nombre[0]</code> accede al primer carácter del string. Como <code>nombre</code> es "Juan", <code>nombre[0]</code> = 'J' = 4Ah. Los corchetes con 0 indican desplazamiento 0 (el primer byte).</p>
+</div>
+</section>
+
+<!-- ============ EJERCICIO 10 ============ -->
+<section class="ex" id="e10">
+<div class="ex-label">Ejercicio 10</div>
+<h2>Modos de direccionamiento — valor de DL</h2>
+<div class="problem">
+Dado el siguiente contenido de memoria y estado de registros, indique el valor almacenado en DL para cada caso.
+</div>
+
+<table class="styled-table">
+<tr><th>Dirección</th><th>Contenido</th><th>Registro</th><th>Valor</th><th>Variable</th><th>Dirección</th></tr>
+<tr><td><code>139Eh</code></td><td><code>05h</code></td><td>AX</td><td><code>001Ah</code></td><td>Arreglo</td><td><code>139Eh</code></td></tr>
+<tr><td><code>139Fh</code></td><td><code>AAh</code></td><td>BX</td><td><code>139Fh</code></td><td>Lista</td><td><code>005Ah</code></td></tr>
+<tr><td><code>13A0h</code></td><td><code>03h</code></td><td>SI</td><td><code>0002h</code></td><td></td><td></td></tr>
+<tr><td><code>13A1h</code></td><td><code>00h</code></td><td>DI</td><td><code>0060h</code></td><td></td><td></td></tr>
+<tr><td><code>13A2h</code></td><td><code>0Dh</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>13A3h</code></td><td><code>FFh</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>13A4h</code></td><td><code>9Eh</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>13A5h</code></td><td><code>13h</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>13A6h</code></td><td><code>02h</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>13A7h</code></td><td><code>10h</code></td><td></td><td></td><td></td><td></td></tr>
+</table>
+
+<h3>a. mov dl, al</h3>
+<div class="answer"><p><code>DL = 1Ah</code> — Direccionamiento inherente (registro a registro). Copia el byte bajo de AX a DL.</p></div>
+
+<h3>b. mov dl, ds:[bx]</h3>
+<div class="answer"><p><code>DL = AAh</code> — Direccionamiento indirecto. BX = 139Fh, y el contenido de la dirección 139Fh es AAh.</p></div>
+
+<h3>c. mov dl, ds:[13A3h]</h3>
+<div class="answer"><p><code>DL = FFh</code> — Direccionamiento directo. Lee directamente de la dirección 13A3h.</p></div>
+
+<h3>d. mov dl, ds:[bx + si + 2]</h3>
+<div class="answer"><p><code>DL = FFh</code> — Direccionamiento relativo. Dirección = BX + SI + 2 = 139Fh + 0002h + 2 = 13A3h. Contenido de 13A3h = FFh.</p></div>
+
+<h3>e. mov dl, arreglo[si]</h3>
+<div class="answer"><p><code>DL = 03h</code> — Direccionamiento directo con índice. Arreglo empieza en 139Eh. Desplazamiento = SI = 2. Dirección = 139Eh + 2 = 13A0h. Contenido = 03h.</p></div>
+
+<h3>f. mov dl, lista[1347h]</h3>
+<div class="answer"><p><code>DL = 00h</code> — Lista empieza en 005Ah. Dirección = 005Ah + 1347h = 13A1h. Contenido de 13A1h = 00h.</p></div>
+</section>
+
+<!-- ============ EJERCICIO 11 ============ -->
+<section class="ex" id="e11">
+<div class="ex-label">Ejercicio 11</div>
+<h2>¿Qué hace este fragmento de código?</h2>
+<div class="problem">
+En la dirección 3000h comienza un arreglo de bytes con los primeros diez números pares. ¿Qué hace el código?
+</div>
+<div class="code-block">
+<span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">0</span>
+<span class="c-kw">mov</span> <span class="c-reg">si</span>, <span class="c-num">0</span>
+<span class="c-kw">mov</span> <span class="c-reg">cx</span>, <span class="c-num">10</span>
+<span class="c-kw">siguiente:</span> <span class="c-kw">add</span> <span class="c-reg">al</span>, <span class="c-reg">ds</span>:[<span class="c-num">3000h</span> + <span class="c-reg">si</span>]
+<span class="c-kw">inc</span> <span class="c-reg">si</span>
+<span class="c-kw">loop</span> <span class="c-kw">siguiente</span></div>
+
+<div id="tracer11"></div>
+
+<div class="answer">
+<p><strong>Suma los 10 primeros números pares en AL.</strong> Los números pares son: 0, 2, 4, 6, 8, 10, 12, 14, 16, 18. Su suma = 90 (<code>5Ah</code>). AL = 5Ah al final.</p>
+<p>El bucle recorre el arreglo posición por posición (usando SI como índice), acumulando cada valor en AL. CX=10 controla las 10 iteraciones con LOOP.</p>
+</div>
+</section>
+
+<!-- ============ EJERCICIO 12 ============ -->
+<section class="ex" id="e12">
+<div class="ex-label">Ejercicio 12</div>
+<h2>Sumar arreglo de 20 bytes</h2>
+<div class="problem">
+Escriba un programa que sume los números de un arreglo de 20 elementos (byte) que comienza en la posición almacenada en BX, y guarde la suma en AL.
+</div>
+<div class="code-block"><span class="lbl">Solución</span>
+<span class="c-dir">.DATA</span>
+    arreglo <span class="c-kw">DB</span> <span class="c-num">20</span> DUP (<span class="c-num">1</span>)  <span class="c-comment">; Ejemplo: 20 elementos con valor 1</span>
+<span class="c-dir">.CODE</span>
+<span class="c-kw">inicio:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-dir">@data</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ds</span>, <span class="c-reg">ax</span>
+    <span class="c-kw">mov</span> <span class="c-reg">bx</span>, <span class="c-kw">offset</span> arreglo  <span class="c-comment">; BX = dirección del arreglo</span>
+    <span class="c-kw">mov</span> <span class="c-reg">cx</span>, <span class="c-num">20</span>             <span class="c-comment">; 20 elementos</span>
+    <span class="c-kw">mov</span> <span class="c-reg">al</span>, <span class="c-num">0</span>              <span class="c-comment">; Acumulador = 0</span>
+    <span class="c-kw">mov</span> <span class="c-reg">si</span>, <span class="c-num">0</span>              <span class="c-comment">; Índice = 0</span>
+
+<span class="c-kw">sumar:</span>
+    <span class="c-kw">add</span> <span class="c-reg">al</span>, <span class="c-reg">ds</span>:[<span class="c-reg">bx</span> + <span class="c-reg">si</span>]  <span class="c-comment">; AL += elemento actual</span>
+    <span class="c-kw">inc</span> <span class="c-reg">si</span>               <span class="c-comment">; Siguiente byte</span>
+    <span class="c-kw">loop</span> <span class="c-kw">sumar</span>           <span class="c-comment">; CX--, si CX≠0 repetir</span>
+
+    <span class="c-comment">; AL contiene la suma total</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">4C00h</span>
+    <span class="c-kw">int</span> <span class="c-num">21h</span>
+<span class="c-kw">END</span> inicio</div>
+<div class="explain">
+<p>Usamos <code>ds:[bx + si]</code> (direccionamiento relativo): BX apunta al inicio del arreglo y SI se incrementa en cada iteración para movernos entre elementos. Como son bytes, SI avanza de 1 en 1.</p>
+</div>
+</section>
+
+<!-- ============ EJERCICIO 13 ============ -->
+<section class="ex" id="e13">
+<div class="ex-label">Ejercicio 13</div>
+<h2>¿Qué cambia si el arreglo es de words?</h2>
+<div class="problem">
+Si los elementos fueran de tamaño word (2 bytes), ¿qué cambios deben hacerse?
+</div>
+<div class="answer">
+<p>Cambios necesarios:</p>
+<ol>
+<li>Declarar con <code>DW</code> en vez de <code>DB</code></li>
+<li>Usar <code>AX</code> como acumulador (no AL, ya que los elementos son de 16 bits)</li>
+<li>Usar <code>ADD AX, ds:[BX + SI]</code></li>
+<li>Incrementar SI de <strong>2 en 2</strong> (<code>add si, 2</code>) ya que cada word ocupa 2 bytes</li>
+</ol>
+</div>
+<div class="code-block"><span class="lbl">Cambios clave</span>
+    arreglo <span class="c-kw">DW</span> <span class="c-num">20</span> DUP (<span class="c-num">1</span>)   <span class="c-comment">; DW en vez de DB</span>
+    ...
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">0</span>              <span class="c-comment">; Acumulador de 16 bits</span>
+<span class="c-kw">sumar:</span>
+    <span class="c-kw">add</span> <span class="c-reg">ax</span>, <span class="c-reg">ds</span>:[<span class="c-reg">bx</span> + <span class="c-reg">si</span>]  <span class="c-comment">; Sumar word completo</span>
+    <span class="c-kw">add</span> <span class="c-reg">si</span>, <span class="c-num">2</span>             <span class="c-comment">; Avanzar 2 bytes (no 1)</span>
+    <span class="c-kw">loop</span> <span class="c-kw">sumar</span></div>
+</section>
+
+<!-- ============ EJERCICIO 14 ============ -->
+<section class="ex" id="e14">
+<div class="ex-label">Ejercicio 14</div>
+<h2>Copiar arreglo Numeros a Copia</h2>
+<div class="problem">
+Copie todos los elementos del arreglo Numeros (cuya longitud está en la variable Long) al arreglo Copia.
+</div>
+<div class="code-block"><span class="lbl">Solución</span>
+<span class="c-dir">.DATA</span>
+    Numeros <span class="c-kw">DB</span> <span class="c-num">5</span>, <span class="c-num">12</span>, <span class="c-num">7</span>, <span class="c-num">3</span>, <span class="c-num">9</span>, <span class="c-num">1</span>    <span class="c-comment">; Ejemplo</span>
+    Long    <span class="c-kw">DW</span> <span class="c-num">6</span>
+    Copia   <span class="c-kw">DB</span> <span class="c-num">6</span> DUP (?)          <span class="c-comment">; Reservar mismo espacio</span>
+<span class="c-dir">.CODE</span>
+<span class="c-kw">inicio:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-dir">@data</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ds</span>, <span class="c-reg">ax</span>
+    <span class="c-kw">mov</span> <span class="c-reg">cx</span>, Long          <span class="c-comment">; CX = longitud</span>
+    <span class="c-kw">mov</span> <span class="c-reg">si</span>, <span class="c-num">0</span>              <span class="c-comment">; Índice</span>
+
+<span class="c-kw">copiar:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">al</span>, Numeros[<span class="c-reg">si</span>]   <span class="c-comment">; Leer de Numeros</span>
+    <span class="c-kw">mov</span> Copia[<span class="c-reg">si</span>], <span class="c-reg">al</span>    <span class="c-comment">; Escribir en Copia</span>
+    <span class="c-kw">inc</span> <span class="c-reg">si</span>
+    <span class="c-kw">loop</span> <span class="c-kw">copiar</span>
+
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">4C00h</span>
+    <span class="c-kw">int</span> <span class="c-num">21h</span>
+<span class="c-kw">END</span> inicio</div>
+</section>
+
+<!-- ============ EJERCICIO 15 ============ -->
+<section class="ex" id="e15">
+<div class="ex-label">Ejercicio 15</div>
+<h2>Longitud del nombre de archivo</h2>
+<div class="problem">
+Dada la variable NombreArch con un nombre de archivo terminado en extensión de 3 letras, almacene en CX la longitud total del nombre.
+</div>
+<div class="code-block"><span class="lbl">Solución</span>
+<span class="c-dir">.DATA</span>
+    NombreArch <span class="c-kw">DB</span> <span class="c-str">"Ejer1.ASM"</span>, <span class="c-num">0</span>  <span class="c-comment">; Terminado en 0</span>
+<span class="c-dir">.CODE</span>
+<span class="c-kw">inicio:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-dir">@data</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ds</span>, <span class="c-reg">ax</span>
+    <span class="c-kw">mov</span> <span class="c-reg">cx</span>, <span class="c-num">0</span>              <span class="c-comment">; Contador de longitud</span>
+    <span class="c-kw">mov</span> <span class="c-reg">si</span>, <span class="c-num">0</span>
+
+<span class="c-kw">contar:</span>
+    <span class="c-kw">cmp</span> NombreArch[<span class="c-reg">si</span>], <span class="c-num">0</span>  <span class="c-comment">; ¿Fin del string?</span>
+    <span class="c-kw">je</span> <span class="c-kw">fin</span>
+    <span class="c-kw">inc</span> <span class="c-reg">cx</span>               <span class="c-comment">; Incrementar longitud</span>
+    <span class="c-kw">inc</span> <span class="c-reg">si</span>
+    <span class="c-kw">jmp</span> <span class="c-kw">contar</span>
+
+<span class="c-kw">fin:</span>
+    <span class="c-comment">; CX = 9 para "Ejer1.ASM", CX = 12 para "Planilla.xls"</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">4C00h</span>
+    <span class="c-kw">int</span> <span class="c-num">21h</span>
+<span class="c-kw">END</span> inicio</div>
+<div class="explain">
+<p>Recorremos carácter por carácter hasta encontrar el byte 0 (fin del string). CX se incrementa por cada carácter válido. Es un while: "mientras no sea fin, contá y avanzá".</p>
+</div>
+</section>
+
+<!-- ============ EJERCICIO 16 ============ -->
+<section class="ex" id="e16">
+<div class="ex-label">Ejercicio 16</div>
+<h2>IEEE 754 — Extraer exponente e invertir signo</h2>
+<div class="problem">
+Dado un número IEEE 754 de precisión simple en nroReal, copie el exponente en la variable exponente e invierta el signo.
+</div>
+<div class="code-block"><span class="lbl">Datos</span>
+<span class="c-dir">.DATA</span>
+    nroReal <span class="c-kw">DD</span> <span class="c-num">-0.000065</span>   <span class="c-comment">; En IEEE: B888509C</span>
+                          <span class="c-comment">; Little endian: 9C 50 88 B8</span>
+    exponente <span class="c-kw">DB</span> ?</div>
+
+<div class="explain">
+<p><strong>Formato IEEE 754 simple (32 bits):</strong></p>
+<p>Bit 31 = signo, Bits 30-23 = exponente, Bits 22-0 = mantisa.</p>
+<p><code>B888509Ch</code> en binario = <code>1 01110001 00010000101000010011100</code></p>
+<p>Signo = 1 (negativo), Exponente = <code>01110001b</code> = <code>71h</code> = 113</p>
+<p>En memoria little endian: byte 0 = 9Ch, byte 1 = 50h, byte 2 = 88h, byte 3 = B8h</p>
+<p>El exponente se extrae de los bytes 2 y 3. Byte 3 (B8h) tiene el signo en su bit 7 y los bits 30-24 en los bits 6-0. Byte 2 (88h) tiene el bit 23 del exponente en su bit 7.</p>
+</div>
+
+<div class="code-block"><span class="lbl">Solución</span>
+<span class="c-dir">.DATA</span>
+    nroReal    <span class="c-kw">DD</span> <span class="c-num">-0.000065</span>
+    exponente  <span class="c-kw">DB</span> ?
+<span class="c-dir">.CODE</span>
+<span class="c-kw">inicio:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-dir">@data</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ds</span>, <span class="c-reg">ax</span>
+
+    <span class="c-comment">; --- Extraer exponente ---</span>
+    <span class="c-kw">mov</span> <span class="c-reg">al</span>, nroReal[<span class="c-num">3</span>]    <span class="c-comment">; AL = B8h (byte alto)</span>
+    <span class="c-kw">and</span> <span class="c-reg">al</span>, <span class="c-num">7Fh</span>            <span class="c-comment">; Quitar bit de signo → 38h</span>
+    <span class="c-kw">shl</span> <span class="c-reg">al</span>, <span class="c-num">1</span>              <span class="c-comment">; Mover 7 bits arriba → 70h</span>
+
+    <span class="c-kw">mov</span> <span class="c-reg">ah</span>, nroReal[<span class="c-num">2</span>]    <span class="c-comment">; AH = 88h (byte bajo del exponente)</span>
+    <span class="c-kw">shr</span> <span class="c-reg">ah</span>, <span class="c-num">7</span>              <span class="c-comment">; Obtener bit 23 → 01h</span>
+
+    <span class="c-kw">or</span> <span class="c-reg">al</span>, <span class="c-reg">ah</span>              <span class="c-comment">; Combinar → 71h = 113</span>
+    <span class="c-kw">mov</span> exponente, <span class="c-reg">al</span>     <span class="c-comment">; Guardar exponente</span>
+
+    <span class="c-comment">; --- Invertir signo ---</span>
+    <span class="c-kw">mov</span> <span class="c-reg">al</span>, nroReal[<span class="c-num">3</span>]    <span class="c-comment">; AL = B8h</span>
+    <span class="c-kw">xor</span> <span class="c-reg">al</span>, <span class="c-num">80h</span>            <span class="c-comment">; Invertir bit 7 → 38h</span>
+    <span class="c-kw">mov</span> nroReal[<span class="c-num">3</span>], <span class="c-reg">al</span>   <span class="c-comment">; Guardar → ahora es positivo</span>
+
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">4C00h</span>
+    <span class="c-kw">int</span> <span class="c-num">21h</span>
+<span class="c-kw">END</span> inicio</div>
+<div class="answer"><p>exponente = <code>71h</code> (113 decimal). El signo se invirtió: B888509C → 3888509C (de negativo a positivo).</p></div>
+</section>
+
+<!-- ============ EJERCICIO 17 ============ -->
+<section class="ex" id="e17">
+<div class="ex-label">Ejercicio 17</div>
+<h2>Convertir carácter ASCII a decimal</h2>
+<div class="problem">
+Si el carácter es un dígito válido ('0'-'9'), convertirlo a decimal y guardarlo en digito. Si no, guardar FFh.
+</div>
+<div class="explain">
+<p>En ASCII, el carácter '0' = 30h, '1' = 31h, ..., '9' = 39h. Para convertir un dígito ASCII a su valor decimal, simplemente le restamos '0' (30h). Por ejemplo: '7' - '0' = 37h - 30h = 7.</p>
+</div>
+<div class="code-block"><span class="lbl">Solución</span>
+<span class="c-dir">.DATA</span>
+    character <span class="c-kw">DB</span> <span class="c-str">"7"</span>
+    digito    <span class="c-kw">DB</span> ?
+<span class="c-dir">.CODE</span>
+<span class="c-kw">inicio:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-dir">@data</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ds</span>, <span class="c-reg">ax</span>
+
+    <span class="c-kw">mov</span> <span class="c-reg">al</span>, character
+
+    <span class="c-comment">; ¿Es menor que '0'?</span>
+    <span class="c-kw">cmp</span> <span class="c-reg">al</span>, <span class="c-str">'0'</span>
+    <span class="c-kw">jb</span> <span class="c-kw">no_valido</span>         <span class="c-comment">; Si AL &lt; '0', no es dígito</span>
+
+    <span class="c-comment">; ¿Es mayor que '9'?</span>
+    <span class="c-kw">cmp</span> <span class="c-reg">al</span>, <span class="c-str">'9'</span>
+    <span class="c-kw">ja</span> <span class="c-kw">no_valido</span>         <span class="c-comment">; Si AL &gt; '9', no es dígito</span>
+
+    <span class="c-comment">; Es un dígito válido: convertir</span>
+    <span class="c-kw">sub</span> <span class="c-reg">al</span>, <span class="c-str">'0'</span>           <span class="c-comment">; AL = valor decimal (ej: '7'-'0'=7)</span>
+    <span class="c-kw">mov</span> digito, <span class="c-reg">al</span>
+    <span class="c-kw">jmp</span> <span class="c-kw">fin</span>
+
+<span class="c-kw">no_valido:</span>
+    <span class="c-kw">mov</span> digito, <span class="c-num">0FFh</span>     <span class="c-comment">; No es un dígito válido</span>
+
+<span class="c-kw">fin:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">4C00h</span>
+    <span class="c-kw">int</span> <span class="c-num">21h</span>
+<span class="c-kw">END</span> inicio</div>
+</section>
+
+<!-- ============ EJERCICIO 18 ============ -->
+<section class="ex" id="e18">
+<div class="ex-label">Ejercicio 18</div>
+<h2>Invertir el orden de los bits</h2>
+<div class="problem">
+Dada la variable var, almacene en inv el contenido con los bits invertidos: b7b6b5b4b3b2b1b0 → b0b1b2b3b4b5b6b7
+</div>
+<div class="explain">
+<p>No es lo mismo "invertir" (NOT, que cambia 0↔1) que "revertir" (ponerlos en orden inverso). El ejercicio pide <strong>revertir</strong> el orden de los 8 bits.</p>
+<p><strong>Estrategia:</strong> Usamos SHR para sacar el bit menos significativo de var (va al carry flag), y luego RCL para insertarlo en inv. Repetimos 8 veces. SHR saca bits por la derecha, RCL los pone por la izquierda de inv.</p>
+</div>
+<div class="code-block"><span class="lbl">Solución</span>
+<span class="c-dir">.DATA</span>
+    var <span class="c-kw">DB</span> <span class="c-num">10110100b</span>   <span class="c-comment">; B4h — ejemplo</span>
+    inv <span class="c-kw">DB</span> ?
+<span class="c-dir">.CODE</span>
+<span class="c-kw">inicio:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-dir">@data</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ds</span>, <span class="c-reg">ax</span>
+
+    <span class="c-kw">mov</span> <span class="c-reg">al</span>, var          <span class="c-comment">; AL = 10110100b</span>
+    <span class="c-kw">mov</span> <span class="c-reg">cl</span>, <span class="c-num">8</span>             <span class="c-comment">; 8 bits a procesar</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ah</span>, <span class="c-num">0</span>             <span class="c-comment">; Resultado (acumulador)</span>
+
+<span class="c-kw">reversar:</span>
+    <span class="c-kw">shr</span> <span class="c-reg">al</span>, <span class="c-num">1</span>            <span class="c-comment">; Mover bit 0 de AL al carry</span>
+    <span class="c-kw">rcl</span> <span class="c-reg">ah</span>, <span class="c-num">1</span>            <span class="c-comment">; Mover carry al bit 0 de AH</span>
+    <span class="c-kw">dec</span> <span class="c-reg">cl</span>
+    <span class="c-kw">jnz</span> <span class="c-kw">reversar</span>        <span class="c-comment">; Repetir 8 veces</span>
+
+    <span class="c-kw">mov</span> inv, <span class="c-reg">ah</span>          <span class="c-comment">; Guardar resultado</span>
+    <span class="c-comment">; inv = 00101101b = 2Dh (b0b1b2b3b4b5b6b7 de B4h)</span>
+
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">4C00h</span>
+    <span class="c-kw">int</span> <span class="c-num">21h</span>
+<span class="c-kw">END</span> inicio</div>
+</section>
+
+<!-- ============ EJERCICIO 19 ============ -->
+<section class="ex" id="e19">
+<div class="ex-label">Ejercicio 19</div>
+<h2>Debug de programa con subrutina</h2>
+<div class="problem">
+Ejecutar paso a paso el siguiente programa y responder las preguntas.
+</div>
+<div class="code-block">
+<span class="c-dir">.model small</span>
+<span class="c-dir">.stack</span>
+<span class="c-dir">.data</span>
+    numeros    <span class="c-kw">DW</span> <span class="c-num">15, 22, 37, 46, 00h</span>
+    resultado  <span class="c-kw">DW</span> ?
+<span class="c-dir">.code</span>
+<span class="c-kw">inicio:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-dir">@data</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ds</span>, <span class="c-reg">ax</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-kw">offset</span> numeros
+    <span class="c-kw">push</span> <span class="c-reg">ax</span>
+    <span class="c-kw">call</span> <span class="c-kw">subrutina</span>
+    <span class="c-kw">pop</span> <span class="c-reg">ax</span>
+    <span class="c-kw">mov</span> resultado, <span class="c-reg">cx</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">4C00h</span>
+    <span class="c-kw">int</span> <span class="c-num">21h</span>
+
+<span class="c-kw">subrutina proc</span>
+    <span class="c-kw">push</span> <span class="c-reg">bp</span>
+    <span class="c-kw">mov</span> <span class="c-reg">bp</span>, <span class="c-reg">sp</span>
+    <span class="c-kw">mov</span> <span class="c-reg">bx</span>, <span class="c-reg">ss</span>:[<span class="c-reg">bp</span> + <span class="c-num">4</span>]
+    <span class="c-kw">mov</span> <span class="c-reg">cx</span>, <span class="c-num">0</span>
+<span class="c-kw">recorrer:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">dx</span>, <span class="c-reg">ds</span>:[<span class="c-reg">bx</span>]
+    <span class="c-kw">cmp</span> <span class="c-reg">dx</span>, <span class="c-num">0</span>
+    <span class="c-kw">je</span> <span class="c-kw">fin</span>
+    <span class="c-kw">add</span> <span class="c-reg">cx</span>, <span class="c-reg">dx</span>
+    <span class="c-kw">add</span> <span class="c-reg">bx</span>, <span class="c-num">2</span>
+    <span class="c-kw">jmp</span> <span class="c-kw">recorrer</span>
+<span class="c-kw">fin:</span>
+    <span class="c-kw">pop</span> <span class="c-reg">bp</span>
+    <span class="c-kw">ret</span>
+<span class="c-kw">subrutina endp</span>
+<span class="c-kw">end</span> inicio</div>
+
+<div id="tracer19"></div>
+
+<h3>a. ¿Dirección de memoria de numeros?</h3>
+<div class="answer"><p><code>numeros</code> es la primera variable en .DATA, por lo que su dirección de <strong>desplazamiento</strong> es <code>0000h</code> dentro del segmento de datos. Su dirección absoluta depende del segmento asignado por el SO.</p></div>
+
+<h3>b. Estado de la pila después de PUSH BP</h3>
+<div class="answer">
+<p>(De SP hacia arriba/abajo en la pila):</p>
+<table class="styled-table">
+<tr><th>Dirección (relativa)</th><th>Contenido</th></tr>
+<tr><td>SP+0 (tope)</td><td>Valor antiguo de BP</td></tr>
+<tr><td>SP+2</td><td>Dirección de retorno (IP del CALL)</td></tr>
+<tr><td>SP+4</td><td>offset numeros (0000h)</td></tr>
+</table>
+</div>
+
+<h3>c. ¿Valor de BX luego de la segunda iteración?</h3>
+<div class="answer"><p>Primera iteración: BX = offset (0000h), lee 15. BX += 2 → <code>0002h</code>. Segunda iteración: BX = 0002h, lee 22. BX += 2 → <code>0004h</code>. <strong>BX = 0004h.</strong></p></div>
+
+<h3>d. ¿Dirección y valor final de resultado?</h3>
+<div class="answer"><p><code>resultado</code> está en el desplazamiento <code>000Ah</code> (después de los 10 bytes de numeros: 5 words × 2 bytes). El valor final: CX = 15+22+37+46 = <strong>120 (0078h)</strong>.</p></div>
+
+<h3>e. ¿Qué función cumple la subrutina?</h3>
+<div class="answer"><p><strong>Suma todos los elementos del arreglo de words hasta encontrar un 0</strong> (valor centinela). Devuelve la suma en CX. Es equivalente a: sumar todos los elementos no nulos de un arreglo terminado en 0.</p></div>
+</section>
+
+<!-- ============ EJERCICIO 20 ============ -->
+<section class="ex" id="e20">
+<div class="ex-label">Ejercicio 20</div>
+<h2>Subrutina: mayor de dos números</h2>
+<div class="problem">
+Escriba la subrutina mayor que recibe dos enteros de 16 bits en BX y CX, y devuelve en AX el mayor.
+</div>
+<div class="code-block"><span class="lbl">Solución</span>
+<span class="c-kw">mayor proc</span>
+    <span class="c-kw">cmp</span> <span class="c-reg">bx</span>, <span class="c-reg">cx</span>
+    <span class="c-kw">jge</span> <span class="c-kw">bx_es_mayor</span>    <span class="c-comment">; Si BX >= CX, saltar</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-reg">cx</span>          <span class="c-comment">; CX es mayor → AX = CX</span>
+    <span class="c-kw">jmp</span> <span class="c-kw">fin_mayor</span>
+<span class="c-kw">bx_es_mayor:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-reg">bx</span>          <span class="c-comment">; BX es mayor → AX = BX</span>
+<span class="c-kw">fin_mayor:</span>
+    <span class="c-kw">ret</span>
+<span class="c-kw">mayor endp</span></div>
+<div class="explain">
+<p>Usamos <code>CMP</code> + <code>JGE</code> (Jump if Greater or Equal, con signo). Si BX ≥ CX, saltamos a bx_es_mayor y copiamos BX a AX. Si no, copiamos CX a AX. En ambos casos, AX queda con el mayor.</p>
+</div>
+</section>
+
+<!-- ============ EJERCICIO 21 ============ -->
+<section class="ex" id="e21">
+<div class="ex-label">Ejercicio 21</div>
+<h2>Subrutina mayor recibiendo direcciones</h2>
+<div class="problem">
+Reescriba mayor recibiendo las direcciones de los valores en SI y DI.
+</div>
+<div class="code-block"><span class="lbl">Solución</span>
+<span class="c-kw">mayor proc</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-reg">ds</span>:[<span class="c-reg">si</span>]     <span class="c-comment">; AX = primer valor</span>
+    <span class="c-kw">cmp</span> <span class="c-reg">ax</span>, <span class="c-reg">ds</span>:[<span class="c-reg">di</span>]     <span class="c-comment">; Comparar con segundo valor</span>
+    <span class="c-kw">jge</span> <span class="c-kw">fin_mayor</span>        <span class="c-comment">; Si AX >= segundo, AX ya es mayor</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-reg">ds</span>:[<span class="c-reg">di</span>]     <span class="c-comment">; El segundo es mayor → AX = segundo</span>
+<span class="c-kw">fin_mayor:</span>
+    <span class="c-kw">ret</span>
+<span class="c-kw">mayor endp</span></div>
+<div class="explain">
+<p>Ahora los valores no están en registros sino en memoria. Usamos direccionamiento indirecto: <code>ds:[si]</code> y <code>ds:[di]</code> acceden a las direcciones apuntadas por SI y DI.</p>
+</div>
+</section>
+
+<!-- ============ EJERCICIO 22 ============ -->
+<section class="ex" id="e22">
+<div class="ex-label">Ejercicio 22</div>
+<h2>Programas con ambas versiones de mayor</h2>
+<div class="problem">
+Dados n1 y n2, almacenar la mayor en max. Realizar con ambas versiones de la subrutina mayor.
+</div>
+
+<h3>Versión 1: valores en BX y CX</h3>
+<div class="code-block"><span class="lbl">Solución</span>
+<span class="c-dir">.DATA</span>
+    n1 <span class="c-kw">DW</span> <span class="c-num">25</span>
+    n2 <span class="c-kw">DW</span> <span class="c-num">40</span>
+    max <span class="c-kw">DW</span> ?
+<span class="c-dir">.CODE</span>
+<span class="c-kw">inicio:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-dir">@data</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ds</span>, <span class="c-reg">ax</span>
+    <span class="c-kw">mov</span> <span class="c-reg">bx</span>, n1           <span class="c-comment">; BX = 25</span>
+    <span class="c-kw">mov</span> <span class="c-reg">cx</span>, n2           <span class="c-comment">; CX = 40</span>
+    <span class="c-kw">call</span> <span class="c-kw">mayor</span>           <span class="c-comment">; AX = mayor(25, 40) = 40</span>
+    <span class="c-kw">mov</span> max, <span class="c-reg">ax</span>         <span class="c-comment">; max = 40</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">4C00h</span>
+    <span class="c-kw">int</span> <span class="c-num">21h</span>
+<span class="c-comment">; ... subrutina mayor del ejercicio 20 ...</span>
+<span class="c-kw">END</span> inicio</div>
+
+<h3>Versión 2: direcciones en SI y DI</h3>
+<div class="code-block"><span class="lbl">Solución</span>
+<span class="c-kw">inicio:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-dir">@data</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ds</span>, <span class="c-reg">ax</span>
+    <span class="c-kw">mov</span> <span class="c-reg">si</span>, <span class="c-kw">offset</span> n1    <span class="c-comment">; SI = dirección de n1</span>
+    <span class="c-kw">mov</span> <span class="c-reg">di</span>, <span class="c-kw">offset</span> n2    <span class="c-comment">; DI = dirección de n2</span>
+    <span class="c-kw">call</span> <span class="c-kw">mayor</span>           <span class="c-comment">; AX = mayor</span>
+    <span class="c-kw">mov</span> max, <span class="c-reg">ax</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">4C00h</span>
+    <span class="c-kw">int</span> <span class="c-num">21h</span>
+<span class="c-comment">; ... subrutina mayor del ejercicio 21 ...</span>
+<span class="c-kw">END</span> inicio</div>
+</section>
+
+<!-- ============ EJERCICIO 23 ============ -->
+<section class="ex" id="e23">
+<div class="ex-label">Ejercicio 23</div>
+<h2>Subrutina characterADecimal</h2>
+<div class="problem">
+Reescriba el ejercicio 17 usando una subrutina. Recibe carácter en AL, devuelve decimal en AH (o FFh si inválido).
+</div>
+<div class="code-block"><span class="lbl">Solución</span>
+<span class="c-dir">.DATA</span>
+    character <span class="c-kw">DB</span> <span class="c-str">"7"</span>
+    digito    <span class="c-kw">DB</span> ?
+<span class="c-dir">.CODE</span>
+<span class="c-kw">inicio:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-dir">@data</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ds</span>, <span class="c-reg">ax</span>
+    <span class="c-kw">mov</span> <span class="c-reg">al</span>, character    <span class="c-comment">; AL = carácter a convertir</span>
+    <span class="c-kw">call</span> <span class="c-kw">characterADecimal</span>
+    <span class="c-kw">mov</span> digito, <span class="c-reg">ah</span>       <span class="c-comment">; Guardar resultado</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">4C00h</span>
+    <span class="c-kw">int</span> <span class="c-num">21h</span>
+
+<span class="c-kw">characterADecimal proc</span>
+    <span class="c-kw">cmp</span> <span class="c-reg">al</span>, <span class="c-str">'0'</span>
+    <span class="c-kw">jb</span> <span class="c-kw">no_valido</span>
+    <span class="c-kw">cmp</span> <span class="c-reg">al</span>, <span class="c-str">'9'</span>
+    <span class="c-kw">ja</span> <span class="c-kw">no_valido</span>
+    <span class="c-kw">sub</span> <span class="c-reg">al</span>, <span class="c-str">'0'</span>          <span class="c-comment">; Convertir a decimal</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ah</span>, <span class="c-reg">al</span>           <span class="c-comment">; Resultado en AH</span>
+    <span class="c-kw">jmp</span> <span class="c-kw">fin_conv</span>
+<span class="c-kw">no_valido:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ah</span>, <span class="c-num">0FFh</span>        <span class="c-comment">; No es dígito válido</span>
+<span class="c-kw">fin_conv:</span>
+    <span class="c-kw">ret</span>
+<span class="c-kw">characterADecimal endp</span>
+<span class="c-kw">END</span> inicio</div>
+</section>
+
+<!-- ============ EJERCICIO 24 ============ -->
+<section class="ex" id="e24">
+<div class="ex-label">Ejercicio 24</div>
+<h2>Contar bits en 1</h2>
+<div class="problem">
+Crear subrutinas para contar la cantidad de bits 1 en un byte (dato8) y en una word (dato16).
+</div>
+
+<h3>a. contarUnosByte: AL → CX</h3>
+<div class="code-block"><span class="lbl">Subrutina</span>
+<span class="c-kw">contarUnosByte proc</span>
+    <span class="c-kw">push</span> <span class="c-reg">bx</span>
+    <span class="c-kw">mov</span> <span class="c-reg">cx</span>, <span class="c-num">0</span>             <span class="c-comment">; Contador de unos</span>
+    <span class="c-kw">mov</span> <span class="c-reg">bh</span>, <span class="c-num">8</span>             <span class="c-comment">; 8 bits a revisar</span>
+<span class="c-kw">check_bit:</span>
+    <span class="c-kw">shr</span> <span class="c-reg">al</span>, <span class="c-num">1</span>            <span class="c-comment">; Mover bit 0 al carry</span>
+    <span class="c-kw">jnc</span> <span class="c-kw">no_es_uno</span>        <span class="c-comment">; Si carry=0, el bit era 0</span>
+    <span class="c-kw">inc</span> <span class="c-reg">cx</span>               <span class="c-comment">; Era 1, incrementar contador</span>
+<span class="c-kw">no_es_uno:</span>
+    <span class="c-kw">dec</span> <span class="c-reg">bh</span>
+    <span class="c-kw">jnz</span> <span class="c-kw">check_bit</span>
+    <span class="c-kw">pop</span> <span class="c-reg">bx</span>
+    <span class="c-kw">ret</span>
+<span class="c-kw">contarUnosByte endp</span></div>
+<div class="explain"><p>Recorre cada bit de AL usando SHR (que pone el bit menos significativo en el carry). Si el carry está en 1, el bit era 1 y sumamos al contador.</p></div>
+
+<h3>b. contarUnosWord: AX → CX</h3>
+<div class="code-block"><span class="lbl">Subrutina</span>
+<span class="c-kw">contarUnosWord proc</span>
+    <span class="c-kw">push</span> <span class="c-reg">bx</span>
+    <span class="c-kw">mov</span> <span class="c-reg">bl</span>, <span class="c-reg">al</span>           <span class="c-comment">; Guardar byte bajo en BL</span>
+    <span class="c-kw">mov</span> <span class="c-reg">al</span>, <span class="c-reg">ah</span>           <span class="c-comment">; Procesar byte alto primero</span>
+    <span class="c-kw">call</span> <span class="c-kw">contarUnosByte</span>  <span class="c-comment">; CX = unos del byte alto</span>
+    <span class="c-kw">push</span> <span class="c-reg">cx</span>              <span class="c-comment">; Guardar parcial</span>
+    <span class="c-kw">mov</span> <span class="c-reg">al</span>, <span class="c-reg">bl</span>           <span class="c-comment">; Procesar byte bajo</span>
+    <span class="c-kw">call</span> <span class="c-kw">contarUnosByte</span>  <span class="c-comment">; CX = unos del byte bajo</span>
+    <span class="c-kw">pop</span> <span class="c-reg">dx</span>               <span class="c-comment">; DX = unos del byte alto</span>
+    <span class="c-kw">add</span> <span class="c-reg">cx</span>, <span class="c-reg">dx</span>           <span class="c-comment">; CX = total</span>
+    <span class="c-kw">pop</span> <span class="c-reg">bx</span>
+    <span class="c-kw">ret</span>
+<span class="c-kw">contarUnosWord endp</span></div>
+</section>
+
+<!-- ============ EJERCICIO 25 ============ -->
+<section class="ex" id="e25">
+<div class="ex-label">Ejercicio 25</div>
+<h2>Traza de pila — subrutina con parámetros</h2>
+<div class="problem">
+Grafique el estado de la pila y los registros afectados en cada paso.
+</div>
+<div class="code-block">
+<span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-kw">offset</span> Var1     <span class="c-comment">; AX = dir de Var1</span>
+<span class="c-kw">push</span> <span class="c-reg">ax</span>                  <span class="c-comment">; Push dirección Var1</span>
+<span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-kw">offset</span> Var2     <span class="c-comment">; AX = dir de Var2</span>
+<span class="c-kw">push</span> <span class="c-reg">ax</span>                  <span class="c-comment">; Push dirección Var2</span>
+<span class="c-kw">call</span> <span class="c-kw">Subrutina</span>
+...
+<span class="c-kw">Subrutina proc</span>
+<span class="c-kw">push</span> <span class="c-reg">bp</span>
+<span class="c-kw">mov</span> <span class="c-reg">bp</span>, <span class="c-reg">sp</span>
+<span class="c-kw">mov</span> <span class="c-reg">si</span>, <span class="c-reg">ss</span>:[<span class="c-reg">bp</span> + <span class="c-num">4</span>]    <span class="c-comment">; 2do parámetro</span>
+<span class="c-kw">mov</span> <span class="c-reg">di</span>, <span class="c-reg">ss</span>:[<span class="c-reg">bp</span> + <span class="c-num">6</span>]    <span class="c-comment">; 1er parámetro</span>
+...
+<span class="c-kw">pop</span> <span class="c-reg">bp</span>
+<span class="c-kw">ret</span> <span class="c-num">4</span>
+<span class="c-kw">Subrutina endp</span></div>
+
+<div id="tracer25"></div>
+
+<div class="answer">
+<p><strong>Después de PUSH BP, con BP = SP:</strong></p>
+<table class="styled-table">
+<tr><th>BP + offset</th><th>Contenido</th></tr>
+<tr><td>BP + 6</td><td>Dir. de Var1 (primer parámetro)</td></tr>
+<tr><td>BP + 4</td><td>Dir. de Var2 (segundo parámetro)</td></tr>
+<tr><td>BP + 2</td><td>Dirección de retorno</td></tr>
+<tr><td>BP + 0</td><td>Valor antiguo de BP</td></tr>
+</table>
+<p><code>SI = dir Var2</code>, <code>DI = dir Var1</code>. La instrucción <code>ret 4</code> hace RETURN y limpia 4 bytes de la pila (los 2 parámetros).</p>
+</div>
+</section>
+
+<!-- ============ EJERCICIO 26 ============ -->
+<section class="ex" id="e26">
+<div class="ex-label">Ejercicio 26</div>
+<h2>Subrutina: mayor de un arreglo de words</h2>
+<div class="problem">
+Escriba mayorArreglo que encuentre el mayor de un arreglo de words. Dirección y longitud se pasan por la pila. El mayor se devuelve en AX.
+</div>
+<div class="code-block"><span class="lbl">Subrutina</span>
+<span class="c-kw">mayorArreglo proc</span>
+    <span class="c-kw">push</span> <span class="c-reg">bp</span>
+    <span class="c-kw">mov</span> <span class="c-reg">bp</span>, <span class="c-reg">sp</span>
+    <span class="c-kw">push</span> <span class="c-reg">bx</span>
+    <span class="c-kw">push</span> <span class="c-reg">si</span>
+
+    <span class="c-kw">mov</span> <span class="c-reg">si</span>, <span class="c-reg">ss</span>:[<span class="c-reg">bp</span> + <span class="c-num">4</span>]  <span class="c-comment">; Dirección del arreglo</span>
+    <span class="c-kw">mov</span> <span class="c-reg">cx</span>, <span class="c-reg">ss</span>:[<span class="c-reg">bp</span> + <span class="c-num">6</span>]  <span class="c-comment">; Longitud del arreglo</span>
+
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-reg">ds</span>:[<span class="c-reg">si</span>]      <span class="c-comment">; Asumir que el 1er elemento es el mayor</span>
+    <span class="c-kw">dec</span> <span class="c-reg">cx</span>               <span class="c-comment">; Ya tomamos 1 elemento</span>
+    <span class="c-kw">add</span> <span class="c-reg">si</span>, <span class="c-num">2</span>             <span class="c-comment">; Avanzar al siguiente word</span>
+
+<span class="c-kw">buscar:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">bx</span>, <span class="c-reg">ds</span>:[<span class="c-reg">si</span>]      <span class="c-comment">; BX = elemento actual</span>
+    <span class="c-kw">cmp</span> <span class="c-reg">bx</span>, <span class="c-reg">ax</span>
+    <span class="c-kw">jle</span> <span class="c-kw">no_mayor</span>         <span class="c-comment">; Si BX ≤ AX, no reemplazar</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-reg">bx</span>           <span class="c-comment">; Nuevo mayor</span>
+<span class="c-kw">no_mayor:</span>
+    <span class="c-kw">add</span> <span class="c-reg">si</span>, <span class="c-num">2</span>             <span class="c-comment">; Siguiente word (+2 bytes)</span>
+    <span class="c-kw">loop</span> <span class="c-kw">buscar</span>
+
+    <span class="c-kw">pop</span> <span class="c-reg">si</span>
+    <span class="c-kw">pop</span> <span class="c-reg">bx</span>
+    <span class="c-kw">pop</span> <span class="c-reg">bp</span>
+    <span class="c-kw">ret</span> <span class="c-num">4</span>                 <span class="c-comment">; Limpiar 2 parámetros (4 bytes)</span>
+<span class="c-kw">mayorArreglo endp</span></div>
+
+<h3>Llamada</h3>
+<div class="code-block">
+<span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-kw">offset</span> arreglo
+<span class="c-kw">push</span> <span class="c-reg">ax</span>                   <span class="c-comment">; Push dirección (2do en la pila)</span>
+<span class="c-kw">push</span> <span class="c-num">5</span>                    <span class="c-comment">; Push longitud (1ro en la pila)</span>
+<span class="c-kw">call</span> <span class="c-kw">mayorArreglo</span>         <span class="c-comment">; AX = mayor</span></div>
+</section>
+
+<!-- ============ EJERCICIO 27 ============ -->
+<section class="ex" id="e27">
+<div class="ex-label">Ejercicio 27</div>
+<h2>Subrutina: longitud de string terminado en 0</h2>
+<div class="problem">
+Escriba longString que reciba la dirección de un string terminado en 0 por la pila y devuelva su longitud en AX.
+</div>
+<div class="code-block"><span class="lbl">Subrutina</span>
+<span class="c-kw">longString proc</span>
+    <span class="c-kw">push</span> <span class="c-reg">bp</span>
+    <span class="c-kw">mov</span> <span class="c-reg">bp</span>, <span class="c-reg">sp</span>
+    <span class="c-kw">push</span> <span class="c-reg">si</span>
+
+    <span class="c-kw">mov</span> <span class="c-reg">si</span>, <span class="c-reg">ss</span>:[<span class="c-reg">bp</span> + <span class="c-num">4</span>]  <span class="c-comment">; Dirección del string</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">0</span>             <span class="c-comment">; Contador de longitud</span>
+
+<span class="c-kw">contar:</span>
+    <span class="c-kw">cmp</span> <span class="c-kw">byte ptr</span> <span class="c-reg">ds</span>:[<span class="c-reg">si</span>], <span class="c-num">0</span>
+    <span class="c-kw">je</span> <span class="c-kw">fin_contar</span>         <span class="c-comment">; Si encontramos el 0, terminamos</span>
+    <span class="c-kw">inc</span> <span class="c-reg">ax</span>               <span class="c-comment">; Incrementar longitud</span>
+    <span class="c-kw">inc</span> <span class="c-reg">si</span>               <span class="c-comment">; Siguiente carácter</span>
+    <span class="c-kw">jmp</span> <span class="c-kw">contar</span>
+
+<span class="c-kw">fin_contar:</span>
+    <span class="c-kw">pop</span> <span class="c-reg">si</span>
+    <span class="c-kw">pop</span> <span class="c-reg">bp</span>
+    <span class="c-kw">ret</span> <span class="c-num">2</span>                 <span class="c-comment">; Limpiar 1 parámetro (2 bytes)</span>
+<span class="c-kw">longString endp</span></div>
+<div class="explain"><p><code>cmp byte ptr ds:[si], 0</code> compara el byte apuntado por SI con 0. El <code>byte ptr</code> le dice al ensamblador que estamos trabajando con un byte de memoria (no un word). Usamos <code>ret 2</code> porque hay un solo parámetro de 16 bits (2 bytes) en la pila.</p></div>
+</section>
+
+<!-- ============ EJERCICIO 28 ============ -->
+<section class="ex" id="e28">
+<div class="ex-label">Ejercicio 28</div>
+<h2>Subrutina: contar palabras en un string</h2>
+<div class="problem">
+Escriba contarPalabras que reciba la dirección de un string terminado en 0 y devuelva en AX la cantidad de palabras.
+</div>
+<div class="explain">
+<p><strong>Estrategia:</strong> Recorremos el string carácter por carácter. Usamos un flag (BL) para saber si estamos dentro de una palabra o no. Cuando encontramos un carácter que NO es espacio y el flag indica que no estábamos en una palabra, incrementamos el contador. Esto cuenta el inicio de cada palabra nueva.</p>
+</div>
+<div class="code-block"><span class="lbl">Subrutina</span>
+<span class="c-kw">contarPalabras proc</span>
+    <span class="c-kw">push</span> <span class="c-reg">bp</span>
+    <span class="c-kw">mov</span> <span class="c-reg">bp</span>, <span class="c-reg">sp</span>
+    <span class="c-kw">push</span> <span class="c-reg">si</span>
+    <span class="c-kw">push</span> <span class="c-reg">bx</span>
+
+    <span class="c-kw">mov</span> <span class="c-reg">si</span>, <span class="c-reg">ss</span>:[<span class="c-reg">bp</span> + <span class="c-num">4</span>]  <span class="c-comment">; Dirección del string</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ax</span>, <span class="c-num">0</span>             <span class="c-comment">; Contador de palabras</span>
+    <span class="c-kw">mov</span> <span class="c-reg">bl</span>, <span class="c-num">0</span>             <span class="c-comment">; Flag: 0=separador, 1=en palabra</span>
+
+<span class="c-kw">loop_str:</span>
+    <span class="c-kw">cmp</span> <span class="c-kw">byte ptr</span> <span class="c-reg">ds</span>:[<span class="c-reg">si</span>], <span class="c-num">0</span>
+    <span class="c-kw">je</span> <span class="c-kw">fin_palabras</span>
+
+    <span class="c-kw">cmp</span> <span class="c-kw">byte ptr</span> <span class="c-reg">ds</span>:[<span class="c-reg">si</span>], <span class="c-str">' '</span>
+    <span class="c-kw">je</span> <span class="c-kw">es_espacio</span>
+
+    <span class="c-comment">; No es espacio: ¿estamos ya en una palabra?</span>
+    <span class="c-kw">cmp</span> <span class="c-reg">bl</span>, <span class="c-num">1</span>
+    <span class="c-kw">je</span> <span class="c-kw">siguiente</span>         <span class="c-comment">; Ya contamos esta palabra</span>
+    <span class="c-kw">inc</span> <span class="c-reg">ax</span>               <span class="c-comment">; Nueva palabra detectada</span>
+    <span class="c-kw">mov</span> <span class="c-reg">bl</span>, <span class="c-num">1</span>             <span class="c-comment">; Ahora estamos en una palabra</span>
+    <span class="c-kw">jmp</span> <span class="c-kw">siguiente</span>
+
+<span class="c-kw">es_espacio:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">bl</span>, <span class="c-num">0</span>             <span class="c-comment">; Ya no estamos en una palabra</span>
+
+<span class="c-kw">siguiente:</span>
+    <span class="c-kw">inc</span> <span class="c-reg">si</span>
+    <span class="c-kw">jmp</span> <span class="c-kw">loop_str</span>
+
+<span class="c-kw">fin_palabras:</span>
+    <span class="c-kw">pop</span> <span class="c-reg">bx</span>
+    <span class="c-kw">pop</span> <span class="c-reg">si</span>
+    <span class="c-kw">pop</span> <span class="c-reg">bp</span>
+    <span class="c-kw">ret</span> <span class="c-num">2</span>
+<span class="c-kw">contarPalabras endp</span></div>
+</section>
+
+<!-- ============ EJERCICIO 29 ============ -->
+<section class="ex" id="e29">
+<div class="ex-label">Ejercicio 29</div>
+<h2>Concatenar dos strings</h2>
+<div class="problem">
+Dados str1 y str2, concatene str2 al final de str1 usando una subrutina que reciba las direcciones por la pila.
+</div>
+<div class="explain">
+<p><strong>Estrategia:</strong> 1) Encontrar el final de str1 (buscar el 0). 2) Copiar str2 carácter por carácter a partir de ahí. Asegurarse de que str1 tenga espacio suficiente para la concatenación.</p>
+</div>
+<div class="code-block"><span class="lbl">Subrutina</span>
+<span class="c-kw">concatenar proc</span>
+    <span class="c-kw">push</span> <span class="c-reg">bp</span>
+    <span class="c-kw">mov</span> <span class="c-reg">bp</span>, <span class="c-reg">sp</span>
+    <span class="c-kw">push</span> <span class="c-reg">si</span>
+    <span class="c-kw">push</span> <span class="c-reg">di</span>
+    <span class="c-kw">push</span> <span class="c-reg">bx</span>
+
+    <span class="c-kw">mov</span> <span class="c-reg">si</span>, <span class="c-reg">ss</span>:[<span class="c-reg">bp</span> + <span class="c-num">4</span>]  <span class="c-comment">; Dirección de str1</span>
+    <span class="c-kw">mov</span> <span class="c-reg">di</span>, <span class="c-reg">ss</span>:[<span class="c-reg">bp</span> + <span class="c-num">6</span>]  <span class="c-comment">; Dirección de str2</span>
+
+    <span class="c-comment">; Paso 1: encontrar el final de str1</span>
+<span class="c-kw">find_end:</span>
+    <span class="c-kw">cmp</span> <span class="c-kw">byte ptr</span> <span class="c-reg">ds</span>:[<span class="c-reg">si</span>], <span class="c-num">0</span>
+    <span class="c-kw">je</span> <span class="c-kw">found_end</span>
+    <span class="c-kw">inc</span> <span class="c-reg">si</span>
+    <span class="c-kw">jmp</span> <span class="c-kw">find_end</span>
+
+    <span class="c-comment">; Paso 2: copiar str2 al final de str1</span>
+<span class="c-kw">found_end:</span>
+    <span class="c-kw">mov</span> <span class="c-reg">bl</span>, <span class="c-reg">ds</span>:[<span class="c-reg">di</span>]     <span class="c-comment">; Leer carácter de str2</span>
+    <span class="c-kw">mov</span> <span class="c-reg">ds</span>:[<span class="c-reg">si</span>], <span class="c-reg">bl</span>     <span class="c-comment">; Escribirlo al final de str1</span>
+    <span class="c-kw">cmp</span> <span class="c-reg">bl</span>, <span class="c-num">0</span>
+    <span class="c-kw">je</span> <span class="c-kw">done</span>              <span class="c-comment">; Si era el 0, terminamos</span>
+    <span class="c-kw">inc</span> <span class="c-reg">si</span>
+    <span class="c-kw">inc</span> <span class="c-reg">di</span>
+    <span class="c-kw">jmp</span> <span class="c-kw">found_end</span>
+
+<span class="c-kw">done:</span>
+    <span class="c-kw">pop</span> <span class="c-reg">bx</span>
+    <span class="c-kw">pop</span> <span class="c-reg">di</span>
+    <span class="c-kw">pop</span> <span class="c-reg">si</span>
+    <span class="c-kw">pop</span> <span class="c-reg">bp</span>
+    <span class="c-kw">ret</span> <span class="c-num">4</span>                 <span class="c-comment">; Limpiar 2 parámetros</span>
+<span class="c-kw">concatenar endp</span></div>
+
+<h3>Llamada</h3>
+<div class="code-block">
+<span class="c-dir">.DATA</span>
+    str1 <span class="c-kw">DB</span> <span class="c-str">"ALVAREZ"</span>, <span class="c-num">0</span>, <span class="c-num">10</span> DUP (<span class="c-num">0</span>)  <span class="c-comment">; Espacio extra</span>
+    str2 <span class="c-kw">DB</span> <span class="c-str">"JULIAN"</span>, <span class="c-num">0</span>
+<span class="c-dir">.CODE</span>
+    <span class="c-kw">push</span> <span class="c-kw">offset</span> str2      <span class="c-comment">; 2do: dirección de str2</span>
+    <span class="c-kw">push</span> <span class="c-kw">offset</span> str1      <span class="c-comment">; 1ro: dirección de str1</span>
+    <span class="c-kw">call</span> <span class="c-kw">concatenar</span>
+    <span class="c-comment">; str1 ahora = "ALVAREZJULIAN"</span></div>
+<div class="explain">
+<p>El truco está en declarar str1 con espacio de sobra (<code>10 DUP (0)</code>) para que la concatenación entre sin problemas. Si str1 mide 7 caracteres y str2 mide 6, necesitamos al menos 14 bytes (7+6+1 para el 0 final).</p>
+</div>
+</section>
+
+<div class="footer">
+  <p>Ejercicios resueltos — Basados en el Trabajo Práctico N°3, UNNOBA</p>
+</div>
+
+</main>
+
+<div class="donation-backdrop" id="donation-modal" aria-hidden="true">
+  <div class="donation-card" role="dialog" aria-modal="true" aria-labelledby="donation-title">
+    <button class="donation-close-btn" type="button" aria-label="Cerrar cartel de donaciones" data-close-donations>&times;</button>
+    <p class="donation-kicker">Si te sirvió</p>
+    <h3 id="donation-title">Podés colaborar con una donación</h3>
+    <p class="donation-copy">Si esta guía te ayudó a estudiar, podés apoyar el proyecto con un aporte.</p>
+    <div class="donation-alias">
+      <div class="donation-alias-meta">
+        <span class="donation-alias-label">Alias BNA+</span>
+        <strong>estudio.juegos.piano</strong>
+      </div>
+      <button class="donation-copy-btn" type="button" data-copy-alias>Copiar alias</button>
+    </div>
+    <div class="donation-actions">
+      <button class="donation-secondary" type="button" data-close-donations>Seguir viendo</button>
+    </div>
+    <p class="donation-feedback" id="donation-feedback" aria-live="polite"></p>
+  </div>
+</div>
+
+<script>
+// ===== NAVIGATION =====
+const pFill=document.getElementById('pFill');
+window.addEventListener('scroll',()=>{const s=window.scrollY,d=document.documentElement.scrollHeight-window.innerHeight;pFill.style.width=d>0?(s/d)*100+'%':'0%'});
+
+const links=document.querySelectorAll('.sidebar a');
+const sections=document.querySelectorAll('.ex');
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){const id=x.target.id;links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+id))}})},{rootMargin:'-20% 0px -70% 0px'});
+sections.forEach(s=>obs.observe(s));
+
+const mobT=document.getElementById('mobT'),side=document.getElementById('side'),mobO=document.getElementById('mobO');
+mobT.addEventListener('click',()=>{side.classList.toggle('mob-open');mobO.classList.toggle('show');if(side.classList.contains('mob-open')){side.style.display='block';side.style.zIndex='101'}else{side.style.display='';side.style.zIndex=''}});
+mobO.addEventListener('click',()=>{side.classList.remove('mob-open');side.style.display='';side.style.zIndex='';mobO.classList.remove('show')});
+links.forEach(l=>l.addEventListener('click',()=>{if(window.innerWidth<=1100){side.classList.remove('mob-open');side.style.display='';side.style.zIndex='';mobO.classList.remove('show')}}));
+
+// ===== TRACER CLASS =====
+class Tracer {
+  constructor(containerId, data) {
+    this.container = document.getElementById(containerId);
+    this.data = data;
+    this.step = -1;
+    this.regs = { ...data.initRegs };
+    this.prevRegs = { ...data.initRegs };
+    this.render();
+  }
+
+  render() {
+    let html = `<div class="tracer-panel">
+      <div class="tracer-header">
+        <h4>${this.data.title}</h4>
+        <div class="tracer-btns">
+          <button class="tracer-btn" onclick="window._tracers['${this.container.id}'].reset()">Reset</button>
+          <button class="tracer-btn primary" onclick="window._tracers['${this.container.id}'].stepFwd()">Paso ▶</button>
+          <button class="tracer-btn" onclick="window._tracers['${this.container.id}'].runAll()">Ejecutar todo</button>
+        </div>
+      </div>
+      <div class="tracer-body">
+        <div class="tracer-code" id="${this.container.id}_code">`;
+
+    this.data.lines.forEach((line, i) => {
+      const active = i === this.step ? ' active' : '';
+      html += `<div class="line${active}" id="${this.container.id}_l${i}"><span class="ln">${i + 1}</span>${this.escapeHtml(line)}</div>`;
+    });
+
+    html += `</div><div class="tracer-regs" id="${this.container.id}_regs">`;
+    html += this.renderRegs();
+    html += `<div class="tracer-step-info" id="${this.container.id}_info">Paso: 0 / ${this.data.steps.length}</div></div></div>`;
+    html += `<div class="tracer-comment" id="${this.container.id}_comment">Presioná "Paso ▶" para comenzar la ejecución.</div></div>`;
+
+    this.container.innerHTML = html;
+  }
+
+  renderRegs() {
+    const regNames = this.data.regNames || ['AX', 'BX', 'CX', 'DX'];
+    let html = '<h5>Registros</h5>';
+    regNames.forEach(r => {
+      const val = this.regs[r] !== undefined ? this.regs[r] : 0;
+      const changed = this.prevRegs[r] !== undefined && this.prevRegs[r] !== this.regs[r];
+      const hex = this.toHex(val);
+      html += `<div class="reg-row"><span class="name">${r}</span><span class="val${changed ? ' changed' : ''}">${hex} (${val})</span></div>`;
+    });
+    return html;
+  }
+
+  stepFwd() {
+    if (this.step >= this.data.steps.length - 1) return;
+    this.step++;
+    const s = this.data.steps[this.step];
+    this.prevRegs = { ...this.regs };
+    Object.assign(this.regs, s.regs);
+    this.updateDisplay(s);
+  }
+
+  reset() {
+    this.step = -1;
+    this.regs = { ...this.data.initRegs };
+    this.prevRegs = { ...this.data.initRegs };
+    this.render();
+  }
+
+  runAll() {
+    while (this.step < this.data.steps.length - 1) {
+      this.stepFwd();
+    }
+  }
+
+  updateDisplay(s) {
+    // Highlight active line
+    this.data.lines.forEach((_, i) => {
+      const el = document.getElementById(`${this.container.id}_l${i}`);
+      if (el) el.classList.toggle('active', i === s.lineIdx);
+    });
+    // Update registers
+    const regsEl = document.getElementById(`${this.container.id}_regs`);
+    if (regsEl) regsEl.innerHTML = this.renderRegs() + `<div class="tracer-step-info">Paso: ${this.step + 1} / ${this.data.steps.length}</div>`;
+    // Update comment
+    const commEl = document.getElementById(`${this.container.id}_comment`);
+    if (commEl) commEl.textContent = s.comment || '';
+  }
+
+  toHex(v) {
+    if (v < 0) v = 0xFFFF + v + 1;
+    return '0' + ((v >>> 0).toString(16).toUpperCase()) + 'h'.replace(/^0+(?=[0-9A-F]{2})/, '');
+  }
+
+  escapeHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+}
+
+// Fix toHex
+Tracer.prototype.toHex = function(v) {
+  let h = (v & 0xFFFF).toString(16).toUpperCase();
+  while (h.length < 4) h = '0' + h;
+  return h + 'h';
+};
+
+// ===== TRACER DATA =====
+window._tracers = {};
+
+// Exercise 5 tracer
+window._tracers['tracer5'] = new Tracer(document.getElementById('tracer5'), {
+  title: 'Ejercicio 5 — Traza paso a paso',
+  lines: [
+    'mov ax, 500',
+    'mov bx, 1Ah',
+    'sub ax, bx',
+    'mov cx, ax',
+    'dec cx',
+    'mov dx, 11110011111b',
+    'inc dx'
+  ],
+  initRegs: { AX: 0, BX: 0, CX: 0, DX: 0 },
+  regNames: ['AX', 'BX', 'CX', 'DX'],
+  steps: [
+    { lineIdx: 0, regs: { AX: 500 }, comment: 'AX = 500 (01F4h). Carga el valor decimal 500 en AX.' },
+    { lineIdx: 1, regs: { BX: 26 }, comment: 'BX = 1Ah = 26 en decimal.' },
+    { lineIdx: 2, regs: { AX: 474 }, comment: 'AX = AX - BX = 500 - 26 = 474 (01DAh). El resultado se guarda en el primer operando (AX).' },
+    { lineIdx: 3, regs: { CX: 474 }, comment: 'CX = AX = 474 (01DAh). Copia el valor de AX a CX.' },
+    { lineIdx: 4, regs: { CX: 473 }, comment: 'CX = CX - 1 = 473 (01D9h). DEC resta 1 al registro.' },
+    { lineIdx: 5, regs: { DX: 1951 }, comment: 'DX = 11110011111b = 079Fh = 1951 decimal. (Valor binario de 11 bits, se extiende a 16 bits: 0000011110011111b)' },
+    { lineIdx: 6, regs: { DX: 1952 }, comment: 'DX = DX + 1 = 1952 (07A0h). INC suma 1 al registro.' }
+  ]
+});
+
+// Exercise 11 tracer
+window._tracers['tracer11'] = new Tracer(document.getElementById('tracer11'), {
+  title: 'Ejercicio 11 — Suma de arreglo con LOOP',
+  lines: [
+    'mov ax, 0',
+    'mov si, 0',
+    'mov cx, 10',
+    'siguiente: add al, ds:[3000h+si]',
+    'inc si',
+    'loop siguiente'
+  ],
+  initRegs: { AX: 0, BX: 0, CX: 0, DX: 0, SI: 0 },
+  regNames: ['AX', 'CX', 'SI'],
+  steps: [
+    { lineIdx: 0, regs: { AX: 0 }, comment: 'AX = 0. Limpiamos el acumulador.' },
+    { lineIdx: 1, regs: { SI: 0 }, comment: 'SI = 0. Índice para recorrer el arreglo.' },
+    { lineIdx: 2, regs: { CX: 10 }, comment: 'CX = 10. Contador para LOOP (10 iteraciones).' },
+    { lineIdx: 3, regs: { AX: 0 }, comment: 'Iter 1: AL += contenido de 3000h+0 = 0 (primer par). AL = 0+0 = 0.' },
+    { lineIdx: 4, regs: { SI: 1 }, comment: 'SI = 1. Avanzamos al siguiente byte.' },
+    { lineIdx: 5, regs: { CX: 9 }, comment: 'CX-- = 9. Como CX≠0, volvemos a "siguiente".' },
+    { lineIdx: 3, regs: { AX: 2 }, comment: 'Iter 2: AL += contenido de 3000h+1 = 2 (segundo par). AL = 0+2 = 2.' },
+    { lineIdx: 4, regs: { SI: 2 }, comment: 'SI = 2.' },
+    { lineIdx: 5, regs: { CX: 8 }, comment: 'CX-- = 8. Volvemos a iterar.' },
+    { lineIdx: 3, regs: { AX: 6 }, comment: 'Iter 3: AL += 4. AL = 2+4 = 6. (Los pares: 0,2,4,6,8,10,12,14,16,18)' },
+    { lineIdx: 4, regs: { SI: 3 }, comment: '...' },
+    { lineIdx: 5, regs: { CX: 7 }, comment: 'CX-- = 7. Continuamos...' },
+    { lineIdx: 3, regs: { AX: 12 }, comment: 'Iter 4: AL += 6. AL = 6+6 = 12.' },
+    { lineIdx: 4, regs: { SI: 4 }, comment: '...' },
+    { lineIdx: 5, regs: { CX: 6 }, comment: 'CX-- = 6.' },
+    { lineIdx: 3, regs: { AX: 20 }, comment: 'Iter 5: AL += 8. AL = 12+8 = 20.' },
+    { lineIdx: 4, regs: { SI: 5 }, comment: '...' },
+    { lineIdx: 5, regs: { CX: 5 }, comment: 'CX-- = 5.' },
+    { lineIdx: 3, regs: { AX: 30 }, comment: 'Iter 6: AL += 10. AL = 20+10 = 30.' },
+    { lineIdx: 4, regs: { SI: 6 }, comment: '...' },
+    { lineIdx: 5, regs: { CX: 4 }, comment: 'CX-- = 4.' },
+    { lineIdx: 3, regs: { AX: 42 }, comment: 'Iter 7: AL += 12. AL = 30+12 = 42.' },
+    { lineIdx: 4, regs: { SI: 7 }, comment: '...' },
+    { lineIdx: 5, regs: { CX: 3 }, comment: 'CX-- = 3.' },
+    { lineIdx: 3, regs: { AX: 56 }, comment: 'Iter 8: AL += 14. AL = 42+14 = 56.' },
+    { lineIdx: 4, regs: { SI: 8 }, comment: '...' },
+    { lineIdx: 5, regs: { CX: 2 }, comment: 'CX-- = 2.' },
+    { lineIdx: 3, regs: { AX: 72 }, comment: 'Iter 9: AL += 16. AL = 56+16 = 72.' },
+    { lineIdx: 4, regs: { SI: 9 }, comment: '...' },
+    { lineIdx: 5, regs: { CX: 1 }, comment: 'CX-- = 1.' },
+    { lineIdx: 3, regs: { AX: 90 }, comment: 'Iter 10: AL += 18. AL = 72+18 = 90 (5Ah). ¡Última iteración!' },
+    { lineIdx: 4, regs: { SI: 10 }, comment: 'SI = 10.' },
+    { lineIdx: 5, regs: { CX: 0 }, comment: 'CX-- = 0. Como CX=0, el LOOP termina. AL = 90 = 5Ah. ¡Fin!' }
+  ]
+});
+
+// Exercise 19 tracer
+window._tracers['tracer19'] = new Tracer(document.getElementById('tracer19'), {
+  title: 'Ejercicio 19 — Debug de subrutina',
+  lines: [
+    'mov ax, @data',
+    'mov ds, ax',
+    'mov ax, offset numeros',
+    'push ax',
+    'call subrutina',
+    'pop ax',
+    'mov resultado, cx',
+    '--- subrutina ---',
+    'push bp',
+    'mov bp, sp',
+    'mov bx, ss:[bp+4]',
+    'mov cx, 0',
+    'recorrer: mov dx, ds:[bx]',
+    'cmp dx, 0',
+    'je fin',
+    'add cx, dx',
+    'add bx, 2',
+    'jmp recorrer',
+    'fin: pop bp / ret'
+  ],
+  initRegs: { AX: 0, BX: 0, CX: 0, DX: 0, BP: 0, SP: 65534, SI: 0 },
+  regNames: ['AX', 'BX', 'CX', 'DX'],
+  steps: [
+    { lineIdx: 0, regs: { AX: 0 }, comment: 'AX = @data (dirección del segmento de datos).' },
+    { lineIdx: 1, regs: {}, comment: 'DS = AX. Segmento de datos inicializado.' },
+    { lineIdx: 2, regs: { AX: 0 }, comment: 'AX = offset de numeros = 0000h (primera variable en .DATA).' },
+    { lineIdx: 3, regs: {}, comment: 'Push AX en la pila. La dirección de numeros queda en el tope.' },
+    { lineIdx: 4, regs: {}, comment: 'CALL subrutina: guarda IP en la pila y salta a subrutina.' },
+    { lineIdx: 8, regs: {}, comment: 'Dentro de subrutina: PUSH BP guarda el BP anterior.' },
+    { lineIdx: 10, regs: { BX: 0 }, comment: 'BX = ss:[bp+4] = offset numeros = 0000h. BX apunta al inicio del arreglo.' },
+    { lineIdx: 11, regs: { CX: 0 }, comment: 'CX = 0. Acumulador de la suma.' },
+    { lineIdx: 12, regs: { DX: 15 }, comment: 'Iter 1: DX = ds:[0000h] = 15 (primer word: 000Fh). No es 0.' },
+    { lineIdx: 15, regs: { CX: 15 }, comment: 'CX = CX + DX = 0 + 15 = 15.' },
+    { lineIdx: 16, regs: { BX: 2 }, comment: 'BX = BX + 2 = 0002h. Avanza al siguiente word.' },
+    { lineIdx: 12, regs: { DX: 22 }, comment: 'Iter 2: DX = ds:[0002h] = 22 (0016h). No es 0.' },
+    { lineIdx: 15, regs: { CX: 37 }, comment: 'CX = 15 + 22 = 37.' },
+    { lineIdx: 16, regs: { BX: 4 }, comment: 'BX = 0004h.' },
+    { lineIdx: 12, regs: { DX: 37 }, comment: 'Iter 3: DX = ds:[0004h] = 37 (0025h).' },
+    { lineIdx: 15, regs: { CX: 74 }, comment: 'CX = 37 + 37 = 74.' },
+    { lineIdx: 16, regs: { BX: 6 }, comment: 'BX = 0006h.' },
+    { lineIdx: 12, regs: { DX: 46 }, comment: 'Iter 4: DX = ds:[0006h] = 46 (002Eh).' },
+    { lineIdx: 15, regs: { CX: 120 }, comment: 'CX = 74 + 46 = 120 (0078h).' },
+    { lineIdx: 16, regs: { BX: 8 }, comment: 'BX = 0008h.' },
+    { lineIdx: 12, regs: { DX: 0 }, comment: 'Iter 5: DX = ds:[0008h] = 0000h (el centinela). ¡Es cero!' },
+    { lineIdx: 14, regs: {}, comment: 'JE fin: como DX=0, saltamos a fin.' },
+    { lineIdx: 6, regs: { CX: 120 }, comment: 'resultado = CX = 120 (0078h). Dirección de resultado = 000Ah.' }
+  ]
+});
+
+// Exercise 25 tracer
+window._tracers['tracer25'] = new Tracer(document.getElementById('tracer25'), {
+  title: 'Ejercicio 25 — Pila con subrutina',
+  lines: [
+    'mov ax, offset Var1',
+    'push ax          ← pila: [dir Var1]',
+    'mov ax, offset Var2',
+    'push ax          ← pila: [dir Var2][dir Var1]',
+    'call Subrutina   ← pila: [ret IP][dir Var2][dir Var1]',
+    'push bp          ← pila: [old BP][ret IP][dir Var2][dir Var1]',
+    'mov bp, sp       ← BP apunta al tope',
+    'mov si, ss:[bp+4] → SI = dir Var2',
+    'mov di, ss:[bp+6] → DI = dir Var1',
+    '...',
+    'pop bp',
+    'ret 4             ← limpia 2 parámetros'
+  ],
+  initRegs: { AX: 0, BX: 0, CX: 0, DX: 0, SI: 0, DI: 0, BP: 0, SP: 65534 },
+  regNames: ['AX', 'SI', 'DI', 'BP', 'SP'],
+  steps: [
+    { lineIdx: 0, regs: { AX: 100 }, comment: 'AX = offset Var1 (ejemplo: 0064h = 100).' },
+    { lineIdx: 1, regs: { SP: 65532 }, comment: 'Push AX. Pila: [dir Var1=0064h]. SP -= 2.' },
+    { lineIdx: 2, regs: { AX: 200 }, comment: 'AX = offset Var2 (ejemplo: 00C8h = 200).' },
+    { lineIdx: 3, regs: { SP: 65530 }, comment: 'Push AX. Pila: [dir Var2=00C8h][dir Var1=0064h]. SP -= 2.' },
+    { lineIdx: 4, regs: { SP: 65528 }, comment: 'CALL: push IP de retorno. SP -= 2. Pila: [ret][dir Var2][dir Var1].' },
+    { lineIdx: 5, regs: { SP: 65526 }, comment: 'PUSH BP en subrutina. SP -= 2. Pila: [old BP][ret][dir Var2][dir Var1].' },
+    { lineIdx: 6, regs: { BP: 65526 }, comment: 'BP = SP = 65526 (FF36h). BP ahora apunta al tope de la pila.' },
+    { lineIdx: 7, regs: { SI: 200 }, comment: 'SI = ss:[BP+4] = ss:[FF3Ah] = dir Var2 = 00C8h = 200. ← 2do parámetro' },
+    { lineIdx: 8, regs: { DI: 100 }, comment: 'DI = ss:[BP+6] = ss:[FF3Ch] = dir Var1 = 0064h = 100. ← 1er parámetro' },
+    { lineIdx: 9, regs: {}, comment: 'Aquí iría el código de la subrutina usando SI y DI...' },
+    { lineIdx: 10, regs: { BP: 0, SP: 65528 }, comment: 'POP BP: restaura BP anterior. SP += 2.' },
+    { lineIdx: 11, regs: { SP: 65532 }, comment: 'RET 4: salta al caller y limpia 4 bytes (los 2 parámetros). SP += 2+4 = 6.' }
+  ]
+});
+
+// Donation prompt
+const donationModal = document.getElementById('donation-modal');
+const donationFeedback = document.getElementById('donation-feedback');
+const donationOpeners = document.querySelectorAll('[data-open-donations]');
+const donationClosers = document.querySelectorAll('[data-close-donations]');
+const donationCopyButtons = document.querySelectorAll('[data-copy-alias]');
+const donationAlias = 'estudio.juegos.piano';
+let donationAutoClosed = false;
+
+function copyDonationAlias() {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(donationAlias);
+  }
+
+  const helper = document.createElement('textarea');
+  helper.value = donationAlias;
+  helper.setAttribute('readonly', '');
+  helper.style.position = 'fixed';
+  helper.style.opacity = '0';
+  document.body.appendChild(helper);
+  helper.select();
+  document.execCommand('copy');
+  document.body.removeChild(helper);
+  return Promise.resolve();
+}
+
+function openDonationModal(fromAuto = false) {
+  if (!donationModal) return;
+  if (fromAuto && donationAutoClosed) return;
+  donationModal.classList.add('is-open');
+  donationModal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDonationModal(markAutoClosed = true) {
+  if (!donationModal) return;
+  if (markAutoClosed) donationAutoClosed = true;
+  donationModal.classList.remove('is-open');
+  donationModal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+donationOpeners.forEach(btn => {
+  btn.addEventListener('click', () => openDonationModal(false));
+});
+
+donationClosers.forEach(btn => {
+  btn.addEventListener('click', () => closeDonationModal(true));
+});
+
+donationCopyButtons.forEach(btn => {
+  btn.addEventListener('click', async () => {
+    try {
+      await copyDonationAlias();
+      if (donationFeedback) donationFeedback.textContent = 'Alias copiado.';
+    } catch (error) {
+      if (donationFeedback) donationFeedback.textContent = 'No pude copiarlo automaticamente. Alias: ' + donationAlias;
+    }
+  });
+});
+
+if (donationModal) {
+  donationModal.addEventListener('click', e => {
+    if (e.target === donationModal) closeDonationModal(true);
+  });
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && donationModal && donationModal.classList.contains('is-open')) {
+    closeDonationModal(true);
+  }
+});
+
+window.setTimeout(() => openDonationModal(true), 30000);
+</script>
+</body>
+</html>
