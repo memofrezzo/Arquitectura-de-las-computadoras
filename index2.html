@@ -1,0 +1,1996 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assembler Teórico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#08080c;--surface:#111118;--surface2:#1a1a24;--border:#252535;
+  --accent:#d4a843;--accent2:#4ecdc4;--accent3:#e86f6f;
+  --text:#e8e2d6;--text-muted:#7a7568;--text-dim:#55514a;
+  --code-bg:#0c0c14;--code-border:#2a2a3a;
+  --sidebar-w:300px;
+  --green:#6fcf97;--red:#e86f6f;--blue:#6fa8dc;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  font-family:'Source Serif 4',Georgia,serif;
+  background:var(--bg);color:var(--text);
+  line-height:1.75;min-height:100vh;
+  display:flex;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse at 15% 10%,rgba(212,168,67,0.04) 0%,transparent 50%),
+    radial-gradient(ellipse at 85% 80%,rgba(78,205,196,0.03) 0%,transparent 50%);
+  pointer-events:none;z-index:0;
+}
+
+/* SIDEBAR */
+.sidebar{
+  position:fixed;top:0;left:0;
+  width:var(--sidebar-w);height:100vh;
+  background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;z-index:100;
+  padding:2rem 0;
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.sidebar-header{
+  padding:0 1.5rem 1.5rem;
+  border-bottom:1px solid var(--border);
+  margin-bottom:1rem;
+}
+.sidebar-header h1{
+  font-family:'Syne',sans-serif;font-size:1.1rem;
+  font-weight:800;color:var(--accent);
+  letter-spacing:0.02em;line-height:1.3;
+}
+.sidebar-header p{
+  font-size:0.75rem;color:var(--text-muted);
+  margin-top:0.3rem;font-style:italic;
+}
+.nav-group-title{
+  font-family:'Syne',sans-serif;font-size:0.65rem;
+  font-weight:700;text-transform:uppercase;
+  letter-spacing:0.15em;color:var(--text-dim);
+  padding:1.2rem 1.5rem 0.4rem;
+}
+.sidebar a{
+  display:block;padding:0.35rem 1.5rem;
+  font-size:0.82rem;color:var(--text-muted);
+  text-decoration:none;border-left:3px solid transparent;
+  transition:all 0.2s ease;line-height:1.4;
+}
+.sidebar a:hover{color:var(--text);background:rgba(255,255,255,0.02)}
+.sidebar a.active{
+  color:var(--accent);border-left-color:var(--accent);
+  background:rgba(212,168,67,0.05);
+}
+
+/* MAIN */
+.main{
+  margin-left:var(--sidebar-w);
+  flex:1;min-width:0;
+  padding:3rem 4rem 6rem;
+  max-width:960px;
+}
+@media(max-width:1100px){
+  .sidebar{display:none}
+  .main{margin-left:0;padding:2rem 1.5rem 4rem}
+}
+
+/* MOBILE NAV TOGGLE */
+.mobile-toggle{
+  display:none;position:fixed;top:1rem;left:1rem;z-index:200;
+  background:var(--surface);border:1px solid var(--border);
+  color:var(--accent);font-size:1.3rem;padding:0.5rem 0.7rem;
+  border-radius:6px;cursor:pointer;
+}
+@media(max-width:1100px){.mobile-toggle{display:block}}
+.mobile-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.7);z-index:99;
+}
+.mobile-overlay.show{display:block}
+
+/* SECTIONS */
+.section{margin-bottom:4rem;scroll-margin-top:2rem}
+.section-label{
+  font-family:'DM Mono',monospace;font-size:0.7rem;
+  color:var(--accent);letter-spacing:0.15em;
+  text-transform:uppercase;margin-bottom:0.5rem;
+  display:flex;align-items:center;gap:0.5rem;
+}
+.section-label::before{content:'//';color:var(--text-dim)}
+.section h2{
+  font-family:'Syne',sans-serif;font-size:2rem;
+  font-weight:800;color:var(--text);
+  margin-bottom:0.5rem;line-height:1.2;
+}
+.section h3{
+  font-family:'Syne',sans-serif;font-size:1.3rem;
+  font-weight:700;color:var(--text);
+  margin:2.5rem 0 0.8rem;
+  padding-top:1.5rem;
+  border-top:1px solid var(--border);
+}
+.section h4{
+  font-family:'Syne',sans-serif;font-size:1.05rem;
+  font-weight:600;color:var(--accent2);
+  margin:1.8rem 0 0.5rem;
+}
+.section p{margin-bottom:1rem;font-size:1rem}
+.section ul,.section ol{margin:0.5rem 0 1rem 1.5rem}
+.section li{margin-bottom:0.3rem;font-size:0.95rem}
+.section strong{color:var(--accent);font-weight:600}
+
+/* EXPLAIN BOX */
+.explain{
+  background:rgba(212,168,67,0.06);
+  border-left:3px solid var(--accent);
+  padding:1rem 1.2rem;margin:1.2rem 0;
+  border-radius:0 8px 8px 0;
+  font-size:0.93rem;line-height:1.7;
+}
+.explain::before{
+  content:'💡 En palabras simples';display:block;
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:0.8rem;color:var(--accent);
+  margin-bottom:0.4rem;letter-spacing:0.03em;
+}
+.explain p:last-child{margin-bottom:0}
+
+/* CONCEPT BOX */
+.concept{
+  background:rgba(78,205,196,0.06);
+  border-left:3px solid var(--accent2);
+  padding:1rem 1.2rem;margin:1.2rem 0;
+  border-radius:0 8px 8px 0;
+}
+.concept::before{
+  content:'📐 Concepto clave';display:block;
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:0.8rem;color:var(--accent2);
+  margin-bottom:0.4rem;letter-spacing:0.03em;
+}
+.concept code{background:var(--code-bg);padding:0.15em 0.4em;border-radius:3px;font-size:0.88em}
+
+/* WARNING BOX */
+.warning{
+  background:rgba(232,111,111,0.06);
+  border-left:3px solid var(--accent3);
+  padding:1rem 1.2rem;margin:1.2rem 0;
+  border-radius:0 8px 8px 0;
+}
+.warning::before{
+  content:'⚠️ Cuidado';display:block;
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:0.8rem;color:var(--accent3);
+  margin-bottom:0.4rem;letter-spacing:0.03em;
+}
+
+/* CODE BLOCKS */
+.code-block{
+  background:var(--code-bg);border:1px solid var(--code-border);
+  border-radius:8px;padding:1.2rem 1.4rem;
+  margin:1rem 0;overflow-x:auto;
+  font-family:'DM Mono',monospace;font-size:0.85rem;
+  line-height:1.7;color:var(--text);
+  position:relative;
+}
+.code-block .label{
+  position:absolute;top:0;right:0;
+  font-size:0.6rem;text-transform:uppercase;
+  letter-spacing:0.1em;color:var(--text-dim);
+  background:var(--surface2);padding:0.2rem 0.6rem;
+  border-radius:0 8px 0 6px;
+  font-family:'Syne',sans-serif;font-weight:600;
+}
+.code-block .comment{color:var(--text-dim);font-style:italic}
+.code-block .keyword{color:var(--accent)}
+.code-block .register{color:var(--accent2)}
+.code-block .number{color:var(--green)}
+.code-block .string{color:var(--accent3)}
+.code-block .directive{color:var(--blue)}
+
+.inline-code{
+  font-family:'DM Mono',monospace;
+  background:var(--code-bg);padding:0.15em 0.45em;
+  border-radius:3px;font-size:0.88em;
+  border:1px solid var(--code-border);
+}
+
+/* MEMORY DIAGRAM */
+.mem-diagram{
+  display:flex;gap:0;margin:1.2rem auto;
+  justify-content:center;flex-wrap:wrap;
+}
+.mem-cell{
+  display:flex;flex-direction:column;align-items:center;
+  min-width:70px;
+}
+.mem-addr{
+  font-family:'DM Mono',monospace;font-size:0.65rem;
+  color:var(--text-dim);margin-bottom:0.3rem;
+}
+.mem-val{
+  font-family:'DM Mono',monospace;font-size:0.82rem;
+  padding:0.4rem 0.6rem;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:4px;color:var(--accent);
+  text-align:center;min-width:55px;
+}
+.mem-cell.highlight .mem-val{
+  border-color:var(--accent);background:rgba(212,168,67,0.1);
+}
+.mem-cell.highlight2 .mem-val{
+  border-color:var(--accent2);background:rgba(78,205,196,0.1);
+  color:var(--accent2);
+}
+.mem-label{
+  font-size:0.6rem;color:var(--text-muted);
+  margin-top:0.2rem;font-family:'Syne',sans-serif;
+  font-weight:600;
+}
+
+/* REGISTER DIAGRAM */
+.reg-diagram{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:1.5rem;margin:1.2rem 0;
+  overflow-x:auto;
+}
+.reg-row{
+  display:flex;align-items:center;
+  margin-bottom:0.6rem;gap:0;
+}
+.reg-name{
+  font-family:'DM Mono',monospace;font-weight:500;
+  font-size:0.85rem;color:var(--accent);
+  min-width:40px;
+}
+.reg-box{
+  font-family:'DM Mono',monospace;font-size:0.75rem;
+  padding:0.3rem 0.5rem;
+  border:1px solid var(--border);border-radius:3px;
+  text-align:center;margin:0 1px;
+  background:var(--surface2);
+}
+.reg-box.val{color:var(--accent2);border-color:var(--accent2);background:rgba(78,205,196,0.08)}
+.reg-box.empty{color:var(--text-dim)}
+.reg-desc{
+  font-size:0.75rem;color:var(--text-muted);
+  margin-left:1rem;font-style:italic;
+}
+
+/* TABLE */
+.styled-table{
+  width:100%;border-collapse:collapse;
+  margin:1rem 0;font-size:0.9rem;
+}
+.styled-table th{
+  font-family:'Syne',sans-serif;font-weight:600;
+  text-align:left;padding:0.6rem 0.8rem;
+  background:var(--surface2);color:var(--accent);
+  border-bottom:2px solid var(--border);
+  font-size:0.8rem;text-transform:uppercase;
+  letter-spacing:0.05em;
+}
+.styled-table td{
+  padding:0.5rem 0.8rem;border-bottom:1px solid var(--border);
+}
+.styled-table tr:hover td{background:rgba(255,255,255,0.01)}
+.styled-table code{
+  font-family:'DM Mono',monospace;font-size:0.85em;
+  background:var(--code-bg);padding:0.1em 0.35em;border-radius:2px;
+}
+
+/* STEP BY STEP */
+.steps{margin:1.2rem 0;padding-left:0;list-style:none;counter-reset:step}
+.steps li{
+  counter-increment:step;position:relative;
+  padding:0.8rem 0 0.8rem 3rem;margin-bottom:0.5rem;
+  border-left:2px solid var(--border);
+  padding-left:1.2rem;margin-left:1rem;
+}
+.steps li::before{
+  content:counter(step);position:absolute;
+  left:-0.7rem;top:0.7rem;
+  width:1.4rem;height:1.4rem;
+  background:var(--accent);color:var(--bg);
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:0.7rem;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;
+}
+
+/* ARROW DIAGRAM */
+.arrow-flow{
+  display:flex;align-items:center;gap:0.5rem;
+  margin:1rem 0;flex-wrap:wrap;justify-content:center;
+}
+.arrow-step{
+  font-family:'DM Mono',monospace;font-size:0.8rem;
+  background:var(--surface2);border:1px solid var(--border);
+  padding:0.4rem 0.8rem;border-radius:6px;
+  text-align:center;
+}
+.arrow-step small{display:block;font-size:0.65rem;color:var(--text-muted);font-family:'Source Serif 4',serif}
+.arrow-icon{color:var(--accent);font-size:1.2rem}
+
+/* ACCORDION */
+.accordion{margin:1rem 0}
+.accordion-toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;background:var(--surface2);border:1px solid var(--border);
+  padding:0.8rem 1.2rem;border-radius:8px;
+  cursor:pointer;color:var(--text);
+  font-family:'Syne',sans-serif;font-size:0.95rem;
+  font-weight:600;transition:all 0.2s;
+}
+.accordion-toggle:hover{border-color:var(--accent)}
+.accordion-toggle .icon{transition:transform 0.3s;color:var(--accent)}
+.accordion-toggle.open .icon{transform:rotate(180deg)}
+.accordion-body{
+  max-height:0;overflow:hidden;transition:max-height 0.4s ease;
+  border:1px solid transparent;border-radius:0 0 8px 8px;
+}
+.accordion-body.open{
+  border-color:var(--border);border-top:none;
+  max-height:2000px;
+}
+.accordion-body-inner{padding:1rem 1.2rem}
+
+/* DIVIDER */
+.divider{
+  height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);
+  margin:3rem 0;
+}
+
+/* SCROLL PROGRESS */
+.progress-bar{
+  position:fixed;top:0;left:var(--sidebar-w);
+  width:calc(100% - var(--sidebar-w));height:3px;
+  background:var(--surface);z-index:50;
+}
+.progress-fill{
+  height:100%;width:0;background:var(--accent);
+  transition:width 0.1s;
+}
+@media(max-width:1100px){
+  .progress-bar{left:0;width:100%}
+}
+
+/* FOOTER */
+.footer{
+  text-align:center;padding:2rem;
+  border-top:1px solid var(--border);
+  margin-top:4rem;
+}
+.footer p{font-size:0.8rem;color:var(--text-dim)}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+.section{opacity:0;animation:fadeUp 0.5s ease forwards}
+.section:nth-child(2){animation-delay:0.05s}
+.section:nth-child(3){animation-delay:0.1s}
+
+/* Responsive code */
+.code-block{font-size:0.8rem}
+@media(max-width:600px){
+  .code-block{font-size:0.72rem;padding:0.8rem}
+  .main{padding:1.5rem 1rem 3rem}
+  .section h2{font-size:1.5rem}
+}
+
+/* Donation prompt */
+.donation-launch{
+  display:block;width:calc(100% - 24px);margin:10px 12px 6px;
+  padding:10px 12px;border:0;border-radius:8px;
+  background:linear-gradient(135deg,#39e88a,#e8a525);
+  color:#08110b;font:inherit;font-weight:700;cursor:pointer;
+  box-shadow:0 10px 20px rgba(0,0,0,.18);
+  transition:transform .18s ease,opacity .18s ease;
+}
+.donation-launch:hover{transform:translateY(-1px);opacity:.96}
+.donation-backdrop{
+  position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+  padding:18px;background:rgba(4,6,10,.72);backdrop-filter:blur(8px);z-index:400;
+}
+.donation-backdrop.is-open{display:flex}
+.donation-card{
+  position:relative;width:min(540px,100%);padding:22px 22px 18px;
+  background:var(--surface);color:var(--text);
+  border:1px solid var(--border);border-radius:14px;
+  box-shadow:0 24px 60px rgba(0,0,0,.45);
+}
+.donation-kicker{
+  margin:0;font-family:'IBM Plex Mono',monospace;font-size:.68rem;
+  font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
+}
+.donation-card h3{
+  margin:.3rem 0 .6rem;color:var(--text);font-family:inherit;
+  font-size:1.5rem;line-height:1.2;
+}
+.donation-copy{
+  margin:0 0 .9rem;color:var(--text-muted);font-size:.95rem;line-height:1.5;
+}
+.donation-alias{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 16px;margin:12px 0 14px;
+  border:1px solid var(--border);border-radius:10px;background:var(--surface2);
+}
+.donation-alias-meta{display:grid;gap:4px}
+.donation-alias-label{
+  font-family:'IBM Plex Mono',monospace;font-size:.68rem;
+  text-transform:uppercase;letter-spacing:.14em;color:var(--accent);
+}
+.donation-alias strong{
+  font-family:'IBM Plex Mono',monospace;font-size:1rem;word-break:break-word;
+}
+.donation-copy-btn,.donation-secondary{
+  appearance:none;border-radius:999px;border:1px solid var(--border);
+  background:rgba(255,255,255,.04);color:var(--text);padding:.65rem 1rem;
+  cursor:pointer;font:inherit;transition:transform .18s ease,border-color .18s ease,background .18s ease;
+}
+.donation-copy-btn{
+  background:linear-gradient(135deg,#39e88a,#e8a525);color:#08110b;
+  font-weight:700;border-color:transparent;white-space:nowrap;
+}
+.donation-copy-btn:hover,.donation-secondary:hover,.donation-close-btn:hover{transform:translateY(-1px)}
+.donation-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.donation-close-btn{
+  position:absolute;top:10px;right:12px;border:0;background:transparent;
+  color:var(--text-muted);font-size:1.4rem;cursor:pointer;line-height:1;
+}
+.donation-feedback{
+  min-height:1.2em;margin-top:10px;color:#39e88a;font-size:.9rem;
+}
+@media(max-width:640px){
+  .donation-alias{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<button class="mobile-toggle" id="mobileToggle">☰</button>
+<div class="mobile-overlay" id="mobileOverlay"></div>
+
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1>Assembler Teórico</h1>
+    <p>Guía teórica interactiva</p>
+  </div>
+
+  <div class="nav-group-title">Páginas</div>
+  <a href="menu.html">Menú de estudio</a>
+  <a href="2Parcial.html">Examen 2do Parcial</a>
+  <a href="index2.html">Assembler Teórico</a>
+  <a href="index3.html">Assembler Práctico MIMO</a>
+  <a href="index4.html">Assembler Ejercicios resueltos MIMO</a>
+  <a href="index5.html">Guía completa + ejercicios MIMO</a>
+  <a href="index6.html">Guía completa Claude</a>
+  <button class="donation-launch" type="button" data-open-donations>Donaciones</button>
+
+  <div class="nav-group-title">Fundamentos</div>
+  <a href="#intro">¿Qué es Assembler?</a>
+  <a href="#maquina">Lenguaje de Máquina</a>
+  <a href="#compiladores">Compiladores vs Ensambladores</a>
+  <a href="#arquitectura">Arquitectura Intel 8086</a>
+  <a href="#herramientas">Herramientas y .EXE</a>
+
+  <div class="nav-group-title">Estructura</div>
+  <a href="#estructura">Estructura de un Programa</a>
+  <a href="#registros">Registros</a>
+  <a href="#datos">Datos y Representación</a>
+
+  <div class="nav-group-title">Memoria</div>
+  <a href="#memoria">Memoria y Direcciones</a>
+  <a href="#variables">Variables</a>
+  <a href="#arreglos">Arreglos</a>
+  <a href="#strings">Caracteres y Strings</a>
+
+  <div class="nav-group-title">Instrucciones</div>
+  <a href="#mov">MOV y XCHG</a>
+  <a href="#aritmetica">Aritmética Básica</a>
+  <a href="#muldiv">Multiplicación y División</a>
+  <a href="#logicas">Operaciones Lógicas</a>
+
+  <div class="nav-group-title">Direcciones</div>
+  <a href="#direccionamiento">Modos de Direccionamiento</a>
+
+  <div class="nav-group-title">Control</div>
+  <a href="#flujo">Control de Flujo</a>
+  <a href="#iteraciones">Iteraciones</a>
+  <a href="#negativos">Números Negativos (Ca2)</a>
+  <a href="#flags">Registro de Flags</a>
+
+  <div class="nav-group-title">Servicios</div>
+  <a href="#interrupciones">Interrupciones</a>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+<!-- ==================== INTRO ==================== -->
+<section class="section" id="intro">
+  <div class="section-label">Módulo 01</div>
+  <h2>¿Qué es Assembler?</h2>
+
+  <p>Imaginá que querés darle instrucciones a alguien que solo entiende un idioma muy básico: solo entiende "encender" y "apagar" (1 y 0). Eso es lo que pasa con un microprocesador: <strong>solo entiende secuencias de ceros y unos</strong>.</p>
+
+  <div class="explain">
+    <p>Pensalo así: el procesador es como una persona que solo sabe leer código Morse. Si vos le escribís una carta en español, necesitás a alguien que la traduzca a Morse. Ese "traductor" es el <strong>ensamblador</strong>, y el "idioma intermedio" que vos usás para escribir de forma más legible (pero que todavía es bastante técnico) es el <strong>Assembler</strong>.</p>
+  </div>
+
+  <div class="concept">
+    <strong>Set de Instrucciones:</strong> Es el conjunto de <em>todas</em> las instrucciones que una CPU puede ejecutar. Cada arquitectura de CPU tiene su propio set. El set de instrucciones también se conoce como <strong>lenguaje de máquina</strong>.
+  </div>
+
+  <p>Una instrucción en lenguaje de máquina es una secuencia de bits (ceros y unos) que la CPU sabe interpretar. Por ejemplo:</p>
+
+  <div class="code-block">
+    <span class="label">Lenguaje de máquina</span>
+101110000000010100000000
+101110000000001000000000
+101000110000111000000000
+  </div>
+
+  <p>Esas tres líneas de ceros y unos, juntas, simplemente <strong>suman 5 + 2 y guardan el resultado</strong>. Sí, todo eso solo para sumar dos números.</p>
+
+  <div class="explain">
+    <p>¿Por qué tantos ceros y unos para algo tan simple? Porque el procesador está construido para hacer operaciones extremadamente sencillas (mover un dato, sumar, comparar). Su poder viene de la <strong>velocidad</strong>: ejecuta millones de estas instrucciones por segundo. Combinando millones de operaciones simples, logra cosas complejas como mostrar un video o ejecutar un juego.</p>
+  </div>
+
+  <div class="concept">
+    <strong>Regla fundamental:</strong> <em>Cada instrucción de bajo nivel realiza una sola tarea básica.</em>
+  </div>
+</section>
+
+<!-- ==================== LENGUAJE DE MÁQUINA ==================== -->
+<section class="section" id="maquina">
+  <div class="section-label">Módulo 02</div>
+  <h2>Lenguaje de Alto Nivel vs Bajo Nivel</h2>
+
+  <p>Para no tener que escribir en ceros y unos, usamos <strong>lenguajes de alto nivel</strong> como C++, Java, Python, Ruby, etc. Estos lenguajes tienen instrucciones que los humanos podemos leer y escribir fácilmente.</p>
+
+  <p>Una sola instrucción de alto nivel agrupa <strong>varias instrucciones de bajo nivel</strong>:</p>
+
+  <table class="styled-table">
+    <thead>
+      <tr><th>Alto Nivel</th><th>Bajo Nivel (lo que realmente hace el procesador)</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>resultado = 5 + 2</code></td>
+        <td>
+          <code>mov ax, 5</code> → Cargar 5 en AX<br>
+          <code>add ax, 2</code> → Sumarle 2 a AX<br>
+          <code>mov resultado, ax</code> → Guardar el resultado
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="explain">
+    <p>Es como la diferencia entre decir "haceme un café" (alto nivel) y tener que explicar paso a paso: "agarrá la taza, ponéla bajo la canilla, abrí la canilla, esperá a que se llene..." (bajo nivel). El lenguaje de alto nivel te permite expresar la <em>intención</em>; el de bajo nivel te obliga a detallar cada paso.</p>
+  </div>
+</section>
+
+<!-- ==================== COMPILADORES ==================== -->
+<section class="section" id="compiladores">
+  <div class="section-label">Módulo 03</div>
+  <h2>Compiladores vs Ensambladores</h2>
+
+  <p>Cuando escribís en un lenguaje de alto nivel, necesitás un <strong>compilador</strong> que traduzca tu código a lenguaje de máquina. Cada lenguaje tiene su propio compilador.</p>
+
+  <div class="concept">
+    <strong>Compilador:</strong> Convierte código fuente de alto nivel en instrucciones de máquina de bajo nivel.<br>
+    <strong>Ensamblador:</strong> Convierte código Assembler en código de máquina. A diferencia del compilador, <em>no genera código nuevo</em>: cada instrucción de Assembler se convierte en <strong>exactamente una</strong> instrucción de máquina.
+  </div>
+
+  <div class="explain">
+    <p>La diferencia clave: el compilador "inventa" código. Vos le das una línea y él decide cuántas instrucciones de máquina necesita. El ensamblador es un traductor directo: una línea de Assembler = una instrucción de máquina, siempre. Esto te da <strong>control total</strong> sobre lo que hace el procesador.</p>
+    <p>El "problema" de los lenguajes de alto nivel es que, a cambio de facilidad, perdés control. El compilador decide por vos cómo traducir cada instrucción. Con Assembler, vos sabés exactamente qué va a ejecutar el procesador.</p>
+  </div>
+
+  <div class="arrow-flow">
+    <div class="arrow-step">Código Alto Nivel<small>C++</small></div>
+    <div class="arrow-icon">→</div>
+    <div class="arrow-step">Compilador</div>
+    <div class="arrow-icon">→</div>
+    <div class="arrow-step">Lenguaje de Máquina<small>binario</small></div>
+  </div>
+  <div class="arrow-flow" style="margin-top:0.5rem">
+    <div class="arrow-step">Código Assembler<small>.asm</small></div>
+    <div class="arrow-icon">→</div>
+    <div class="arrow-step">Ensamblador<small>MASM</small></div>
+    <div class="arrow-icon">→</div>
+    <div class="arrow-step">Lenguaje de Máquina<small>1:1 relación</small></div>
+  </div>
+
+  <h3>¿Para qué aprender Assembler hoy?</h3>
+  <p>Porque te permite entender <strong>cómo funciona un programa compilado a nivel del microprocesador</strong>. Sabés que cada instrucción que escribís es una que el procesador va a ejecutar, y eso te da una comprensión profunda de lo que realmente hace tu código.</p>
+
+  <div class="explain">
+    <p>Por ejemplo: ¿sabías que para sumar 5 + 2 el procesador necesita <strong>tres instrucciones</strong>? En un lenguaje de alto nivel no se nota, pero en Assembler sí. Entender esto te convierte en un mejor programador, incluso cuando usás lenguajes de alto nivel.</p>
+  </div>
+</section>
+
+<!-- ==================== ARQUITECTURA ==================== -->
+<section class="section" id="arquitectura">
+  <div class="section-label">Módulo 04</div>
+  <h2>Arquitectura Intel 8086</h2>
+
+  <p>Estudiamos Assembler basándonos en la <strong>arquitectura Intel 8086</strong>, que es la del microprocesador utilizado en la IBM PC original. A pesar de que la arquitectura ha evolucionado mucho, los principios generales se mantienen.</p>
+
+  <div class="explain">
+    <p>La arquitectura 8086 es como el "Modelo T" de los procesadores. Los autos modernos son mucho más avanzados, pero los principios básicos (motor, ruedas, volante) son los mismos. Aprender con el 8086 te da la base para entender cualquier procesador moderno.</p>
+  </div>
+
+  <p>Datos importantes de esta arquitectura:</p>
+  <ul>
+    <li>Trabaja con datos de <strong>8 bits (1 byte)</strong> y <strong>16 bits (1 word/palabra)</strong></li>
+    <li>Los registros internos son de 16 bits</li>
+    <li>El bus de direcciones es de 20 bits → puede direccionar hasta <strong>1 MB de memoria</strong></li>
+    <li>Utiliza <strong>memoria segmentada</strong> para resolver la diferencia entre registros de 16 bits y direcciones de 20 bits</li>
+  </ul>
+</section>
+
+<!-- ==================== HERRAMIENTAS ==================== -->
+<section class="section" id="herramientas">
+  <div class="section-label">Módulo 05</div>
+  <h2>Herramientas y Creación de un .EXE</h2>
+
+  <h3>Herramientas necesarias</h3>
+  <ul>
+    <li><strong>Editor:</strong> Para escribir el código fuente (cualquier editor de texto plano, como el Bloc de Notas)</li>
+    <li><strong>Ensamblador (MASM):</strong> Traduce el programa fuente a lenguaje de máquina</li>
+    <li><strong>Linker (LINK):</strong> Transforma el código de máquina en un ejecutable (.exe)</li>
+  </ul>
+
+  <h3>Proceso paso a paso</h3>
+
+  <ol class="steps">
+    <li>Escribís tu código Assembler en un editor y lo guardás con extensión <code>.asm</code></li>
+    <li>Ejecutás <code>MASM programa.asm;</code> desde la línea de comandos. Esto genera <code>programa.obj</code> (código objeto: es código de máquina pero todavía no es ejecutable)</li>
+    <li>Ejecutás <code>LINK programa.obj;</code> para generar el archivo <code>programa.exe</code></li>
+  </ol>
+
+  <div class="arrow-flow">
+    <div class="arrow-step">programa.asm<small>Código fuente</small></div>
+    <div class="arrow-icon">→ MASM →</div>
+    <div class="arrow-step">programa.obj<small>Código objeto</small></div>
+    <div class="arrow-icon">→ LINK →</div>
+    <div class="arrow-step">programa.exe<small>Ejecutable</small></div>
+  </div>
+
+  <div class="warning">
+    Los programas MASM y LINK deben estar en la misma carpeta que el archivo .asm. Además, el nombre del archivo no debe superar los 8 caracteres (MASM y LINK no soportan nombres largos).
+  </div>
+</section>
+
+<!-- ==================== ESTRUCTURA ==================== -->
+<section class="section" id="estructura">
+  <div class="section-label">Módulo 06</div>
+  <h2>Estructura de un Programa Assembler</h2>
+
+  <p>Todo programa en Assembler tiene una estructura fija. La mayor parte es una "plantilla" estándar que siempre se repite:</p>
+
+  <div class="code-block">
+    <span class="label">Plantilla base</span>
+<span class="directive">.MODEL SMALL</span>
+<span class="directive">.STACK</span>
+<span class="directive">.DATA</span>
+    <span class="comment">; → Acá van las declaraciones de variables ←</span>
+<span class="directive">.CODE</span>
+<span class="keyword">inicio:</span>
+    <span class="keyword">mov</span> <span class="register">ax</span>, @data       <span class="comment">; Inicializar segmento de datos</span>
+    <span class="keyword">mov</span> <span class="register">ds</span>, <span class="register">ax</span>
+
+    <span class="comment">; → Acá va tu código ←</span>
+
+    <span class="keyword">mov</span> <span class="register">ax</span>, <span class="number">4C00h</span>     <span class="comment">; Terminar el programa</span>
+    <span class="keyword">int</span> <span class="number">21h</span>
+<span class="keyword">END</span> inicio
+  </div>
+
+  <h3>Las dos secciones importantes</h3>
+
+  <h4>Segmento de datos (.DATA)</h4>
+  <p>Aquí se declaran <strong>todas las variables</strong> que utiliza el programa. Es como la zona de "declarar variables" en un lenguaje de alto nivel.</p>
+
+  <h4>Segmento de código (.CODE)</h4>
+  <p>Aquí va el código del programa, es decir, las instrucciones que el procesador va a ejecutar. Siempre empieza con las líneas que inicializan el segmento de datos (<code>mov ax, @data / mov ds, ax</code>) y termina con las líneas que finalizan el programa (<code>mov ax, 4C00h / int 21h</code>).</p>
+
+  <div class="explain">
+    <p><code>mov ax, @data / mov ds, ax</code> es como "encender" la zona de memoria donde están tus variables. Sin esto, el programa no puede encontrar tus datos. Las líneas <code>mov ax, 4C00h / int 21h</code> son como el "return" de un lenguaje de alto nivel: le dicen al sistema operativo que el programa terminó.</p>
+  </div>
+
+  <h3>Ejemplo completo: sumar 5 + 2</h3>
+
+  <div class="code-block">
+    <span class="label">Ejemplo</span>
+<span class="directive">.MODEL SMALL</span>
+<span class="directive">.STACK</span>
+<span class="directive">.DATA</span>
+    resultado <span class="keyword">DW</span> ?            <span class="comment">; Variable de 16 bits sin inicializar</span>
+<span class="directive">.CODE</span>
+<span class="keyword">inicio:</span>
+    <span class="keyword">mov</span> <span class="register">ax</span>, @data
+    <span class="keyword">mov</span> <span class="register">ds</span>, <span class="register">ax</span>
+
+    <span class="keyword">mov</span> <span class="register">ax</span>, <span class="number">5</span>               <span class="comment">; AX = 5</span>
+    <span class="keyword">add</span> <span class="register">ax</span>, <span class="number">2</span>               <span class="comment">; AX = AX + 2 = 7</span>
+    <span class="keyword">mov</span> resultado, <span class="register">ax</span>       <span class="comment">; Guardar 7 en la variable resultado</span>
+
+    <span class="keyword">mov</span> <span class="register">ax</span>, <span class="number">4C00h</span>
+    <span class="keyword">int</span> <span class="number">21h</span>
+<span class="keyword">END</span> inicio
+  </div>
+
+  <div class="explain">
+    <p>Línea por línea: primero "prendemos" el acceso a las variables. Después cargamos el 5 en el registro AX (como si fuera una variable temporal). Luego le sumamos 2 a AX (ahora AX vale 7). Después copiamos ese valor a la variable "resultado" que vive en la memoria. Finalmente, le decimos al sistema operativo que terminamos.</p>
+  </div>
+</section>
+
+<!-- ==================== REGISTROS ==================== -->
+<section class="section" id="registros">
+  <div class="section-label">Módulo 07</div>
+  <h2>Registros del Intel 8086</h2>
+
+  <p>Los <strong>registros</strong> son pequeñísimas áreas de memoria que están <strong>dentro del procesador mismo</strong>. Son súper rápidos de acceder porque no hay que ir a buscar nada a la memoria RAM.</p>
+
+  <div class="explain">
+    <p>Imaginá que estás cocinando. Los registros son como los bowls que tenés sobre la mesada: los usás para tener los ingredientes a mano mientras cocinás. La RAM sería la heladera: los ingredientes están ahí, pero tenés que ir a buscarlos cada vez que los necesitás. Usar registros es mucho más rápido que usar memoria.</p>
+  </div>
+
+  <h3>Registros de propósito general</h3>
+  <p>Son los registros que podés usar libremente para almacenar datos: <strong>AX, BX, CX y DX</strong>. Cada uno tiene 16 bits y se puede subdividir en dos partes de 8 bits:</p>
+
+  <div class="reg-diagram">
+    <div class="reg-row">
+      <span class="reg-name">AX</span>
+      <div style="display:flex">
+        <div style="border:1px dashed var(--text-dim);border-radius:4px;padding:2px;display:flex">
+          <span class="reg-box empty" style="width:80px">AH (bits 15-8)</span>
+          <span class="reg-box empty" style="width:80px">AL (bits 7-0)</span>
+        </div>
+      </div>
+      <span class="reg-desc">Acumulador</span>
+    </div>
+    <div class="reg-row">
+      <span class="reg-name">BX</span>
+      <div style="display:flex">
+        <div style="border:1px dashed var(--text-dim);border-radius:4px;padding:2px;display:flex">
+          <span class="reg-box empty" style="width:80px">BH (bits 15-8)</span>
+          <span class="reg-box empty" style="width:80px">BL (bits 7-0)</span>
+        </div>
+      </div>
+      <span class="reg-desc">Base</span>
+    </div>
+    <div class="reg-row">
+      <span class="reg-name">CX</span>
+      <div style="display:flex">
+        <div style="border:1px dashed var(--text-dim);border-radius:4px;padding:2px;display:flex">
+          <span class="reg-box empty" style="width:80px">CH (bits 15-8)</span>
+          <span class="reg-box empty" style="width:80px">CL (bits 7-0)</span>
+        </div>
+      </div>
+      <span class="reg-desc">Contador</span>
+    </div>
+    <div class="reg-row">
+      <span class="reg-name">DX</span>
+      <div style="display:flex">
+        <div style="border:1px dashed var(--text-dim);border-radius:4px;padding:2px;display:flex">
+          <span class="reg-box empty" style="width:80px">DH (bits 15-8)</span>
+          <span class="reg-box empty" style="width:80px">DL (bits 7-0)</span>
+        </div>
+      </div>
+      <span class="reg-desc">Datos</span>
+    </div>
+  </div>
+
+  <div class="explain">
+    <p>Cada registro de 16 bits se puede usar como un todo (AX) o dividir en dos mitades de 8 bits (AH y AL). Las letras H y L vienen de "High" (alto) y "Low" (bajo). Es como tener una cajonera de 2 cajones: podés usar toda la cajonera o usar cada cajón por separado. <strong>Solo los registros de propósito general se pueden dividir así.</strong></p>
+  </div>
+
+  <h3>Ejemplo de uso</h3>
+  <div class="code-block">
+    <span class="keyword">mov</span> <span class="register">ax</span>, <span class="number">0057h</span>      <span class="comment">; AX = 0057h → AH=00h, AL=57h</span>
+    <span class="keyword">mov</span> <span class="register">bh</span>, <span class="number">10101b</span>      <span class="comment">; BH = 00010101b (21 en decimal)</span>
+    <span class="keyword">mov</span> <span class="register">bl</span>, <span class="number">3Bh</span>         <span class="comment">; BL = 3Bh</span>
+  </div>
+
+  <h3>Registros de segmento</h3>
+  <p>Son registros especiales que almacenan las direcciones de los segmentos de memoria:</p>
+  <table class="styled-table">
+    <tr><th>Registro</th><th>Función</th></tr>
+    <tr><td><strong>DS</strong></td><td>Segmento de Datos (donde están tus variables)</td></tr>
+    <tr><td><strong>CS</strong></td><td>Segmento de Código (donde están tus instrucciones)</td></tr>
+    <tr><td><strong>SS</strong></td><td>Segmento de Pila (stack)</td></tr>
+    <tr><td><strong>ES</strong></td><td>Segmento Extra</td></tr>
+  </table>
+
+  <h3>Registros especiales</h3>
+  <table class="styled-table">
+    <tr><th>Registro</th><th>Función</th></tr>
+    <tr><td><strong>IP</strong></td><td>Puntero de Instrucción — indica qué instrucción se ejecuta a continuación</td></tr>
+    <tr><td><strong>SI</strong></td><td>Índice de Fuente — usado para recorrer datos</td></tr>
+    <tr><td><strong>DI</strong></td><td>Índice de Destino — usado para recorrer datos</td></tr>
+    <tr><td><strong>SP</strong></td><td>Puntero de Pila — indica la cima de la pila</td></tr>
+    <tr><td><strong>BP</strong></td><td>Puntero de Base — usado en subrutinas</td></tr>
+    <tr><td><strong>Flags</strong></td><td>Almacena el estado de las operaciones (resultado cero, negativo, etc.)</td></tr>
+  </table>
+</section>
+
+<!-- ==================== DATOS ==================== -->
+<section class="section" id="datos">
+  <div class="section-label">Módulo 08</div>
+  <h2>Datos y Representación</h2>
+
+  <h3>No existen tipos de datos</h3>
+  <p>En Assembler <strong>no existen los tipos de datos</strong>. La secuencia de bits <code>01100001</code> puede ser el número 97 o la letra "a", dependiendo de la operación que hagas sobre ella. Lo que importa es el <strong>tamaño</strong>.</p>
+
+  <div class="concept">
+    <strong>En Assembler no hay tipos de datos.</strong> El significado de una secuencia de bits depende de la operación que se ejecute sobre ella.
+  </div>
+
+  <h3>Los dos tamaños posibles</h3>
+  <table class="styled-table">
+    <tr><th>Tamaño</th><th>Nombre</th><th>Bits</th></tr>
+    <tr><td><strong>8 bits</strong></td><td>1 byte</td><td>xxxxxxxx</td></tr>
+    <tr><td><strong>16 bits</strong></td><td>1 word (palabra)</td><td>xxxxxxxx xxxxxxxx</td></tr>
+  </table>
+
+  <div class="warning">
+    No se pueden mezclar bytes con words en una misma instrucción. Si hacés <code>MOV</code>, ambos operandos deben ser de 8 bits o ambos de 16 bits.
+  </div>
+
+  <h3>Sistemas de numeración</h3>
+  <p>Dentro del código Assembler los datos pueden expresarse en tres sistemas. Cómo identificar cuál es cuál:</p>
+  <table class="styled-table">
+    <tr><th>Sistema</th><th>Identificación</th><th>Ejemplo</th></tr>
+    <tr><td>Binario</td><td>Se agrega <strong>b</strong> al final</td><td><code>01111101b</code></td></tr>
+    <tr><td>Hexadecimal</td><td>Se agrega <strong>h</strong> al final</td><td><code>000Fh</code></td></tr>
+    <tr><td>Decimal</td><td>Se escribe normalmente</td><td><code>7</code></td></tr>
+  </table>
+
+  <div class="explain">
+    <p>El hexadecimal es muy usado porque cada dígito hexa representa exactamente 4 bits. Entonces <code>9E5Ch</code> = <code>1001 1110 0101 1100b</code>. Es mucho más corto y fácil de leer que el binario. Si un número hexa empieza con una letra (A-F), se le agrega un 0 adelante: <code>A001h</code> se escribe <code>0A001h</code> para que el ensamblador no lo confunda con un nombre de variable.</p>
+  </div>
+
+  <h3>Bits: más altos y más bajos</h3>
+  <p>Los bits se numeran de derecha a izquierda empezando por el 0:</p>
+
+  <div class="reg-diagram" style="max-width:400px">
+    <div class="reg-row" style="justify-content:center;gap:0">
+      <span class="reg-box" style="width:40px">0</span>
+      <span class="reg-box" style="width:40px">0</span>
+      <span class="reg-box" style="width:40px">1</span>
+      <span class="reg-box" style="width:40px">1</span>
+      <span class="reg-box" style="width:40px">1</span>
+      <span class="reg-box" style="width:40px">0</span>
+      <span class="reg-box" style="width:40px">0</span>
+      <span class="reg-box" style="width:40px">1</span>
+    </div>
+    <div class="reg-row" style="justify-content:center;gap:0">
+      <span class="reg-box" style="width:40px;font-size:0.65rem;border:none">b7</span>
+      <span class="reg-box" style="width:40px;font-size:0.65rem;border:none">b6</span>
+      <span class="reg-box" style="width:40px;font-size:0.65rem;border:none">b5</span>
+      <span class="reg-box" style="width:40px;font-size:0.65rem;border:none">b4</span>
+      <span class="reg-box" style="width:40px;font-size:0.65rem;border:none">b3</span>
+      <span class="reg-box" style="width:40px;font-size:0.65rem;border:none">b2</span>
+      <span class="reg-box" style="width:40px;font-size:0.65rem;border:none">b1</span>
+      <span class="reg-box" style="width:40px;font-size:0.65rem;border:none">b0</span>
+    </div>
+  </div>
+
+  <ul>
+    <li><strong>Bit 0</strong> = bit menos significativo (LSB) — el más a la derecha</li>
+    <li><strong>Bit 7</strong> (o bit 15 para words) = bit más significativo (MSB) — el más a la izquierda</li>
+  </ul>
+
+  <p>Una word (16 bits) se divide en dos bytes:</p>
+  <table class="styled-table">
+    <tr><th>Byte alto (bits 15-8)</th><th>Byte bajo (bits 7-0)</th></tr>
+    <tr><td>También llamado "byte más significativo"</td><td>También llamado "byte menos significativo"</td></tr>
+  </table>
+</section>
+
+<!-- ==================== MEMORIA ==================== -->
+<section class="section" id="memoria">
+  <div class="section-label">Módulo 09</div>
+  <h2>Memoria y Direcciones</h2>
+
+  <h3>Organización de la memoria</h3>
+  <p>La memoria es como una lista enorme de cajones numerados. Cada cajón guarda <strong>1 byte (8 bits)</strong>. Esa es la <strong>mínima unidad de memoria</strong> que se puede leer o escribir.</p>
+
+  <div class="concept">
+    <strong>Mínima unidad de memoria direccionable:</strong> 8 bits (1 byte) — no se puede leer menos que eso.<br>
+    <strong>Máxima unidad:</strong> 16 bits (2 bytes) — se pueden leer/escribir simultáneamente.
+  </div>
+
+  <h3>Direcciones de memoria</h3>
+  <p>Cada cajón (celda) tiene un <strong>número identificador</strong> llamado dirección. Es como el número de casa en una calle: te permite encontrar un lugar específico.</p>
+
+  <div class="mem-diagram">
+    <div class="mem-cell highlight">
+      <span class="mem-addr">0001h</span>
+      <span class="mem-val">0Ah</span>
+    </div>
+    <div class="mem-cell">
+      <span class="mem-addr">0002h</span>
+      <span class="mem-val">F6h</span>
+    </div>
+    <div class="mem-cell">
+      <span class="mem-addr">0003h</span>
+      <span class="mem-val">14h</span>
+    </div>
+    <div class="mem-cell">
+      <span class="mem-addr">0004h</span>
+      <span class="mem-val">44h</span>
+    </div>
+    <div class="mem-cell">
+      <span class="mem-addr">...</span>
+      <span class="mem-val">...</span>
+    </div>
+  </div>
+
+  <div class="explain">
+    <p>En el Intel 8086, las direcciones son números de 20 bits. Eso permite direccionar 2²⁰ = 1.048.576 bytes = <strong>1 MB</strong> de memoria. Pero como los registros solo tienen 16 bits (y solo pueden representar hasta 64 KB), se inventó un sistema especial llamado <strong>memoria segmentada</strong>.</p>
+  </div>
+
+  <h3>Memoria segmentada</h3>
+  <p>Las direcciones se expresan con <strong>dos números</strong>: segmento y desplazamiento.</p>
+  <div class="code-block">
+<span class="register">SEGMENTO</span>:<span class="number">DESPLAZAMIENTO</span>
+    </div>
+
+  <div class="explain">
+    <p>Es como las fechas del calendario: tenés el mes (1-12) y el día dentro del mes (1-31). De la misma forma, el <strong>segmento</strong> selecciona una porción de memoria y el <strong>desplazamiento</strong> indica un byte dentro de ese segmento.</p>
+    <p>La particularidad es que los segmentos se superponen: cada uno empieza 16 bytes después del anterior, pero puede abarcar 64 KB. Así, un mismo byte puede tener varias direcciones "nombres" distintas.</p>
+  </div>
+
+  <h3>Direcciones segmentadas en el código</h3>
+  <p>Para acceder a memoria se usa la sintaxis:</p>
+  <div class="code-block">
+<span class="keyword">mov</span> <span class="register">al</span>, <span class="register">ds</span>:[<span class="number">22</span>]      <span class="comment">; Copia el byte en la posición 22 del segmento de datos a AL</span>
+  </div>
+
+  <h3>Formato Little Endian</h3>
+  <p>Cuando se almacena un dato de 16 bits (una word) en memoria, se guarda <strong>primero la parte baja y luego la alta</strong>. Esto se llama formato <strong>little endian</strong>.</p>
+
+  <div class="explain">
+    <p>Por ejemplo, el número <code>BE20h</code> (que en binario es 10111110 00100000) se guarda así:</p>
+  </div>
+
+  <div class="mem-diagram">
+    <div class="mem-cell highlight">
+      <span class="mem-addr">1000h</span>
+      <span class="mem-val">20h</span>
+      <span class="mem-label">byte bajo</span>
+    </div>
+    <div class="mem-cell highlight2">
+      <span class="mem-addr">1001h</span>
+      <span class="mem-val">BEh</span>
+      <span class="mem-label">byte alto</span>
+    </div>
+  </div>
+
+  <div class="warning">
+    El número queda "al revés" en memoria. Si lo leyéramos en orden (dirección 1000h primero), obtendríamos 20BEh, no BE20h. ¡Pero el procesador sabe cómo leerlo correctamente!
+  </div>
+</section>
+
+<!-- ==================== VARIABLES ==================== -->
+<section class="section" id="variables">
+  <div class="section-label">Módulo 10</div>
+  <h2>Variables en Assembler</h2>
+
+  <p>Una variable en Assembler es simplemente un <strong>nombre que se asigna a una dirección de memoria</strong>. El ensamblador se encarga de reemplazar el nombre por la dirección real.</p>
+
+  <div class="concept">
+    <strong>Formato de declaración:</strong> <code>NOMBRE TAMAÑO VALOR_INICIAL</code><br><br>
+    <code>DB</code> = Define Byte (variable de 8 bits)<br>
+    <code>DW</code> = Define Word (variable de 16 bits)
+  </div>
+
+  <h3>Ejemplos de declaración</h3>
+  <div class="code-block">
+<span class="directive">.DATA</span>
+    NumeroPrimo <span class="keyword">DW</span> <span class="number">29</span>        <span class="comment">; Reserva 2 bytes e inicializa con 29</span>
+    Mes         <span class="keyword">DB</span> <span class="number">6</span>         <span class="comment">; Reserva 1 byte e inicializa con 6</span>
+    Resultado   <span class="keyword">DW</span> ?         <span class="comment">; Reserva 2 bytes SIN inicializar (contiene "basura")</span>
+  </div>
+
+  <div class="explain">
+    <p><strong>NúmeroPrimo</strong> → Se reservan 2 bytes consecutivos y se escribe el 29 en formato little endian. En binario 16 bits, 29 = 00000000 00011101. Se guarda como 1Dh (bajo) y 00h (alto).</p>
+    <p><strong>Mes</strong> → Se reserva 1 byte con el valor 6.</p>
+    <p><strong>Resultado</strong> → La "?" significa: "solo reservame el espacio, no pongas ningún valor". La memoria queda con lo que sea que hubiera ahí antes (basura de otro programa).</p>
+  </div>
+
+  <h3>Las variables quedan en orden en memoria</h3>
+  <p>Las variables se almacenan en memoria en el mismo orden en que se declaran:</p>
+
+  <div class="mem-diagram">
+    <div class="mem-cell">
+      <span class="mem-label">NumeroPrimo</span>
+      <span class="mem-val">1Dh</span>
+    </div>
+    <div class="mem-cell">
+      <span class="mem-label">&nbsp;</span>
+      <span class="mem-val">00h</span>
+    </div>
+    <div class="mem-cell highlight">
+      <span class="mem-label">Mes</span>
+      <span class="mem-val">06h</span>
+    </div>
+    <div class="mem-cell">
+      <span class="mem-label">Resultado</span>
+      <span class="mem-val">??</span>
+    </div>
+    <div class="mem-cell">
+      <span class="mem-label">&nbsp;</span>
+      <span class="mem-val">??</span>
+    </div>
+  </div>
+
+  <h3>Usar variables en el código</h3>
+  <div class="code-block">
+<span class="keyword">mov</span> <span class="register">ax</span>, NumeroPrimo     <span class="comment">; Copia el valor de NumeroPrimo en AX (AX = 29)</span>
+<span class="keyword">mov</span> <span class="register">bx</span>, <span class="keyword">offset</span> Resultado  <span class="comment">; Copia la DIRECCIÓN de Resultado en BX (no el valor)</span>
+  </div>
+
+  <div class="explain">
+    <p><code>mov ax, NumeroPrimo</code> → Accede al <strong>contenido</strong> de la variable (el valor 29).</p>
+    <p><code>mov bx, offset Resultado</code> → Accede a la <strong>dirección de memoria</strong> donde vive la variable (no al valor que tiene adentro, sino a su "dirección postal").</p>
+  </div>
+</section>
+
+<!-- ==================== ARREGLOS ==================== -->
+<section class="section" id="arreglos">
+  <div class="section-label">Módulo 11</div>
+  <h2>Arreglos</h2>
+
+  <p>Un arreglo se declara poniendo varios valores separados por comas:</p>
+
+  <div class="code-block">
+<span class="directive">.DATA</span>
+    Pares <span class="keyword">DB</span> <span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">8</span>      <span class="comment">; Arreglo de 4 bytes</span>
+  </div>
+
+  <h3>En memoria queda así:</h3>
+  <div class="mem-diagram">
+    <div class="mem-cell highlight">
+      <span class="mem-label">Pares[0]</span>
+      <span class="mem-val">02h</span>
+    </div>
+    <div class="mem-cell">
+      <span class="mem-label">Pares[1]</span>
+      <span class="mem-val">04h</span>
+    </div>
+    <div class="mem-cell">
+      <span class="mem-label">Pares[2]</span>
+      <span class="mem-val">06h</span>
+    </div>
+    <div class="mem-cell">
+      <span class="mem-label">Pares[3]</span>
+      <span class="mem-val">08h</span>
+    </div>
+  </div>
+
+  <h3>Acceder a los elementos</h3>
+  <div class="code-block">
+<span class="keyword">mov</span> <span class="register">ah</span>, Pares          <span class="comment">; AH = primer elemento = 2 (Pares[0])</span>
+<span class="keyword">mov</span> <span class="register">cl</span>, Pares[<span class="number">1</span>]       <span class="comment">; CL = segundo elemento = 4</span>
+<span class="keyword">mov</span> <span class="register">dl</span>, Pares[<span class="number">3</span>]       <span class="comment">; DL = cuarto elemento = 8</span>
+  </div>
+
+  <div class="explain">
+    <p>El número entre corchetes indica <strong>cuántos bytes avanzar</strong> desde el inicio del arreglo. <code>Pares[1]</code> significa "saltá 1 byte desde el inicio", o sea, andá al segundo elemento. <code>Pares</code> y <code>Pares[0]</code> son lo mismo: el primer elemento.</p>
+  </div>
+
+  <h3>Arreglos de Words</h3>
+  <p>Si el arreglo es de words (DW), cada elemento ocupa <strong>2 bytes</strong>. Entonces el desplazamiento en bytes es el doble:</p>
+
+  <div class="code-block">
+<span class="directive">.DATA</span>
+    NumerosGrandes <span class="keyword">DW</span> <span class="number">1002h</span>, <span class="number">55A1h</span>, <span class="number">3037h</span>, <span class="number">000Fh</span>
+
+    <span class="comment">; Acceso: (desplazamiento en BYTES)</span>
+    <span class="comment">; Primer elemento:  NumerosGrandes[0]</span>
+    <span class="comment">; Segundo elemento: NumerosGrandes[2]  ← ¡avanza 2 bytes!</span>
+    <span class="comment">; Tercer elemento:  NumerosGrandes[4]</span>
+    <span class="comment">; Cuarto elemento:  NumerosGrandes[6]</span>
+  </div>
+
+  <div class="warning">
+    El desplazamiento entre corchetes es <strong>siempre en bytes</strong>, sin importar si el arreglo es de bytes o de words. Para un arreglo de words, cada elemento está a 2 bytes de distancia.
+  </div>
+
+  <h3>Arreglos sin inicializar (DUP)</h3>
+  <div class="code-block">
+    Arreglo1 <span class="keyword">DB</span> <span class="number">50</span> DUP (<span class="number">0</span>)     <span class="comment">; 50 bytes, todos inicializados en 0</span>
+    Arreglo2 <span class="keyword">DB</span> <span class="number">50</span> DUP (?)     <span class="comment">; 50 bytes, sin inicializar (basura)</span>
+    Arreglo3 <span class="keyword">DB</span> <span class="number">50</span> DUP (<span class="number">0Fh</span>)  <span class="comment">; 50 bytes, todos inicializados en 0Fh</span>
+  </div>
+
+  <div class="explain">
+    <p><code>DUP</code> significa "duplicar". <code>50 DUP (0)</code> dice: "repetí el valor 0, 50 veces". Es la forma de crear un arreglo grande sin tener que escribir cada valor a mano.</p>
+  </div>
+</section>
+
+<!-- ==================== STRINGS ==================== -->
+<section class="section" id="strings">
+  <div class="section-label">Módulo 12</div>
+  <h2>Caracteres y Strings</h2>
+
+  <h3>Caracteres</h3>
+  <p>Los caracteres se representan usando el <strong>código ASCII</strong>. Cada carácter ocupa 1 byte. Podés declarar un carácter con su valor ASCII o entre comillas:</p>
+
+  <div class="code-block">
+    Caracter1 <span class="keyword">DB</span> <span class="number">41h</span>          <span class="comment">; 'A' en hexadecimal</span>
+    Caracter2 <span class="keyword">DB</span> <span class="string">"A"</span>          <span class="comment">; Equivalente, el ensamblador traduce</span>
+  </div>
+
+  <h3>Strings</h3>
+  <p>Un string es simplemente un <strong>arreglo de caracteres</strong>:</p>
+
+  <div class="code-block">
+    <span class="comment">; Estas dos formas son exactamente equivalentes:</span>
+    Nombre1 <span class="keyword">DB</span> <span class="string">"M"</span>, <span class="string">"a"</span>, <span class="string">"r"</span>, <span class="string">"i"</span>, <span class="string">"a"</span>, <span class="string">"n"</span>, <span class="string">"o"</span>
+    Nombre2 <span class="keyword">DB</span> <span class="string">"Mariano"</span>
+  </div>
+
+  <h3>En memoria:</h3>
+  <div class="mem-diagram">
+    <div class="mem-cell"><span class="mem-val">4Dh</span><span class="mem-label">M</span></div>
+    <div class="mem-cell"><span class="mem-val">61h</span><span class="mem-label">a</span></div>
+    <div class="mem-cell"><span class="mem-val">72h</span><span class="mem-label">r</span></div>
+    <div class="mem-cell"><span class="mem-val">69h</span><span class="mem-label">i</span></div>
+    <div class="mem-cell"><span class="mem-val">61h</span><span class="mem-label">a</span></div>
+    <div class="mem-cell"><span class="mem-val">6Eh</span><span class="mem-label">n</span></div>
+    <div class="mem-cell"><span class="mem-val">6Fh</span><span class="mem-label">o</span></div>
+  </div>
+</section>
+
+<!-- ==================== MOV ==================== -->
+<section class="section" id="mov">
+  <div class="section-label">Módulo 13</div>
+  <h2>MOV y XCHG</h2>
+
+  <h3>MOV — Instrucción de asignación</h3>
+  <p>Es la instrucción más básica: <strong>copia</strong> un valor de un lugar a otro. Equivale al signo <code>=</code> en los lenguajes de alto nivel.</p>
+
+  <div class="code-block">
+<span class="keyword">MOV</span> <span class="register">Destino</span>, <span class="register">Fuente</span>     <span class="comment">; Destino = Fuente</span>
+
+<span class="keyword">mov</span> <span class="register">ax</span>, <span class="number">000Fh</span>          <span class="comment">; AX = 000Fh  (hexadecimal)</span>
+<span class="keyword">mov</span> <span class="register">cx</span>, <span class="register">ax</span>              <span class="comment">; CX = AX     (copia el valor de AX en CX)</span>
+<span class="keyword">mov</span> <span class="register">bh</span>, <span class="number">7</span>              <span class="comment">; BH = 7      (decimal)</span>
+<span class="keyword">mov</span> <span class="register">dl</span>, <span class="number">01111101b</span>       <span class="comment">; DL = 01111101b (binario)</span>
+  </div>
+
+  <div class="explain">
+    <p><code>mov ax, 5</code> se lee como: "mové el 5 a AX", o mejor: "AX = 5". No confundir con "move" en el sentido de que el origen se borre: MOV <strong>copia</strong>, no mueve. El valor original queda intacto.</p>
+  </div>
+
+  <div class="concept">
+    <strong>Regla importante:</strong> El destino (primer operando) <strong>nunca puede ser un número</strong>. Tiene que ser un registro o una dirección de memoria. No tiene sentido "escribir en el número 5".
+  </div>
+
+  <h3>XCHG — Intercambio</h3>
+  <p>Intercambia los valores de dos operandos:</p>
+
+  <div class="code-block">
+<span class="keyword">mov</span> <span class="register">ax</span>, <span class="number">1</span>              <span class="comment">; AX = 1</span>
+<span class="keyword">mov</span> <span class="register">bx</span>, <span class="number">2</span>              <span class="comment">; BX = 2</span>
+<span class="keyword">xchg</span> <span class="register">ax</span>, <span class="register">bx</span>            <span class="comment">; Ahora AX = 2 y BX = 1</span>
+  </div>
+
+  <div class="warning">
+    Ninguno de los operandos de XCHG puede ser un número (constante). Ambos deben ser registros o direcciones de memoria, porque el procesador necesita un lugar físico donde guardar cada valor.
+  </div>
+</section>
+
+<!-- ==================== ARITMÉTICA ==================== -->
+<section class="section" id="aritmetica">
+  <div class="section-label">Módulo 14</div>
+  <h2>Instrucciones Aritméticas Básicas</h2>
+
+  <h3>ADD — Suma</h3>
+  <p>Suma dos operandos y guarda el resultado en el <strong>primer operando</strong> (el destino).</p>
+
+  <div class="code-block">
+<span class="keyword">ADD</span> <span class="register">Destino</span>, <span class="register">Operando2</span>    <span class="comment">; Destino = Destino + Operando2</span>
+
+<span class="keyword">mov</span> <span class="register">ah</span>, <span class="number">1</span>                <span class="comment">; AH = 1</span>
+<span class="keyword">mov</span> <span class="register">bh</span>, <span class="number">2</span>                <span class="comment">; BH = 2</span>
+<span class="keyword">add</span> <span class="register">ah</span>, <span class="register">bh</span>               <span class="comment">; AH = AH + BH → AH = 3</span>
+  </div>
+
+  <div class="concept">
+    En <strong>todas</strong> las instrucciones que almacenan un resultado, el resultado se guarda en el <strong>primer operando</strong>.
+  </div>
+
+  <h3>INC — Incrementar en 1</h3>
+  <div class="code-block">
+<span class="keyword">INC</span> <span class="register">Destino</span>               <span class="comment">; Destino = Destino + 1  (más rápida que ADD Destino, 1)</span>
+
+<span class="keyword">mov</span> <span class="register">dx</span>, <span class="number">6</span>                <span class="comment">; DX = 6</span>
+<span class="keyword">inc</span> <span class="register">dx</span>                   <span class="comment">; DX = 7</span>
+<span class="keyword">inc</span> <span class="register">dx</span>                   <span class="comment">; DX = 8</span>
+  </div>
+
+  <h3>SUB — Resta</h3>
+  <div class="code-block">
+<span class="keyword">SUB</span> <span class="register">Destino</span>, <span class="register">Operando2</span>    <span class="comment">; Destino = Destino - Operando2</span>
+
+<span class="keyword">mov</span> <span class="register">dh</span>, <span class="number">10</span>               <span class="comment">; DH = 10</span>
+<span class="keyword">mov</span> <span class="register">bl</span>, <span class="number">2</span>                <span class="comment">; BL = 2</span>
+<span class="keyword">sub</span> <span class="register">dh</span>, <span class="register">bl</span>               <span class="comment">; DH = DH - BL → DH = 8</span>
+  </div>
+
+  <div class="warning">
+    La resta es siempre en este orden: <strong>Destino - Operando2</strong>, no al revés.
+  </div>
+
+  <h3>DEC — Decrementar en 1</h3>
+  <div class="code-block">
+<span class="keyword">DEC</span> <span class="register">Destino</span>               <span class="comment">; Destino = Destino - 1  (más rápida que SUB Destino, 1)</span>
+
+<span class="keyword">mov</span> <span class="register">dx</span>, <span class="number">6</span>                <span class="comment">; DX = 6</span>
+<span class="keyword">dec</span> <span class="register">dx</span>                   <span class="comment">; DX = 5</span>
+<span class="keyword">dec</span> <span class="register">dx</span>                   <span class="comment">; DX = 4</span>
+  </div>
+
+  <h3>Ejemplo completo: resolver (355 + 281 - 1) - (413 - 78)</h3>
+
+  <div class="code-block">
+<span class="directive">.MODEL SMALL</span>
+<span class="directive">.STACK</span>
+<span class="directive">.DATA</span>
+<span class="directive">.CODE</span>
+<span class="keyword">inicio:</span>
+    <span class="keyword">mov</span> <span class="register">ax</span>, @data
+    <span class="keyword">mov</span> <span class="register">ds</span>, <span class="register">ax</span>
+
+    <span class="comment">; Resolver primer paréntesis → queda en DX</span>
+    <span class="keyword">mov</span> <span class="register">dx</span>, <span class="number">355</span>           <span class="comment">; DX = 355</span>
+    <span class="keyword">add</span> <span class="register">dx</span>, <span class="number">281</span>           <span class="comment">; DX = 355 + 281 = 636</span>
+    <span class="keyword">dec</span> <span class="register">dx</span>                <span class="comment">; DX = 636 - 1 = 635</span>
+
+    <span class="comment">; Resolver segundo paréntesis → queda en AX</span>
+    <span class="keyword">mov</span> <span class="register">ax</span>, <span class="number">413</span>           <span class="comment">; AX = 413</span>
+    <span class="keyword">sub</span> <span class="register">ax</span>, <span class="number">78</span>            <span class="comment">; AX = 413 - 78 = 335</span>
+
+    <span class="comment">; Restar los resultados de ambos paréntesis</span>
+    <span class="keyword">sub</span> <span class="register">dx</span>, <span class="register">ax</span>            <span class="comment">; DX = 635 - 335 = 300</span>
+
+    <span class="keyword">mov</span> <span class="register">ax</span>, <span class="number">4C00h</span>
+    <span class="keyword">int</span> <span class="number">21h</span>
+<span class="keyword">END</span> inicio
+  </div>
+
+  <div class="explain">
+    <p>La estrategia es: usá un registro para cada parte de la operación. Primero resolvé cada paréntesis por separado (usando registros distintos), y después combiná los resultados. Es como resolver una cuenta larga en papel: primero resolvés cada parte y después juntás todo.</p>
+  </div>
+</section>
+
+<!-- ==================== MUL/DIV ==================== -->
+<section class="section" id="muldiv">
+  <div class="section-label">Módulo 15</div>
+  <h2>Multiplicación y División</h2>
+
+  <h3>MUL — Multiplicación sin signo / IMUL — Con signo</h3>
+  <p>MUL/IMUL solo usa <strong>un operando</strong>. El otro factor siempre viene de un registro específico:</p>
+
+  <h4>Multiplicar dos bytes (8 bits)</h4>
+  <div class="code-block">
+<span class="keyword">mov</span> <span class="register">al</span>, <span class="number">5</span>              <span class="comment">; Un factor va en AL</span>
+<span class="keyword">mov</span> <span class="register">bl</span>, <span class="number">2</span>              <span class="comment">; El otro factor</span>
+<span class="keyword">mul</span> <span class="register">bl</span>                 <span class="comment">; AX = AL * BL = 5 * 2 = 10</span>
+  </div>
+
+  <div class="explain">
+    <p>¿Por qué el resultado va en AX (16 bits) y no en AL (8 bits)? Porque multiplicar dos números de 8 bits puede dar hasta 255 × 255 = 65.025, ¡y eso no entra en un byte! Por eso el resultado se guarda en AX (16 bits).</p>
+  </div>
+
+  <h4>Multiplicar dos words (16 bits)</h4>
+  <div class="code-block">
+<span class="keyword">mov</span> <span class="register">ax</span>, <span class="number">1000</span>           <span class="comment">; Un factor va en AX</span>
+<span class="keyword">mov</span> <span class="register">bx</span>, <span class="number">3000</span>           <span class="comment">; El otro factor</span>
+<span class="keyword">mul</span> <span class="register">bx</span>                 <span class="comment">; Resultado en DX:AX (32 bits)</span>
+<span class="comment">; DX = parte alta del resultado</span>
+<span class="comment">; AX = parte baja del resultado</span>
+  </div>
+
+  <div class="explain">
+    <p>Multiplicar dos números de 16 bits puede dar hasta 65.535 × 65.535 = ¡más de 4 mil millones! Eso no entra en 16 bits (máximo 65.535), así que el resultado se divide en dos registros: DX tiene la parte alta y AX la parte baja.</p>
+  </div>
+
+  <h3>DIV — División sin signo / IDIV — Con signo</h3>
+
+  <h4>Dividir un número de 16 bits por uno de 8 bits</h4>
+  <div class="code-block">
+<span class="keyword">mov</span> <span class="register">ax</span>, <span class="number">120</span>            <span class="comment">; Dividendo en AX</span>
+<span class="keyword">mov</span> <span class="register">bl</span>, <span class="number">2</span>              <span class="comment">; Divisor</span>
+<span class="keyword">div</span> <span class="register">bl</span>                 <span class="comment">; AL = cociente (60), AH = resto (0)</span>
+  </div>
+
+  <h4>Dividir un número de 32 bits por uno de 16 bits</h4>
+  <div class="code-block">
+<span class="comment">; Dividendo en DX:AX</span>
+<span class="keyword">mov</span> <span class="register">dx</span>, <span class="number">0</span>              <span class="comment">; Parte alta del dividendo</span>
+<span class="keyword">mov</span> <span class="register">ax</span>, <span class="number">1000</span>           <span class="comment">; Parte baja del dividendo</span>
+<span class="keyword">mov</span> <span class="register">bx</span>, <span class="number">3</span>              <span class="comment">; Divisor</span>
+<span class="keyword">div</span> <span class="register">bx</span>                 <span class="comment">; AX = cociente, DX = resto</span>
+  </div>
+
+  <div class="concept">
+    <strong>Resumen de dónde van los operandos:</strong><br>
+    <strong>MUL byte:</strong> AL × operando → resultado en AX<br>
+    <strong>MUL word:</strong> AX × operando → resultado en DX:AX<br>
+    <strong>DIV byte:</strong> AX / operando → cociente en AL, resto en AH<br>
+    <strong>DIV word:</strong> DX:AX / operando → cociente en AX, resto en DX
+  </div>
+</section>
+
+<!-- ==================== LÓGICAS ==================== -->
+<section class="section" id="logicas">
+  <div class="section-label">Módulo 16</div>
+  <h2>Operaciones Lógicas</h2>
+
+  <p>Estas operaciones trabajan <strong>bit a bit</strong> (cada bit se compara con el bit correspondiente del otro operando).</p>
+
+  <table class="styled-table">
+    <thead><tr><th>Instrucción</th><th>Operación</th><th>Efecto</th></tr></thead>
+    <tbody>
+      <tr><td><code>AND</code></td><td>Conjunción (Y lógico)</td><td>Resultado = 1 solo si AMBOS bits son 1</td></tr>
+      <tr><td><code>OR</code></td><td>Disyunción (O lógico)</td><td>Resultado = 1 si AL MENOS UN bit es 1</td></tr>
+      <tr><td><code>XOR</code></td><td>Disyunción exclusiva</td><td>Resultado = 1 si los bits son DISTINTOS</td></tr>
+      <tr><td><code>NOT</code></td><td>Negación</td><td>Invierte cada bit (0→1, 1→0) = complemento a 1</td></tr>
+      <tr><td><code>NEG</code></td><td>Complemento a 2</td><td>Genera el negativo del número (complemento a 2)</td></tr>
+      <tr><td><code>TEST</code></td><td>AND sin guardar</td><td>Como AND pero NO guarda el resultado; solo afecta flags</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Ejemplos</h3>
+  <div class="code-block">
+<span class="comment">; AND - ambos bits deben ser 1</span>
+<span class="keyword">mov</span> <span class="register">al</span>, <span class="number">01001110b</span>
+<span class="keyword">mov</span> <span class="register">ah</span>, <span class="number">00111001b</span>
+<span class="keyword">and</span> <span class="register">al</span>, <span class="register">ah</span>              <span class="comment">; AL = 00001000b</span>
+
+<span class="comment">; OR - al menos un bit debe ser 1</span>
+<span class="keyword">mov</span> <span class="register">al</span>, <span class="number">01001110b</span>
+<span class="keyword">mov</span> <span class="register">ah</span>, <span class="number">00111001b</span>
+<span class="keyword">or</span> <span class="register">al</span>, <span class="register">ah</span>               <span class="comment">; AL = 01111111b</span>
+
+<span class="comment">; XOR - bits deben ser distintos</span>
+<span class="keyword">mov</span> <span class="register">al</span>, <span class="number">01001110b</span>
+<span class="keyword">mov</span> <span class="register">ah</span>, <span class="number">00111001b</span>
+<span class="keyword">xor</span> <span class="register">al</span>, <span class="register">ah</span>              <span class="comment">; AL = 01110111b</span>
+
+<span class="comment">; NOT - invierte todos los bits</span>
+<span class="keyword">mov</span> <span class="register">al</span>, <span class="number">01001110b</span>
+<span class="keyword">not</span> <span class="register">al</span>                  <span class="comment">; AL = 10110001b</span>
+
+<span class="comment">; NEG - complemento a 2 (niega el número)</span>
+<span class="keyword">mov</span> <span class="register">al</span>, <span class="number">01001110b</span>
+<span class="keyword">neg</span> <span class="register">al</span>                  <span class="comment">; AL = 10110010b</span>
+  </div>
+
+  <div class="explain">
+    <p><strong>AND</strong>: Usálo como "filtro" — solo deja pasar los bits que están en 1 en ambos operandos. Útil para extraer ciertos bits de un byte.</p>
+    <p><strong>OR</strong>: Usálo para "encender" bits específicos sin tocar los demás.</p>
+    <p><strong>XOR</strong>: Útil para invertir bits seleccionados. También: <code>XOR reg, reg</code> es la forma más rápida de poner un registro en cero.</p>
+    <p><strong>NOT vs NEG</strong>: NOT invierte bits (complemento a 1). NEG invierte bits Y le suma 1 (complemento a 2, que es la representación del negativo).</p>
+  </div>
+</section>
+
+<!-- ==================== DIRECCIONAMIENTO ==================== -->
+<section class="section" id="direccionamiento">
+  <div class="section-label">Módulo 17</div>
+  <h2>Modos de Direccionamiento</h2>
+
+  <p>Los modos de direccionamiento son las distintas formas de indicar <strong>dónde están los datos</strong> que una instrucción necesita.</p>
+
+  <h3>Reglas generales</h3>
+  <div class="concept">
+    <strong>Tipos de operandos posibles en MOV:</strong><br>
+    <code>MOV Registro, Registro</code><br>
+    <code>MOV Registro, Constante</code><br>
+    <code>MOV Registro, Dirección de memoria</code><br>
+    <code>MOV Dirección de memoria, Registro</code><br>
+    <code>MOV Dirección de memoria, Constante</code><br><br>
+    <strong>No existe:</strong> <code>MOV Dirección, Dirección</code> (no se pueden usar dos direcciones de memoria)
+  </div>
+
+  <div class="explain">
+    <p>Si querés copiar el contenido de una dirección de memoria a otra dirección, tenés que pasar por un registro intermedio. Es como si no pudieras transferir dinero directamente de una cuenta bancaria a otra del mismo banco: tenés que sacarlo primero y después depositarlo.</p>
+  </div>
+
+  <h3>1. Direccionamiento Inmediato</h3>
+  <p>El dato es una <strong>constante escrita directamente</strong> en la instrucción:</p>
+  <div class="code-block">
+<span class="keyword">add</span> <span class="register">ax</span>, <span class="number">50</span>             <span class="comment">; El 50 es un dato inmediato</span>
+<span class="keyword">mov</span> <span class="register">bh</span>, <span class="number">7</span>              <span class="comment">; El 7 es un dato inmediato</span>
+  </div>
+
+  <h3>2. Direccionamiento Inherente (de Registro)</h3>
+  <p>El dato está en un <strong>registro</strong>:</p>
+  <div class="code-block">
+<span class="keyword">mov</span> <span class="register">ax</span>, <span class="register">bx</span>              <span class="comment">; Copia el contenido de BX en AX</span>
+<span class="keyword">add</span> <span class="register">ah</span>, <span class="register">al</span>              <span class="comment">; Suma AL a AH</span>
+  </div>
+
+  <h3>3. Direccionamiento Directo</h3>
+  <p>El dato está en memoria y la <strong>dirección se escribe explícitamente</strong> (o se usa una variable):</p>
+  <div class="code-block">
+<span class="keyword">mov</span> <span class="register">ax</span>, <span class="register">ds</span>:[<span class="number">107Ah</span>]    <span class="comment">; Lee de la dirección 107Ah</span>
+<span class="keyword">mov</span> <span class="register">bx</span>, NumeroPrimo     <span class="comment">; Lee de la dirección de NumeroPrimo</span>
+<span class="keyword">sub</span> <span class="register">ch</span>, arreglo[<span class="number">7</span>]     <span class="comment">; Lee del arreglo en el byte 7</span>
+  </div>
+
+  <h3>4. Direccionamiento Indirecto por Registro</h3>
+  <p>El dato está en memoria pero la <strong>dirección está guardada en un registro</strong>:</p>
+  <div class="code-block">
+<span class="keyword">mov</span> <span class="register">ax</span>, <span class="register">ds</span>:[<span class="register">bx</span>]        <span class="comment">; Lee de la dirección que está en BX</span>
+  </div>
+
+  <div class="explain">
+    <p>Es como tener la dirección de una casa guardada en un papel. BX contiene la dirección, y entre corchetes le decimos al procesador "andá a buscar el dato que está en esa dirección". Los registros que pueden usarse así son: <strong>BX, BP, SI y DI</strong>.</p>
+  </div>
+
+  <h3>5. Direccionamiento Relativo</h3>
+  <p>La dirección se calcula con una <strong>suma de registro(s) + constante</strong>:</p>
+  <div class="code-block">
+<span class="keyword">mov</span> <span class="register">ax</span>, <span class="register">ds</span>:[<span class="register">bx</span> + <span class="register">si</span> + <span class="number">5</span>]  <span class="comment">; Dirección = BX + SI + 5</span>
+<span class="keyword">mov</span> <span class="register">ax</span>, arreglo[<span class="register">bx</span>]           <span class="comment">; Dirección = dirección de arreglo + BX</span>
+  </div>
+
+  <div class="explain">
+    <p>Este modo es súper útil con arreglos. Suponé que tenés un arreglo que empieza en la dirección 1000h, y BX vale 3. Entonces <code>arreglo[BX]</code> accede a la posición 1000h + 3 = 1003h. Es como decir "andá al arreglo y avanzá BX posiciones".</p>
+    <p>Los registros <strong>base</strong> son BX y BP. Los <strong>índice</strong> son SI y DI.</p>
+  </div>
+</section>
+
+<!-- ==================== FLUJO ==================== -->
+<section class="section" id="flujo">
+  <div class="section-label">Módulo 18</div>
+  <h2>Control de Flujo</h2>
+
+  <h3>¿Cómo ejecuta las instrucciones el procesador?</h3>
+  <p>La CPU ejecuta un ciclo de tres fases:</p>
+  <ol class="steps">
+    <li><strong>Fetch (Búsqueda):</strong> La CPU busca la siguiente instrucción en el segmento de código. El registro <strong>IP</strong> (Instruction Pointer) le dice dónde está.</li>
+    <li><strong>Decode (Decodificación):</strong> La CPU interpreta qué tiene que hacer con esa instrucción.</li>
+    <li><strong>Execute (Ejecución):</strong> La CPU realiza la operación y guarda el resultado.</li>
+  </ol>
+
+  <div class="explain">
+    <p>Normalmente las instrucciones se ejecutan una tras otra (de arriba hacia abajo). El registro IP se incrementa automáticamente para apuntar a la siguiente. Pero a veces necesitamos "saltar" a otra parte del código — como un <code>goto</code> o un <code>if</code>. Para eso están las instrucciones de control de flujo.</p>
+  </div>
+
+  <h3>JMP — Salto incondicional</h3>
+  <p>Salta siempre a la etiqueta indicada, sin importar nada:</p>
+  <div class="code-block">
+<span class="keyword">inicio:</span>
+    <span class="comment">; ... código ...</span>
+    <span class="keyword">jmp</span> <span class="keyword">inicio</span>            <span class="comment">; Siempre vuelve a "inicio" (¡ciclo infinito!)</span>
+  </div>
+
+  <h3>CMP — Comparación</h3>
+  <p>Compara dos valores. No guarda ningún resultado, pero <strong>modifica el registro de flags</strong> para que los saltos condicionales sepan qué hacer.</p>
+
+  <div class="code-block">
+<span class="keyword">CMP</span> <span class="register">Operando1</span>, <span class="register">Operando2</span>    <span class="comment">; Compara (internamente hace Operando1 - Operando2)</span>
+  </div>
+
+  <h3>Saltos condicionales</h3>
+  <p>Saltan a una etiqueta <strong>solo si se cumple una condición</strong>:</p>
+
+  <table class="styled-table">
+    <thead><tr><th>Instrucción</th><th>Condición</th><th>Tipo</th></tr></thead>
+    <tbody>
+      <tr><td><code>JE</code></td><td>Saltar si son <strong>iguales</strong></td><td>Cualquiera</td></tr>
+      <tr><td><code>JNE</code></td><td>Saltar si <strong>no</strong> son iguales</td><td>Cualquiera</td></tr>
+      <tr><td><code>JA</code></td><td>Saltar si es <strong>mayor</strong> (sin signo)</td><td>BSS</td></tr>
+      <tr><td><code>JAE</code></td><td>Saltar si es <strong>mayor o igual</strong></td><td>BSS</td></tr>
+      <tr><td><code>JB</code></td><td>Saltar si es <strong>menor</strong> (sin signo)</td><td>BSS</td></tr>
+      <tr><td><code>JBE</code></td><td>Saltar si es <strong>menor o igual</strong></td><td>BSS</td></tr>
+      <tr><td><code>JG</code></td><td>Saltar si es <strong>mayor</strong> (con signo)</td><td>Ca2</td></tr>
+      <tr><td><code>JGE</code></td><td>Saltar si es <strong>mayor o igual</strong></td><td>Ca2</td></tr>
+      <tr><td><code>JL</code></td><td>Saltar si es <strong>menor</strong> (con signo)</td><td>Ca2</td></tr>
+      <tr><td><code>JLE</code></td><td>Saltar si es <strong>menor o igual</strong></td><td>Ca2</td></tr>
+    </tbody>
+  </table>
+
+  <div class="explain">
+    <p><strong>BSS</strong> = Binario sin signo (solo positivos: 0 a 255 en byte). <strong>Ca2</strong> = Complemento a 2 (con signo: -128 a +127 en byte). Usá JA/JB cuando sabés que los números son siempre positivos, y JG/JL cuando pueden ser negativos.</p>
+  </div>
+
+  <h3>Estructura IF...ELSE</h3>
+  <p>Para hacer un IF en Assembler, la lógica es <strong>invertida</strong>: saltás el bloque "if" cuando la condición <strong>NO</strong> se cumple.</p>
+
+  <div class="code-block">
+    <span class="comment">; En alto nivel:</span>
+    <span class="comment">; if (AX == BX) { hacer_algo } else { hacer_otro }</span>
+
+    <span class="keyword">cmp</span> <span class="register">ax</span>, <span class="register">bx</span>
+    <span class="keyword">jne</span> <span class="keyword">else</span>               <span class="comment">; Si NO son iguales, salta al else</span>
+
+    <span class="comment">; Código cuando AX == BX</span>
+    <span class="keyword">jmp</span> <span class="keyword">fin</span>                <span class="comment">; Salta el bloque else</span>
+
+<span class="keyword">else:</span>
+    <span class="comment">; Código cuando AX != BX</span>
+
+<span class="keyword">fin:</span>
+    <span class="comment">; Continúa el programa</span>
+  </div>
+
+  <div class="explain">
+    <p>¿Por qué la condición está invertida? Porque el IF de alto nivel dice "si la condición se CUMPLE, ejecutá el bloque". En Assembler, el salto condicional dice "si la condición se cumple, SALTEÁ el bloque". Son opuestos: si el IF dice "si son iguales", el salto dice "si NO son iguales, salteá". Por eso JE se convierte en JNE y viceversa.</p>
+  </div>
+</section>
+
+<!-- ==================== ITERACIONES ==================== -->
+<section class="section" id="iteraciones">
+  <div class="section-label">Módulo 19</div>
+  <h2>Iteraciones</h2>
+
+  <h3>LOOP — Iteración fija (tipo FOR)</h3>
+  <p>LOOP usa el registro <strong>CX</strong> como contador. Cada vez que se ejecuta LOOP, CX se decrementa en 1 y salta a la etiqueta si CX no es cero.</p>
+
+  <div class="code-block">
+<span class="keyword">mov</span> <span class="register">cx</span>, <span class="number">50</span>              <span class="comment">; Iterar 50 veces</span>
+<span class="keyword">mov</span> <span class="register">si</span>, <span class="number">0</span>               <span class="comment">; Empezar por el elemento 0</span>
+<span class="keyword">siguiente:</span>
+    <span class="keyword">mov</span> arreglo[<span class="register">si</span>], <span class="number">0</span>  <span class="comment">; Poner un 0 en la posición actual</span>
+    <span class="keyword">inc</span> <span class="register">si</span>               <span class="comment">; Ir al próximo elemento</span>
+    <span class="keyword">loop</span> <span class="keyword">siguiente</span>        <span class="comment">; CX--, si CX != 0 volver a "siguiente"</span>
+  </div>
+
+  <div class="explain">
+    <p>Es como decir "hacé esto 50 veces". CX es el contador que empieza en 50 y baja de a 1. Cuando llega a 0, el loop termina. Es equivalente a: <code>for (int i = 50; i > 0; i--) { ... }</code></p>
+  </div>
+
+  <h3>Iteración condicional (tipo WHILE)</h3>
+  <p>Cuando necesitás iterar mientras se cumpla una condición (no una cantidad fija):</p>
+
+  <div class="code-block">
+<span class="keyword">mov</span> <span class="register">si</span>, <span class="number">0</span>               <span class="comment">; Empezar por el elemento 0</span>
+<span class="keyword">siguiente:</span>
+    <span class="keyword">cmp</span> arreglo[<span class="register">si</span>], <span class="number">0FFh</span> <span class="comment">; ¿El elemento actual es FFh?</span>
+    <span class="keyword">je</span> <span class="keyword">salir</span>             <span class="comment">; Si es FFh, salir del bucle</span>
+
+    <span class="keyword">mov</span> arreglo[<span class="register">si</span>], <span class="number">0</span>  <span class="comment">; Poner un 0 en la posición actual</span>
+    <span class="keyword">inc</span> <span class="register">si</span>               <span class="comment">; Ir al próximo elemento</span>
+    <span class="keyword">jmp</span> <span class="keyword">siguiente</span>        <span class="comment">; Volver a iterar</span>
+<span class="keyword">salir:</span>
+  </div>
+
+  <div class="explain">
+    <p>Este código recorre un arreglo byte por byte, poniendo 0 en cada posición, hasta encontrar un byte con valor FFh (que actúa como "señal de fin"). Es como decir: "mientras el elemento no sea FFh, poné cero y avanzá al siguiente".</p>
+  </div>
+
+  <h3>Ejemplo: determinar longitud de un arreglo terminado en 00h</h3>
+
+  <div class="code-block">
+<span class="directive">.DATA</span>
+    arreglo <span class="keyword">DB</span> <span class="number">15h</span>, <span class="number">07h</span>, <span class="number">22h</span>, <span class="number">9Ah</span>, <span class="number">4Dh</span>, <span class="number">00h</span>
+<span class="directive">.CODE</span>
+<span class="keyword">inicio:</span>
+    <span class="keyword">mov</span> <span class="register">ax</span>, @data
+    <span class="keyword">mov</span> <span class="register">ds</span>, <span class="register">ax</span>
+    <span class="keyword">mov</span> <span class="register">dx</span>, <span class="number">0</span>            <span class="comment">; Longitud = 0 (contador)</span>
+    <span class="keyword">mov</span> <span class="register">si</span>, <span class="number">0</span>            <span class="comment">; Índice = 0</span>
+
+<span class="keyword">iterar:</span>
+    <span class="keyword">cmp</span> arreglo[<span class="register">si</span>], <span class="number">00h</span>  <span class="comment">; ¿Llegamos al final (00h)?</span>
+    <span class="keyword">je</span> <span class="keyword">fin</span>               <span class="comment">; Si sí, terminar</span>
+    <span class="keyword">inc</span> <span class="register">dx</span>               <span class="comment">; Incrementar longitud</span>
+    <span class="keyword">inc</span> <span class="register">si</span>               <span class="comment">; Ir al próximo byte</span>
+    <span class="keyword">jmp</span> <span class="keyword">iterar</span>           <span class="comment">; Repetir</span>
+
+<span class="keyword">fin:</span>
+    <span class="keyword">mov</span> <span class="register">ax</span>, <span class="number">4C00h</span>
+    <span class="keyword">int</span> <span class="number">21h</span>
+  </div>
+
+  <div class="explain">
+    <p>Recorremos el arreglo posición por posición. En cada paso preguntamos: "¿este byte es 00h?". Si no lo es, incrementamos el contador de longitud (DX) y avanzamos al siguiente byte. Cuando encontramos el 00h, salimos del bucle. Al final, DX = 5 (la longitud sin contar el 00h final).</p>
+  </div>
+</section>
+
+<!-- ==================== NEGATIVOS ==================== -->
+<section class="section" id="negativos">
+  <div class="section-label">Módulo 20</div>
+  <h2>Números Negativos: Complemento a 2</h2>
+
+  <p>Los números negativos se representan en <strong>complemento a 2 (Ca2)</strong>. La secuencia de bits es la misma; depende de si usás instrucciones sin signo (BSS) o con signo (Ca2) para interpretarla.</p>
+
+  <div class="concept">
+    <strong>Regla del complemento a 2 para negar un número:</strong><br>
+    1. Invertir todos los bits (complemento a 1 = NOT)<br>
+    2. Sumar 1<br><br>
+    Ejemplo: -2 en Ca2 de 8 bits:<br>
+    2 = <code>00000010</code> → NOT = <code>11111101</code> → +1 = <code>11111110</code> → -2 = <code>11111110b</code>
+  </div>
+
+  <h3>Identificar si un número es negativo</h3>
+  <p>Es muy fácil: mirá el <strong>bit más significativo (MSB)</strong>.</p>
+  <ul>
+    <li>Si MSB = 0 → <strong>positivo</strong></li>
+    <li>Si MSB = 1 → <strong>negativo</strong> (en Ca2)</li>
+  </ul>
+
+  <div class="explain">
+    <p>Para números hexadecimales, fijate si empieza con un dígito entre <strong>8 y F</strong>. Si es así, es negativo en Ca2. Ejemplos: <code>FFh</code> = negativo, <code>7Fh</code> = positivo, <code>A0h</code> = negativo, <code>30h</code> = positivo.</p>
+  </div>
+
+  <div class="warning">
+    Usar el signo menos delante de un número al declarar una variable <strong>no garantiza</strong> que el resultado sea negativo. El signo menos simplemente aplica la regla de complemento a 2. Si el resultado no entra en el tamaño del dato, se produce un desborde y el número puede terminar siendo positivo.<br><br>
+    Ejemplo: <code>numero DB -195</code> → el resultado es 61 (positivo) porque -195 no entra en un byte con signo.
+  </div>
+</section>
+
+<!-- ==================== FLAGS ==================== -->
+<section class="section" id="flags">
+  <div class="section-label">Módulo 21</div>
+  <h2>Registro de Flags</h2>
+
+  <p>El registro de flags (banderas) es un registro de 16 bits que la CPU modifica automáticamente después de cada operación aritmética o lógica. Cada bit indica una "condición" del resultado.</p>
+
+  <div class="explain">
+    <p>Pensalo como las luces de advertencia del tablero de un auto: después de cada operación, la CPU "enciende" ciertas luces (pone bits en 1) para indicar qué pasó con el resultado. Los saltos condicionales (JE, JNE, JA, etc.) leen estas luces para decidir si saltan o no.</p>
+  </div>
+
+  <h3>Los flags más importantes</h3>
+  <table class="styled-table">
+    <thead><tr><th>Flag</th><th>Nombre</th><th>Se activa cuando...</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Z</strong></td><td>Zero (Cero)</td><td>El resultado de la operación es <strong>0</strong></td></tr>
+      <tr><td><strong>S</strong></td><td>Sign (Signo)</td><td>El resultado es <strong>negativo</strong> (MSB = 1)</td></tr>
+      <tr><td><strong>C</strong></td><td>Carry (Acarreo)</td><td>Hay un acarreo fuera del MSB en operaciones sin signo (BSS)</td></tr>
+      <tr><td><strong>O</strong></td><td>Overflow (Desborde)</td><td>Hay un desborde aritmético en complemento a 2</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Ejemplo</h3>
+  <div class="code-block">
+<span class="keyword">mov</span> <span class="register">ax</span>, <span class="number">5</span>
+<span class="keyword">mov</span> <span class="register">bx</span>, <span class="number">7</span>
+<span class="keyword">sub</span> <span class="register">ax</span>, <span class="register">bx</span>             <span class="comment">; 5 - 7 = -2 = 11111110b</span>
+<span class="comment">; Z = 0 (el resultado no es cero)</span>
+<span class="comment">; S = 1 (el MSB es 1, resultado negativo en Ca2)</span>
+<span class="comment">; C = 1 (hubo acarreo/borrow)</span>
+<span class="comment">; O = 0 (no hubo desborde en Ca2)</span>
+  </div>
+
+  <div class="explain">
+    <p>Los saltos condicionales leen estos flags. Por ejemplo, <code>JE</code> salta si Z=1 (el resultado fue cero). <code>JL</code> (saltar si menor, con signo) revisa si S y O tienen ciertos valores. No necesitás manipular los flags directamente: la CPU lo hace automáticamente.</p>
+  </div>
+</section>
+
+<!-- ==================== INTERRUPCIONES ==================== -->
+<section class="section" id="interrupciones">
+  <div class="section-label">Módulo 22</div>
+  <h2>Interrupciones</h2>
+
+  <p>Una <strong>interrupción</strong> es un mecanismo que detiene momentáneamente el programa en ejecución para atender un evento especial.</p>
+
+  <div class="explain">
+    <p>Imaginá que estás estudiando y suena el teléfono. Pausás lo que estás hacés, atendés la llamada, y cuando terminás volvés exactamente a donde dejaste. Eso es una interrupción: el procesador pausa el programa, atiende el evento, y después continúa.</p>
+  </div>
+
+  <h3>Tipos de interrupciones</h3>
+
+  <h4>Interrupciones por hardware</h4>
+  <p>Las genera el hardware cuando ocurre un evento físico (el usuario presiona una tecla, llega un dato del disco, etc.).</p>
+  <ul>
+    <li>Cada dispositivo tiene una línea de solicitud de interrupción (<strong>IRQ</strong>)</li>
+    <li>Cuando el evento ocurre, la CPU detiene el programa y ejecuta la <strong>subrutina de atención (ISR)</strong></li>
+    <li>Al terminar la ISR, el programa continúa donde se quedó</li>
+  </ul>
+
+  <div class="explain">
+    <p>El teclado, por ejemplo, usa IRQ1. Cada vez que presionás una tecla, se envía una señal por IRQ1, la CPU pausa lo que hace, lee la tecla, la guarda en un buffer (una memoria temporal), y vuelve al programa. Por eso no se pierden las pulsaciones aunque el procesador esté ocupado con otra cosa.</p>
+  </div>
+
+  <h4>Interrupciones por software</h4>
+  <p>Son subrutinas especiales del BIOS o del sistema operativo que se invocan con la instrucción <code>INT</code>. La más importante para nosotros es <strong>INT 21h</strong> (servicios del DOS).</p>
+
+  <h3>Servicios del DOS (INT 21h)</h3>
+  <p>Se establece un código de función en <strong>AH</strong> y se ejecuta <code>INT 21h</code>:</p>
+
+  <table class="styled-table">
+    <thead><tr><th>AH</th><th>Función</th><th>Parámetros</th><th>Resultado</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>01h</code></td>
+        <td>Leer un carácter del teclado</td>
+        <td>—</td>
+        <td>AL = código ASCII del carácter</td>
+      </tr>
+      <tr>
+        <td><code>02h</code></td>
+        <td>Mostrar un carácter en pantalla</td>
+        <td>DL = carácter a mostrar</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><code>09h</code></td>
+        <td>Mostrar un string en pantalla</td>
+        <td>DX = dirección del string (terminado en "$")</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><code>0Ah</code></td>
+        <td>Leer un string desde teclado</td>
+        <td>DX = dirección del buffer</td>
+        <td>String almacenado en el buffer</td>
+      </tr>
+      <tr>
+        <td><code>4Ch</code></td>
+        <td>Terminar el programa</td>
+        <td>AL = código de retorno (00h = OK)</td>
+        <td>Vuelve al sistema operativo</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Ejemplo: mostrar "Hola" en pantalla</h3>
+  <div class="code-block">
+<span class="directive">.DATA</span>
+    mensaje <span class="keyword">DB</span> <span class="string">"Hola$"</span>     <span class="comment">; DEBE terminar con "$"</span>
+<span class="directive">.CODE</span>
+    <span class="keyword">mov</span> <span class="register">ah</span>, <span class="number">09h</span>            <span class="comment">; Función: mostrar string</span>
+    <span class="keyword">mov</span> <span class="register">dx</span>, <span class="keyword">offset</span> mensaje <span class="comment">; Dirección del string</span>
+    <span class="keyword">int</span> <span class="number">21h</span>                <span class="comment">; Ejecutar</span>
+  </div>
+
+  <div class="explain">
+    <p>Primero le decimos a DOS qué queremos hacer (función 09h = mostrar texto). Después le indicamos dónde está el texto (la dirección de memoria donde empieza "Hola$"). Finalmente, <code>int 21h</code> ejecuta la operación. El string DEBE terminar con el carácter "$" para que DOS sepa dónde termina.</p>
+  </div>
+
+  <h3>Ejemplo: leer un carácter del teclado</h3>
+  <div class="code-block">
+    <span class="keyword">mov</span> <span class="register">ah</span>, <span class="number">01h</span>            <span class="comment">; Función: leer carácter</span>
+    <span class="keyword">int</span> <span class="number">21h</span>                <span class="comment">; Espera a que el usuario teclee algo</span>
+    <span class="comment">; Ahora AL tiene el código ASCII del carácter</span>
+  </div>
+
+  <h3>Leer un string desde teclado</h3>
+  <p>Para leer un string se necesita un buffer con un formato especial:</p>
+
+  <table class="styled-table">
+    <thead><tr><th>Offset</th><th>Contenido</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td>Longitud máxima de caracteres (incluyendo Enter)</td></tr>
+      <tr><td>1</td><td>Se llenará con la cantidad de caracteres realmente leídos</td></tr>
+      <tr><td>2 en adelante</td><td>Aquí se almacena el string leído</td></tr>
+    </tbody>
+  </table>
+
+  <div class="code-block">
+<span class="directive">.DATA</span>
+    buffer <span class="keyword">DB</span> <span class="number">5</span>, <span class="number">0</span>, <span class="number">5</span> DUP (<span class="number">0</span>)  <span class="comment">; Máx 5 chars, espacio para almacenarlos</span>
+<span class="directive">.CODE</span>
+    <span class="keyword">mov</span> <span class="register">ah</span>, <span class="number">0Ah</span>                <span class="comment">; Función: leer string</span>
+    <span class="keyword">mov</span> <span class="register">dx</span>, <span class="keyword">offset</span> buffer     <span class="comment">; Dirección del buffer</span>
+    <span class="keyword">int</span> <span class="number">21h</span>
+    <span class="comment">; El string queda guardado a partir del offset 2 del buffer</span>
+    <span class="comment">; La cantidad de caracteres leídos queda en el offset 1</span>
+  </div>
+
+  <div class="explain">
+    <p>El buffer tiene un formato especial que DOS espera: primero le decimos cuántos caracteres como máximo puede leer (offset 0). DOS nos devuelve cuántos realmente leyó (offset 1). Y a partir del offset 2 queda el texto tecleado. Es como darle a alguien un formulario con el espacio máximo disponible y que te lo devuelva con la cantidad de casillas que realmente llenó.</p>
+  </div>
+</section>
+
+<div class="footer">
+  <p>Guía Teórica de Assembler — Basada en la cátedra de Arquitectura II, UNNOBA</p>
+  <p style="margin-top:0.3rem">Contenido compilado a partir del material de estudio proporcionado.</p>
+</div>
+
+</main>
+
+<div class="donation-backdrop" id="donation-modal" aria-hidden="true">
+  <div class="donation-card" role="dialog" aria-modal="true" aria-labelledby="donation-title">
+    <button class="donation-close-btn" type="button" aria-label="Cerrar cartel de donaciones" data-close-donations>&times;</button>
+    <p class="donation-kicker">Si te sirvió</p>
+    <h3 id="donation-title">Podés colaborar con una donación</h3>
+    <p class="donation-copy">Si esta guía te ayudó a estudiar, podés apoyar el proyecto con un aporte.</p>
+    <div class="donation-alias">
+      <div class="donation-alias-meta">
+        <span class="donation-alias-label">Alias BNA+</span>
+        <strong>estudio.juegos.piano</strong>
+      </div>
+      <button class="donation-copy-btn" type="button" data-copy-alias>Copiar alias</button>
+    </div>
+    <div class="donation-actions">
+      <button class="donation-secondary" type="button" data-close-donations>Seguir viendo</button>
+    </div>
+    <p class="donation-feedback" id="donation-feedback" aria-live="polite"></p>
+  </div>
+</div>
+
+<script>
+// Progress bar
+const progressFill = document.getElementById('progressFill');
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  progressFill.style.width = progress + '%';
+});
+
+// Active nav link
+const sections = document.querySelectorAll('.section');
+const navLinks = document.querySelectorAll('.sidebar a');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+      });
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(section => observer.observe(section));
+
+// Mobile nav
+const mobileToggle = document.getElementById('mobileToggle');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('mobileOverlay');
+
+mobileToggle.addEventListener('click', () => {
+  sidebar.classList.toggle('mobile-open');
+  overlay.classList.toggle('show');
+  if (sidebar.classList.contains('mobile-open')) {
+    sidebar.style.display = 'block';
+    sidebar.style.zIndex = '101';
+  } else {
+    sidebar.style.display = '';
+    sidebar.style.zIndex = '';
+  }
+});
+
+overlay.addEventListener('click', () => {
+  sidebar.classList.remove('mobile-open');
+  sidebar.style.display = '';
+  sidebar.style.zIndex = '';
+  overlay.classList.remove('show');
+});
+
+navLinks.forEach(link => {
+  link.addEventListener('click', () => {
+    if (window.innerWidth <= 1100) {
+      sidebar.classList.remove('mobile-open');
+      sidebar.style.display = '';
+      sidebar.style.zIndex = '';
+      overlay.classList.remove('show');
+    }
+  });
+});
+
+// Accordion (if any)
+document.querySelectorAll('.accordion-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.classList.toggle('open');
+    const body = btn.nextElementSibling;
+    body.classList.toggle('open');
+  });
+});
+
+// Animate sections on scroll
+const animObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.05 });
+
+sections.forEach(section => {
+  section.style.opacity = '0';
+  section.style.transform = 'translateY(20px)';
+  section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+  animObserver.observe(section);
+});
+
+// Donation prompt
+const donationModal = document.getElementById('donation-modal');
+const donationFeedback = document.getElementById('donation-feedback');
+const donationOpeners = document.querySelectorAll('[data-open-donations]');
+const donationClosers = document.querySelectorAll('[data-close-donations]');
+const donationCopyButtons = document.querySelectorAll('[data-copy-alias]');
+const donationAlias = 'estudio.juegos.piano';
+let donationAutoClosed = false;
+
+function copyDonationAlias() {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(donationAlias);
+  }
+
+  const helper = document.createElement('textarea');
+  helper.value = donationAlias;
+  helper.setAttribute('readonly', '');
+  helper.style.position = 'fixed';
+  helper.style.opacity = '0';
+  document.body.appendChild(helper);
+  helper.select();
+  document.execCommand('copy');
+  document.body.removeChild(helper);
+  return Promise.resolve();
+}
+
+function openDonationModal(fromAuto = false) {
+  if (!donationModal) return;
+  if (fromAuto && donationAutoClosed) return;
+  donationModal.classList.add('is-open');
+  donationModal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDonationModal(markAutoClosed = true) {
+  if (!donationModal) return;
+  if (markAutoClosed) donationAutoClosed = true;
+  donationModal.classList.remove('is-open');
+  donationModal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+donationOpeners.forEach(btn => {
+  btn.addEventListener('click', () => openDonationModal(false));
+});
+
+donationClosers.forEach(btn => {
+  btn.addEventListener('click', () => closeDonationModal(true));
+});
+
+donationCopyButtons.forEach(btn => {
+  btn.addEventListener('click', async () => {
+    try {
+      await copyDonationAlias();
+      if (donationFeedback) donationFeedback.textContent = 'Alias copiado.';
+    } catch (error) {
+      if (donationFeedback) donationFeedback.textContent = 'No pude copiarlo automaticamente. Alias: ' + donationAlias;
+    }
+  });
+});
+
+if (donationModal) {
+  donationModal.addEventListener('click', e => {
+    if (e.target === donationModal) closeDonationModal(true);
+  });
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && donationModal && donationModal.classList.contains('is-open')) {
+    closeDonationModal(true);
+  }
+});
+
+window.setTimeout(() => openDonationModal(true), 30000);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examen 2do Parcial — Assembler 8086</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=DM+Serif+Display&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#08080f;--s:#0e0e1a;--s2:#161628;--acc:#e8a525;--g:#00e87b;--b:#5b8aff;--p:#d4a0ff;--txt:#ddd8cc;--mut:#706a60;--red:#ff4466;--cb:#0a0a15;--bd:#1e1e30;--gl:rgba(232,165,37,.12)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Source Serif 4',Georgia,serif;background:var(--bg);color:var(--txt);line-height:1.72;font-size:15.5px}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 25% 0%,rgba(232,165,37,.04),transparent 60%),radial-gradient(ellipse at 75% 100%,rgba(91,138,255,.03),transparent 60%);pointer-events:none;z-index:0}
+.layout{display:flex;min-height:100vh;position:relative;z-index:1}
+.side{width:255px;min-width:255px;background:var(--s);border-right:1px solid var(--bd);padding:20px 0;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:10}
+.side::-webkit-scrollbar{width:3px}.side::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+.side-logo{padding:0 18px 16px;border-bottom:1px solid var(--bd);margin-bottom:10px}
+.side-logo h1{font-family:'DM Serif Display',serif;font-size:17px;color:var(--acc);line-height:1.3}
+.side-logo .badge{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.15em;background:rgba(255,68,102,.15);color:var(--red);padding:2px 7px;border-radius:3px;margin-top:5px;border:1px solid rgba(255,68,102,.3)}
+.mode-toggle{display:flex;gap:5px;padding:8px 14px;margin-bottom:6px}
+.mode-btn{flex:1;font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.08em;padding:7px 4px;border:1px solid var(--bd);background:var(--s2);color:var(--mut);border-radius:4px;cursor:pointer;transition:all .2s;text-align:center}
+.mode-btn:hover{border-color:var(--acc);color:var(--txt)}.mode-btn.act{background:rgba(232,165,37,.12);border-color:var(--acc);color:var(--acc)}
+.ng{padding:3px 8px}
+.ngt{font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.18em;color:var(--acc);padding:7px 8px 3px;opacity:.7}
+.nl{display:block;padding:4px 9px;color:var(--mut);text-decoration:none;font-size:11.5px;border-radius:4px;transition:all .2s;cursor:pointer}
+.nl:hover{color:var(--txt);background:rgba(232,165,37,.05)}.nl.act{color:var(--acc);background:var(--gl)}
+.main-area{flex:1;display:flex;min-width:0}
+.content-col{flex:1;min-width:0;padding:32px 36px 140px;max-width:740px}
+h2{font-family:'DM Serif Display',serif;font-size:26px;color:var(--acc);margin-bottom:5px;line-height:1.2}
+h3{font-family:'DM Serif Display',serif;font-size:19px;color:var(--txt);margin:24px 0 7px}
+h4{font-family:'IBM Plex Mono',monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--g);margin:18px 0 5px}
+h5{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--b);margin:12px 0 4px;letter-spacing:.04em}
+.sub{font-size:14.5px;color:var(--mut);margin-bottom:20px;font-style:italic}
+p{margin-bottom:11px}
+.hl{color:var(--acc);font-weight:600}.gr{color:var(--g)}.bl{color:var(--b)}.rd{color:var(--red)}.pr{color:var(--p)}
+pre{background:var(--cb);border:1px solid var(--bd);border-left:3px solid var(--acc);border-radius:6px;padding:12px 16px;overflow-x:auto;margin:8px 0 14px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;line-height:1.82;color:#bbb5a8;white-space:pre}
+code{font-family:'IBM Plex Mono',monospace;font-size:.82em;background:var(--s2);padding:1px 4px;border-radius:3px;color:var(--g)}pre code{background:0 0;padding:0;font-size:inherit}
+.cc{color:#55504a}.ck{color:var(--acc)}.cv{color:var(--g)}.cr{color:var(--b)}.cl{color:var(--p)}.cs{color:#ff8866}.cd{color:#ff6aa5}
+.tw{overflow-x:auto;margin:12px 0 18px;border-radius:6px;border:1px solid var(--bd)}
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+th{background:var(--s2);font-family:'IBM Plex Mono',monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--acc);padding:7px 10px;text-align:left;border-bottom:1px solid var(--bd)}
+td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.5);vertical-align:top}
+tr:last-child td{border-bottom:none}tr:hover td{background:rgba(232,165,37,.02)}
+.note{background:linear-gradient(135deg,rgba(232,165,37,.07),rgba(232,165,37,.02));border:1px solid rgba(232,165,37,.2);border-radius:6px;padding:10px 14px;margin:12px 0 16px;font-size:14px}
+.note .nt{font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--acc);margin-bottom:3px}
+.tip{background:linear-gradient(135deg,rgba(0,232,123,.07),rgba(0,232,123,.02));border-color:rgba(0,232,123,.2)}.tip .nt{color:var(--g)}
+.warn{background:linear-gradient(135deg,rgba(255,68,102,.07),rgba(255,68,102,.02));border-color:rgba(255,68,102,.2)}.warn .nt{color:var(--red)}
+.blue{background:linear-gradient(135deg,rgba(91,138,255,.07),rgba(91,138,255,.02));border-color:rgba(91,138,255,.2)}.blue .nt{color:var(--b)}
+.eq{background:var(--s);border:1px solid var(--bd);border-radius:4px;padding:8px 16px;margin:8px 0;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--acc)}
+.stk{display:flex;flex-direction:column;align-items:center;gap:0;margin:10px auto;width:fit-content}
+.stk-cell{width:290px;min-height:34px;border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--s);padding:4px 8px;position:relative}
+.stk-cell.hl-c{border-color:var(--acc);background:rgba(232,165,37,.07)}
+.stk-cell.bp-c{border-color:var(--b);background:rgba(91,138,255,.07)}
+.stk-addr{position:absolute;right:-95px;font-size:9px;color:var(--mut);font-family:'IBM Plex Mono',monospace}
+.stk-lbl{position:absolute;left:-88px;font-size:8px;color:var(--acc);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.04em;text-align:right;width:80px}
+.stk-arr{position:absolute;right:-150px;font-size:9px;color:var(--acc);font-family:'IBM Plex Mono',monospace}
+.reg-row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.reg-b{background:var(--s);border:1px solid var(--bd);border-radius:6px;padding:9px;min-width:110px;text-align:center;flex:1}
+.reg-b.ch{border-color:var(--g);box-shadow:0 0 12px rgba(0,232,123,.08)}
+.reg-n{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--acc);margin-bottom:3px;letter-spacing:.1em}
+.reg-v{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;color:var(--txt)}
+.ex-card{background:linear-gradient(135deg,rgba(91,138,255,.05),rgba(91,138,255,.01));border:1px solid rgba(91,138,255,.16);border-radius:7px;padding:14px;margin:14px 0}
+.ex-card .et{font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--b);margin-bottom:3px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.term{background:#000;border:1px solid #333;border-radius:5px;padding:12px;margin:8px 0;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#0f0;min-height:30px;position:relative;overflow:hidden}
+.term::before{content:'C:\ASM>';position:absolute;top:3px;left:7px;font-size:8px;color:#555}
+.term .out{padding-top:10px}
+.term .cursor{display:inline-block;width:6px;height:13px;background:#0f0;animation:blink 1s infinite;vertical-align:middle;margin-left:2px}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+.iter-tbl td.hl-r{background:rgba(232,165,37,.07)}
+ol,ul{padding-left:17px;margin:7px 0 12px}li{margin-bottom:3px;color:var(--mut)}li strong{color:var(--txt)}
+.exam-zone{background:rgba(255,68,102,.03);border:1px dashed rgba(255,68,102,.2);border-radius:8px;padding:16px;margin:14px 0}
+.exam-zone .zl{font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.15em;color:var(--red);margin-bottom:6px}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--red);background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.2);border-radius:3px;padding:1px 7px;display:inline-block;margin-bottom:4px}
+.pts{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--mut);margin-left:6px}
+.qa-area{margin:6px 0}
+.qa-area textarea{width:100%;min-height:50px;background:var(--cb);border:1px solid var(--bd);border-radius:4px;padding:8px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--txt);resize:vertical;outline:none}
+.qa-area textarea:focus{border-color:var(--acc)}
+.sep{border:0;border-top:1px solid var(--bd);margin:28px 0}
+.ch-head{display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;user-select:none;background:var(--s);border:1px solid var(--bd);border-radius:6px;margin:5px 0;transition:all .2s}
+.ch-head:hover{border-color:var(--acc);background:rgba(232,165,37,.04)}
+.ch-head .ar{color:var(--acc);font-size:13px;transition:transform .2s;font-family:'IBM Plex Mono',monospace}
+.ch-head.open .ar{transform:rotate(90deg)}
+.ch-head .tl{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--txt)}
+.ch-body{display:none;padding:0 14px 14px;margin-top:-4px}.ch-body.open{display:block}
+.mobile-btn{display:none;position:fixed;top:7px;left:7px;z-index:100;background:var(--s2);border:1px solid var(--bd);border-radius:4px;padding:5px 9px;color:var(--acc);font-family:'IBM Plex Mono',monospace;font-size:13px;cursor:pointer}
+.ex-tabs{display:flex;gap:4px;margin-bottom:24px;padding:4px;background:var(--s);border:1px solid var(--bd);border-radius:8px}
+.ex-tab{flex:1;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;padding:10px 12px;border:none;background:transparent;color:var(--mut);cursor:pointer;border-radius:6px;transition:all .2s;letter-spacing:.04em;text-align:center}
+.ex-tab:hover{color:var(--txt);background:rgba(232,165,37,.05)}
+.ex-tab.act{color:var(--acc);background:rgba(232,165,37,.12);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.ex-panel{display:none}.ex-panel.show{display:block;animation:fadeUp .3s ease}
+.enun{background:linear-gradient(135deg,rgba(91,138,255,.08),rgba(91,138,255,.02));border:1px solid rgba(91,138,255,.25);border-radius:7px;padding:14px 16px;margin:0 0 22px}
+.enun .et{font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--b);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.enun .et .num{background:rgba(91,138,255,.15);border:1px solid rgba(91,138,255,.3);border-radius:3px;padding:1px 6px;font-size:9px}
+.enun p{margin:0;font-size:13.5px;line-height:1.7;color:var(--txt)}
+.enun ul{margin:6px 0 0;padding-left:16px}
+.enun li{font-size:12.5px;color:var(--mut);margin-bottom:2px}
+.method-panel{width:400px;min-width:400px;background:var(--s);border-left:1px solid var(--bd);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.method-panel::-webkit-scrollbar{width:3px}.method-panel::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+.mp-header{padding:14px 16px;border-bottom:1px solid var(--bd);flex-shrink:0}
+.mp-header h3{margin:0;font-family:'DM Serif Display',serif;font-size:16px;color:var(--acc)}
+.mp-header p{font-size:10px;color:var(--mut);font-family:'IBM Plex Mono',monospace;margin:3px 0 0;text-transform:uppercase;letter-spacing:.12em}
+.mp-tabs{display:flex;border-bottom:1px solid var(--bd);flex-shrink:0}
+.mp-tab{flex:1;padding:8px 4px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.05em}
+.mp-tab:hover{color:var(--txt)}.mp-tab.act{color:var(--acc);border-bottom-color:var(--acc);background:rgba(232,165,37,.04)}
+.mp-content{flex:1;overflow-y:auto;padding:16px}
+.mp-section{display:none}.mp-section.show{display:block}
+.mp-block{margin-bottom:18px}
+.mp-block h5{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--b);margin:0 0 6px;letter-spacing:.04em}
+.mp-block p,.mp-block li{font-size:13px;line-height:1.65}
+.mp-block pre{font-size:10.5px;padding:8px 10px;margin:6px 0}
+.mp-block .step{display:flex;gap:8px;margin:6px 0;align-items:flex-start}
+.mp-block .step-n{width:20px;height:20px;border-radius:50%;background:var(--s2);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--acc);flex-shrink:0;margin-top:2px}
+.mp-block .step-t{font-size:12.5px;color:var(--mut);line-height:1.6}
+.mp-block .step-t strong{color:var(--txt)}.mp-block .step-t code{font-size:11px}
+.mn{background:linear-gradient(135deg,rgba(0,232,123,.07),rgba(0,232,123,.02));border:1px solid rgba(0,232,123,.2);border-radius:5px;padding:8px 10px;margin:6px 0;font-size:12px}
+.mn .mnt{font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:var(--g);margin-bottom:3px}
+.mw{background:linear-gradient(135deg,rgba(255,68,102,.07),rgba(255,68,102,.02));border:1px solid rgba(255,68,102,.2);border-radius:5px;padding:8px 10px;margin:6px 0;font-size:12px}
+.mw .mwt{font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:var(--red);margin-bottom:3px}
+.mb{background:linear-gradient(135deg,rgba(91,138,255,.07),rgba(91,138,255,.02));border:1px solid rgba(91,138,255,.2);border-radius:5px;padding:8px 10px;margin:6px 0;font-size:12px}
+.mb .mbt{font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:var(--b);margin-bottom:3px}
+.stk-why{background:linear-gradient(135deg,rgba(212,160,255,.06),rgba(212,160,255,.01));border:1px solid rgba(212,160,255,.18);border-left:3px solid var(--p);border-radius:0 5px 5px 0;padding:8px 12px;margin:6px 0 14px;font-size:12.5px;line-height:1.7}
+.stk-why .syt{font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:var(--p);margin-bottom:3px}
+@media(max-width:1200px){.method-panel{display:none!important}.content-col{max-width:none}.mobile-btn{display:block}
+.main-area{display:block}.side{position:fixed;left:-270px;top:0;height:100vh;z-index:99;transition:left .3s}.side.open{left:0}.content-col{padding:36px 18px 80px}}
+</style>
+</head>
+<body>
+<button class="mobile-btn" onclick="document.querySelector('.side').classList.toggle('open')">☰</button>
+<div class="layout">
+
+<nav class="side">
+<div class="side-logo"><h1>Examen 2do Parcial</h1><div class="badge">Assembler 8086</div></div>
+<div class="mode-toggle">
+<button class="mode-btn act" onclick="setMode('exam')" id="btn-exam">Simulacro</button>
+<button class="mode-btn" onclick="setMode('res')" id="btn-res">Resuelto</button>
+</div>
+<div style="padding:0 14px 10px">
+<a href="menu.html" class="btn" style="width:100%;justify-content:center;text-decoration:none">Volver al menú</a>
+</div>
+<div class="ng"><div class="ngt">Páginas</div><a href="menu.html" class="nl">Menú de estudio</a></div>
+<div class="ng"><div class="ngt">Ejercicio 1</div>
+<a href="#e1-sim" class="nl ns">↳ Simulacro</a><a class="nl nr" style="display:none" onclick="goToEx('e1')">↳ Resolución</a></div>
+<div class="ng"><div class="ngt">Ejercicio 2</div>
+<a href="#e2-sim" class="nl ns">↳ Simulacro</a><a class="nl nr" style="display:none" onclick="goToEx('e2')">↳ Resolución</a></div>
+<div class="ng"><div class="ngt">Ejercicio 3</div>
+<a href="#e3-sim" class="nl ns">↳ Simulacro</a><a class="nl nr" style="display:none" onclick="goToEx('e3')">↳ Resolución</a></div>
+</nav>
+
+<div class="main-area">
+<div class="content-col">
+
+<!-- ════════ SIMULACRO ════════ -->
+<div id="mod-sim">
+<div class="note warn"><div class="nt">Modo Simulacro</div><p style="margin:0">Respondé cada pregunta en las cajas de texto. Cuando quieras ver la resolución con explicaciones, hacé clic en "Resuelto" arriba.</p></div>
+
+<section id="e1-sim">
+<h2>Ejercicio 1</h2><p class="sub">Subrutina de conversión ASCII</p>
+<div class="ex-card"><div class="et">Código</div></div>
+<pre><code><span class="cd">stack</span>
+<span class="cd">.data</span>
+  <span class="cv">dato1</span>      <span class="ck">db</span> <span class="cr">3</span>
+  <span class="cv">dato2</span>      <span class="ck">dw</span> <span class="cs">"3"</span>
+  <span class="cv">resultado</span>  <span class="ck">db</span> <span class="cr">?</span>
+<span class="cd">.code</span>
+<span class="cl">inicio:</span>
+  <span class="ck">mov</span> <span class="cr">ax</span>, <span class="cv">@data</span>
+  <span class="ck">mov</span> <span class="cr">ds</span>, <span class="cr">ax</span>
+  <span class="ck">mov</span> <span class="cr">ax</span>, <span class="cv">dato2</span>
+  <span class="ck">push</span> <span class="cr">ax</span>
+  <span class="ck">call</span> <span class="cl">subrutina</span>
+  <span class="ck">mov</span> <span class="cv">resultado</span>, <span class="cr">ah</span>
+  <span class="ck">mov</span> <span class="cr">ax</span>, <span class="cr">4C00h</span>
+  <span class="ck">int</span> <span class="cr">21h</span>
+<span class="cl">subrutina</span> <span class="ck">proc</span>
+  <span class="ck">push</span> <span class="cr">bp</span>
+  <span class="ck">mov</span> <span class="cr">bp</span>, <span class="cr">sp</span>
+  <span class="ck">mov</span> <span class="cr">bx</span>, <span class="cv">ss:[bp+4]</span>  <span class="cc">; ← Ref.nro1</span>
+  <span class="ck">cmp</span> <span class="cr">bl</span>, <span class="cs">"0"</span>
+  <span class="ck">jb</span> <span class="cl">label1</span>
+  <span class="ck">cmp</span> <span class="cr">bl</span>, <span class="cs">"9"</span>
+  <span class="ck">ja</span> <span class="cl">label1</span>
+  <span class="ck">sub</span> <span class="cr">bl</span>, <span class="cs">"0"</span>
+  <span class="ck">mov</span> <span class="cr">ah</span>, <span class="cr">bl</span>
+  <span class="ck">pop</span> <span class="cr">bp</span>
+  <span class="ck">ret</span> <span class="cr">2</span>
+<span class="cl">label1:</span>
+  <span class="ck">mov</span> <span class="cr">ah</span>, <span class="cs">"#"</span>
+  <span class="ck">pop</span> <span class="cr">bp</span>
+  <span class="ck">ret</span> <span class="cr">2</span>
+<span class="cl">subrutina</span> <span class="ck">endp</span>
+<span class="ck">end</span> <span class="cl">inicio</span></code></pre>
+<div class="exam-zone"><div class="zl">Zona de respuestas</div>
+<p><span class="q-num">1a</span><span class="pts">[2,5]</span> Estado de BX tras Ref.nro1</p>
+<div class="qa-area"><textarea placeholder="Tu respuesta..."></textarea></div>
+<p><span class="q-num">1b</span><span class="pts">[2,5]</span> Dirección de ss:[bp+4] (SS=0710:0100)</p>
+<div class="qa-area"><textarea placeholder="Tu respuesta..."></textarea></div>
+<p><span class="q-num">1c</span><span class="pts">[2,5]</span> Gráfico de la pila</p>
+<div class="qa-area"><textarea placeholder="Dibujá la pila..." style="min-height:100px"></textarea></div>
+<p><span class="q-num">1d</span><span class="pts">[2,5]</span> Mapa de memoria (DS=0720:0000)</p>
+<div class="qa-area"><textarea placeholder="Mapa de memoria..." style="min-height:80px"></textarea></div>
+</div>
+</section>
+<hr class="sep">
+
+<section id="e2-sim">
+<h2>Ejercicio 2</h2><p class="sub">Impresión y limpieza de pila</p>
+<div class="ex-card"><div class="et">Código</div></div>
+<pre><code><span class="cd">.model small</span>
+<span class="cd">.stack</span>
+<span class="cd">.data</span>
+  <span class="cv">var1</span>  <span class="ck">DB</span> <span class="cr">11</span>
+  <span class="cv">var2</span>  <span class="ck">DB</span> <span class="cr">43h</span>
+  <span class="cv">var3</span>  <span class="ck">DB</span> <span class="cs">"Entrada:5"</span>
+<span class="cd">.code</span>
+<span class="cl">inicio:</span>
+  <span class="ck">mov</span> <span class="cr">ax</span>, <span class="cv">@data</span>
+  <span class="ck">mov</span> <span class="cr">ds</span>, <span class="cr">ax</span>
+  <span class="ck">push</span> <span class="cr">ax</span>
+  <span class="ck">mov</span> <span class="cr">dx</span>, <span class="cv">offset var2</span>
+  <span class="ck">push</span> <span class="cr">dx</span>
+  <span class="ck">call</span> <span class="cl">subrutina</span>
+  <span class="ck">mov</span> <span class="cr">ax</span>, <span class="cr">4C00h</span>
+  <span class="ck">int</span> <span class="cr">21h</span>
+<span class="cl">subrutina</span> <span class="ck">proc</span>
+  <span class="ck">push</span> <span class="cr">bp</span>
+  <span class="ck">mov</span> <span class="cr">bp</span>, <span class="cr">sp</span>
+  <span class="ck">mov</span> <span class="cr">dx</span>, <span class="cv">offset var3</span>
+  <span class="ck">mov</span> <span class="cr">ah</span>, <span class="cr">09h</span>
+  <span class="ck">int</span> <span class="cr">21h</span>
+  <span class="ck">mov</span> <span class="cr">bx</span>, <span class="cv">ss:[bp+4]</span>
+  <span class="ck">mov</span> <span class="cr">dl</span>, <span class="cv">ds:[bx]</span>
+  <span class="ck">mov</span> <span class="cr">ah</span>, <span class="cr">02h</span>
+  <span class="ck">int</span> <span class="cr">21h</span>
+  <span class="ck">pop</span> <span class="cr">bp</span>
+  <span class="ck">ret</span> <span class="cr">?</span>
+<span class="cl">subrutina</span> <span class="ck">endp</span>
+<span class="ck">end</span> <span class="cl">inicio</span></code></pre>
+<div class="exam-zone"><div class="zl">Zona de respuestas</div>
+<p><span class="q-num">2a</span><span class="pts">[3]</span> ¿Qué valor de RET asegura correcta salida de pila?</p>
+<div class="qa-area"><textarea placeholder="Tu respuesta..."></textarea></div>
+<p><span class="q-num">2b</span><span class="pts">[3]</span> Salida por pantalla</p>
+<div class="qa-area"><textarea placeholder="Qué se muestra en pantalla..."></textarea></div>
+<p><span class="q-num">2c</span><span class="pts">[4]</span> Mapa de memoria (DS=0720:0000, SS=0710:0100)</p>
+<div class="qa-area"><textarea placeholder="Mapa..." style="min-height:80px"></textarea></div>
+</div>
+</section>
+<hr class="sep">
+
+<section id="e3-sim">
+<h2>Ejercicio 3</h2><p class="sub">Buscar el mayor de un arreglo</p>
+<div class="ex-card"><div class="et">Código</div></div>
+<pre><code><span class="cd">.model small</span>
+<span class="cd">.stack</span>
+<span class="cd">.data</span>
+  <span class="cv">arreglo</span>  <span class="ck">dw</span> <span class="cs">'5','6','1','4','8','7'</span>
+  <span class="cv">str1</span>     <span class="ck">db</span> <span class="cs">'El mayor es: $'</span>
+  <span class="cv">mayor</span>    <span class="ck">dw</span> <span class="cr">?</span>
+  <span class="cv">long</span>     <span class="ck">dw</span> <span class="cr">6</span>
+<span class="cd">.code</span>
+<span class="cl">inicio:</span>
+  <span class="ck">mov</span> <span class="cr">ax</span>, <span class="cv">@data</span>
+  <span class="ck">mov</span> <span class="cr">ds</span>, <span class="cr">ax</span>
+  <span class="ck">push</span> <span class="cv">offset arreglo</span>
+  <span class="ck">push</span> <span class="cv">long</span>
+  <span class="ck">call</span> <span class="cl">mayorArreglo</span>
+  <span class="ck">mov</span> <span class="cr">bx</span>, <span class="cr">ax</span>
+  <span class="ck">mov</span> <span class="cv">mayor</span>, <span class="cr">bx</span>
+  <span class="ck">mov</span> <span class="cr">dx</span>, <span class="cv">offset str1</span>
+  <span class="ck">mov</span> <span class="cr">ah</span>, <span class="cr">09h</span>
+  <span class="ck">int</span> <span class="cr">21h</span>
+  <span class="ck">mov</span> <span class="cr">dl</span>, <span class="cr">bl</span>
+  <span class="ck">mov</span> <span class="cr">ah</span>, <span class="cr">02h</span>
+  <span class="ck">int</span> <span class="cr">21h</span>
+  <span class="ck">mov</span> <span class="cr">ax</span>, <span class="cr">4c00h</span>
+  <span class="ck">int</span> <span class="cr">21h</span>
+<span class="cl">mayorArreglo</span> <span class="ck">proc</span>
+  <span class="ck">push</span> <span class="cr">bp</span>
+  <span class="ck">mov</span> <span class="cr">bp</span>, <span class="cr">sp</span>
+  <span class="ck">mov</span> <span class="cr">bx</span>, <span class="cv">ss:[bp+6]</span>
+  <span class="ck">mov</span> <span class="cr">cx</span>, <span class="cv">ss:[bp+4]</span>
+  <span class="ck">mov</span> <span class="cr">ax</span>, <span class="cr">0</span>
+<span class="cl">iterar:</span>
+  <span class="ck">cmp</span> <span class="cv">ds:[bx]</span>, <span class="cr">ax</span>
+  <span class="ck">jl</span> <span class="cl">menor</span>
+  <span class="ck">mov</span> <span class="cr">ax</span>, <span class="cv">ds:[bx]</span>     <span class="cc">; ← X</span>
+<span class="cl">menor:</span>
+  <span class="ck">add</span> <span class="cr">bx</span>, <span class="cr">2</span>
+  <span class="ck">loop</span> <span class="cl">iterar</span>
+  <span class="ck">pop</span> <span class="cr">bp</span>
+  <span class="ck">ret</span> <span class="cr">4</span>
+<span class="cl">mayorArreglo</span> <span class="ck">endp</span>
+<span class="ck">END</span> <span class="cl">inicio</span></code></pre>
+<div class="exam-zone"><div class="zl">Zona de respuestas</div>
+<p><span class="q-num">3a</span><span class="pts">[2,5]</span> Mapa de memoria (DS=0720:0000)</p>
+<div class="qa-area"><textarea placeholder="Mapa..." style="min-height:80px"></textarea></div>
+<p><span class="q-num">3b</span><span class="pts">[2]</span> Estado de registros</p>
+<div class="qa-area"><textarea placeholder="Tabla..." style="min-height:60px"></textarea></div>
+<p><span class="q-num">3c</span><span class="pts">[2,5]</span> Diagrama de pila (SS=0710:0100)</p>
+<div class="qa-area"><textarea placeholder="Pila..." style="min-height:80px"></textarea></div>
+<p><span class="q-num">3d</span><span class="pts">[2]</span> Salida de pantalla</p>
+<div class="qa-area"><textarea placeholder="Pantalla..."></textarea></div>
+<p><span class="q-num">3e</span><span class="pts">[1]</span> AX luego de la 3ra iteración</p>
+<div class="qa-area"><textarea placeholder="Valor..."></textarea></div>
+</div>
+</section>
+</div>
+
+<!-- ════════ RESUELTO ════════ -->
+<div id="mod-res" style="display:none">
+<div class="note tip"><div class="nt">Modo Resuelto</div><p style="margin:0">Elegí un ejercicio. Acá vas a ver el enunciado, el paso a paso del código y la resolución de cada pregunta. A la derecha tenés el panel de <strong>metodología</strong> como referencia rápida.</p></div>
+
+<div class="ex-tabs">
+<button class="ex-tab act" data-extab="e1" onclick="showExTab('e1',this)">Ejercicio 1</button>
+<button class="ex-tab" data-extab="e2" onclick="showExTab('e2',this)">Ejercicio 2</button>
+<button class="ex-tab" data-extab="e3" onclick="showExTab('e3',this)">Ejercicio 3</button>
+</div>
+
+<!-- ─────── EJ1 RES ─────── -->
+<div class="ex-panel show" id="ex-e1">
+<div class="enun"><div class="et"><span class="num">1</span> Enunciado original</div>
+<p>Analizar el siguiente programa en Assembler 8086. El mismo contiene una subrutina que recibe un valor word por la pila. La subrutina verifica si el byte bajo (BL) es un dígito ASCII ('0' a '9'). Si lo es, lo convierte a su valor numérico restando '0' y lo devuelve en AH. Si no es un dígito, devuelve el carácter '#' en AH.</p>
+<ul>
+<li><span class="q-num">1a</span> Estado de BX tras la instrucción Ref.nro1 <span class="pts">[2,5]</span></li>
+<li><span class="q-num">1b</span> Dirección lógica y física de ss:[bp+4] (SS=0710:0100) <span class="pts">[2,5]</span></li>
+<li><span class="q-num">1c</span> Diagrama de la pila en cada etapa del programa <span class="pts">[2,5]</span></li>
+<li><span class="q-num">1d</span> Mapa de memoria final del segmento de datos (DS=0720:0000) <span class="pts">[2,5]</span></li>
+</ul>
+</div>
+
+<section id="e1-res">
+<h2>Ejercicio 1 — Resolución</h2>
+<h3>¿Qué hace este programa?</h3>
+<p>Tiene una subrutina que recibe un valor por la pila. Si el byte bajo es un dígito ('0'-'9'), lo convierte a número y lo devuelve en AH. Si no, devuelve '#'.</p>
+<div class="note blue"><div class="nt">En alto nivel sería</div><pre style="margin:4px 0 0"><code><span class="ck">char</span> convertir(<span class="ck">char</span> c) {
+  <span class="ck">if</span>(c >= <span class="cs">'0'</span> && c <= <span class="cs">'9'</span>)
+    <span class="ck">return</span> c - <span class="cs">'0'</span>;
+  <span class="ck">else return</span> <span class="cs">'#'</span>;
+}</code></pre></div>
+
+<h4>Análisis de variables</h4>
+<div class="tw"><table>
+<tr><th>Dir.</th><th>Hex</th><th>Variable</th><th>Explicación</th></tr>
+<tr><td>0720:0000</td><td><code>03h</code></td><td>dato1</td><td><code>DB 3</code> → un byte, valor 3</td></tr>
+<tr><td>0720:0001</td><td><code>33h</code></td><td>dato2↓</td><td rowspan="2"><code>DW "3"</code> → ASCII de '3'=33h, como word=0033h, little endian: 33h,00h</td></tr>
+<tr><td>0720:0002</td><td><code>00h</code></td><td>dato2↑</td></tr>
+<tr><td>0720:0003</td><td><code>??h</code></td><td>resultado</td><td><code>DB ?</code> → sin inicializar</td></tr>
+</table></div>
+
+<h4>Pregunta 1a — Estado de BX tras Ref.nro1</h4>
+<div class="ch-head" onclick="tog(this)"><span class="ar">▸</span><span class="tl">Ver resolución</span></div>
+<div class="ch-body">
+<p><strong>Paso 1:</strong> <code>mov ax, dato2</code> → ¿qué valor tiene dato2? Es DW (word), así que el ensamblador lee 2 bytes desde su offset (0001h). Byte bajo=33h, byte alto=00h → AX = <strong>0033h</strong>.</p>
+<p><strong>Paso 2:</strong> <code>push ax</code> → se apila 0033h.</p>
+<p><strong>Paso 3:</strong> <code>call subrutina</code> → se apila IP.</p>
+<p><strong>Paso 4:</strong> <code>push bp; mov bp, sp</code> → BP = SP actual.</p>
+<p><strong>Paso 5:</strong> <code>mov bx, ss:[bp+4]</code> → lee el word que está 4 bytes por encima de BP. Esa posición tiene el 0033h que se apiló con <code>push ax</code>.</p>
+<div class="eq">BX = <span class="gr">0033h</span> (BH=00h, BL=33h)</div>
+</div>
+
+<h4>Pregunta 1b — Dirección de ss:[bp+4] (SS=0710:0100)</h4>
+<div class="ch-head" onclick="tog(this)"><span class="ar">▸</span><span class="tl">Ver resolución</span></div>
+<div class="ch-body">
+<p>SP arranca en 0100h. Tras <code>push ax</code> baja a 00FEh. Tras <code>call</code> baja a 00FCh. Tras <code>push bp</code> baja a 00FAh. BP = 00FAh.</p>
+<div class="eq">BP + 4 = 00FAh + 4 = <span class="gr">00FEh</span> → Dirección: SS:00FEh = <span class="gr">0710:00FEh</span></div>
+</div>
+
+<h4>Pregunta 1c — Diagrama de la pila en cada etapa</h4>
+<div class="ch-head" onclick="tog(this)"><span class="ar">▸</span><span class="tl">Ver diagrama</span></div>
+<div class="ch-body">
+
+<h5>Pila vacía</h5>
+<div class="stk"><div class="stk-cell" style="border-style:dashed;color:var(--mut)">[vacío]<span class="stk-addr">0710:0100</span><span class="stk-lbl">← SP</span></div></div>
+<div class="stk-why"><div class="syt">Por qué</div>SP comienza en 0100h porque es el valor inicial del tope de pila al arrancar el programa. Todavía no se ejecutó ningún PUSH, así que la pila está vacía y SP apunta al final del segmento de pila.</div>
+
+<h5>Tras <code>push ax</code></h5>
+<div class="stk"><div class="stk-cell" style="border-style:dashed;color:var(--mut)">[vacío]<span class="stk-addr">0710:0100</span></div><div class="stk-cell hl-c"><strong>0033h</strong><span class="stk-addr">0710:00FE</span><span class="stk-lbl">← SP</span></div></div>
+<div class="stk-why"><div class="syt">Por qué</div>La instrucción <code>push ax</code> ejecuta dos micro-operaciones en orden: <strong>(1)</strong> decrementa SP en 2 (0100h → 00FEh), <strong>(2)</strong> escribe el valor de AX (0033h) en la dirección SS:00FEh. La pila crece siempre hacia direcciones más bajas. Por eso el valor queda en 00FEh y no en 0100h.</div>
+
+<h5>Tras <code>call subrutina</code></h5>
+<div class="stk"><div class="stk-cell" style="border-style:dashed;color:var(--mut)">[vacío]<span class="stk-addr">0710:0100</span></div><div class="stk-cell hl-c"><strong>0033h</strong><span class="stk-addr">0710:00FE</span></div><div class="stk-cell"><em>ret IP</em><span class="stk-addr">0710:00FC</span><span class="stk-lbl">← SP</span></div></div>
+<div class="stk-why"><div class="syt">Por qué</div>La instrucción <code>call</code> funciona internamente como un <code>push</code>: <strong>(1)</strong> decrementa SP en 2 (00FEh → 00FCh), <strong>(2)</strong> guarda la dirección de retorno (el offset de la instrucción siguiente al CALL) en SS:00FCh. Esto es lo que permite que <code>ret</code> sepa a dónde volver cuando termine la subrutina.</div>
+
+<h5>Tras <code>push bp</code> + <code>mov bp, sp</code></h5>
+<div class="stk"><div class="stk-cell" style="border-style:dashed;color:var(--mut)">[vacío]<span class="stk-addr">0710:0100</span></div><div class="stk-cell hl-c"><strong>0033h</strong><span class="stk-addr">0710:00FE</span><span class="stk-arr">← BP+4</span></div><div class="stk-cell"><em>ret IP</em><span class="stk-addr">0710:00FC</span><span class="stk-arr">← BP+2</span></div><div class="stk-cell bp-c"><strong>BP viejo</strong><span class="stk-addr">0710:00FA</span><span class="stk-lbl">← BP=SP</span><span class="stk-arr">← BP+0</span></div></div>
+<div class="stk-why"><div class="syt">Por qué</div><code>push bp</code> guarda el valor anterior de BP (para no perderlo) y baja SP a 00FAh. Luego <code>mov bp, sp</code> copia SP a BP. Ahora BP funciona como "ancla": <strong>BP+0</strong> = BP viejo, <strong>BP+2</strong> = dirección de retorno, <strong>BP+4</strong> = 0033h (el parámetro). Los offsets +4 y +6 siempre se calculan así: 2 bytes del BP guardado + 2 bytes del retorno = 4 bytes de distancia al primer parámetro.</div>
+
+<h5>Tras <code>pop bp</code></h5>
+<div class="stk"><div class="stk-cell" style="border-style:dashed;color:var(--mut)">[vacío]<span class="stk-addr">0710:0100</span></div><div class="stk-cell hl-c"><strong>0033h</strong><span class="stk-addr">0710:00FE</span></div><div class="stk-cell"><em>ret IP</em><span class="stk-addr">0710:00FC</span><span class="stk-lbl">← SP</span></div></div>
+<div class="stk-why"><div class="syt">Por qué</div><code>pop bp</code> recupera el BP guardado (lee SS:00FAh → BP) y luego incrementa SP en 2 (00FAh → 00FCh). Es la operación inversa del <code>push bp</code>. El bloque del BP viejo se "saca" de la pila y SP sube.</div>
+
+<h5>Tras <code>ret 2</code></h5>
+<div class="stk"><div class="stk-cell" style="border-style:dashed;color:var(--mut)">[vacío]<span class="stk-addr">0710:0100</span><span class="stk-lbl">← SP</span></div></div>
+<div class="stk-why"><div class="syt">Por qué</div><code>ret 2</code> hace tres cosas: <strong>(1)</strong> saca la dirección de retorno de la pila (lee SS:00FCh → IP, SP sube a 00FEh), <strong>(2)</strong> suma 2 al SP (00FEh → 0100h) para limpiar el parámetro que se había apilado con <code>push ax</code>. El operando "2" del ret indica cuántos bytes de parámetros limpiar. Así la pila queda exactamente como al principio del programa.</div>
+</div>
+
+<h4>Pregunta 1d — Mapa de memoria final (DS=0720:0000)</h4>
+<div class="ch-head" onclick="tog(this)"><span class="ar">▸</span><span class="tl">Ver mapa</span></div>
+<div class="ch-body">
+<div class="tw"><table>
+<tr><th>Dir.</th><th>Hex</th><th>Variable</th><th>¿Cambió?</th></tr>
+<tr><td>0720:0000</td><td><code>03h</code></td><td>dato1</td><td>No</td></tr>
+<tr><td>0720:0001</td><td><code>33h</code></td><td>dato2↓</td><td>No</td></tr>
+<tr><td>0720:0002</td><td><code>00h</code></td><td>dato2↑</td><td>No</td></tr>
+<tr style="background:rgba(0,232,123,.06)"><td>0720:0003</td><td><code class="gr">03h</code></td><td><strong>resultado★</strong></td><td><strong class="gr">SÍ</strong></td></tr>
+</table></div>
+<p>Pila: vacía. Flujo: '3'(33h) entra → subrutina verifica dígito → resta '0'(30h) → obtiene 03h → lo pone en AH → resultado=AH=03h.</p>
+</div>
+</section>
+</div>
+
+<!-- ─────── EJ2 RES ─────── -->
+<div class="ex-panel" id="ex-e2">
+<div class="enun"><div class="et"><span class="num">2</span> Enunciado original</div>
+<p>Analizar el siguiente programa en Assembler 8086. Contiene una subrutina que imprime un string almacenado en <code>var3</code> usando INT 21h (AH=09h), y luego obtiene un offset pasado por pila para leer un byte del segmento de datos e imprimirlo como carácter con INT 21h (AH=02h).</p>
+<ul>
+<li><span class="q-num">2a</span> ¿Qué valor debe tener el operando del RET para asegurar correcta salida de pila? <span class="pts">[3]</span></li>
+<li><span class="q-num">2b</span> ¿Qué se muestra por pantalla al ejecutar el programa? <span class="pts">[3]</span></li>
+<li><span class="q-num">2c</span> Mapa de memoria final (DS=0720:0000, SS=0710:0100) <span class="pts">[4]</span></li>
+</ul>
+</div>
+
+<section id="e2-res">
+<h2>Ejercicio 2 — Resolución</h2>
+<h3>¿Qué hace este programa?</h3>
+<p>La subrutina imprime "Entrada:5" con INT 21h/AH=09h. Luego recibe un offset por pila (el de var2), lee el byte en esa dirección (43h = 'C') y lo imprime con INT 21h/AH=02h.</p>
+
+<h3>Variables</h3>
+<div class="tw"><table>
+<tr><th>Off</th><th>Hex</th><th>ASCII</th><th>Var</th></tr>
+<tr><td>0000</td><td><code>0Bh</code></td><td>·</td><td>var1</td></tr>
+<tr><td>0001</td><td><code>43h</code></td><td>'C'</td><td>var2</td></tr>
+<tr><td>0002</td><td><code>45h</code></td><td>'E'</td><td>var3[0]</td></tr>
+<tr><td>0003</td><td><code>6Eh</code></td><td>'n'</td><td>var3[1]</td></tr>
+<tr><td>0004</td><td><code>74h</code></td><td>'t'</td><td>var3[2]</td></tr>
+<tr><td>0005</td><td><code>72h</code></td><td>'r'</td><td>var3[3]</td></tr>
+<tr><td>0006</td><td><code>61h</code></td><td>'a'</td><td>var3[4]</td></tr>
+<tr><td>0007</td><td><code>64h</code></td><td>'d'</td><td>var3[5]</td></tr>
+<tr><td>0008</td><td><code>61h</code></td><td>'a'</td><td>var3[6]</td></tr>
+<tr><td>0009</td><td><code>3Ah</code></td><td>':'</td><td>var3[7]</td></tr>
+<tr><td>000A</td><td><code>35h</code></td><td>'5'</td><td>var3[8]</td></tr>
+</table></div>
+
+<h4>Pregunta 2a — ¿Qué valor de RET asegura correcta salida de pila?</h4>
+<div class="ch-head" onclick="tog(this)"><span class="ar">▸</span><span class="tl">Ver resolución</span></div>
+<div class="ch-body">
+<p>Antes del CALL hay 2 PUSH: <code>push ax</code> (2 bytes) + <code>push dx</code> (2 bytes) = <strong>4 bytes</strong> de parámetros.</p>
+<div class="eq">ret N → N = 4 &nbsp; → &nbsp; <code class="gr">ret 4</code></div>
+</div>
+
+<h4>Pregunta 2b — ¿Qué se muestra por pantalla?</h4>
+<div class="ch-head" onclick="tog(this)"><span class="ar">▸</span><span class="tl">Ver resolución</span></div>
+<div class="ch-body">
+<p><strong>1ra INT 21h</strong> (AH=09h, DX=offset var3) → imprime <strong>"Entrada:5"</strong> (hasta el '$').</p>
+<p><strong>2da INT 21h</strong>: bx = ss:[bp+4] = 0001h (offset de var2). dl = ds:[0001h] = 43h = 'C'. AH=02h → imprime <strong>'C'</strong>.</p>
+<div class="term"><div class="out">Entrada:5C<span class="cursor"></span></div></div>
+</div>
+
+<h4>Pregunta 2c — Mapa de memoria final</h4>
+<div class="ch-head" onclick="tog(this)"><span class="ar">▸</span><span class="tl">Ver mapa</span></div>
+<div class="ch-body">
+<p><strong>Nada cambió.</strong> La subrutina solo usó INT 21h para imprimir (lee memoria, no escribe). No hay ninguna instrucción <code>mov variable, registro</code> que modifique el segmento de datos. Pila queda vacía tras el ret 4.</p>
+</div>
+</section>
+</div>
+
+<!-- ─────── EJ3 RES ─────── -->
+<div class="ex-panel" id="ex-e3">
+<div class="enun"><div class="et"><span class="num">3</span> Enunciado original</div>
+<p>El siguiente programa en Assembler 8086 recibe por pila la dirección de un arreglo de words (caracteres ASCII) y su longitud. La subrutina <code>mayorArreglo</code> recorre el arreglo buscando el mayor elemento y lo devuelve en AX. El programa principal guarda el resultado en la variable <code>mayor</code> y lo muestra por pantalla.</p>
+<ul>
+<li><span class="q-num">3a</span> Mapa de memoria del segmento de datos (DS=0720:0000) <span class="pts">[2,5]</span></li>
+<li><span class="q-num">3b</span> Estado de los registros al finalizar el bucle <span class="pts">[2]</span></li>
+<li><span class="q-num">3c</span> Diagrama de la pila (SS=0710:0100) <span class="pts">[2,5]</span></li>
+<li><span class="q-num">3d</span> Salida por pantalla <span class="pts">[2]</span></li>
+<li><span class="q-num">3e</span> Valor de AX luego de la tercera iteración <span class="pts">[1]</span></li>
+</ul>
+</div>
+
+<section id="e3-res">
+<h2>Ejercicio 3 — Resolución</h2>
+<h3>¿Qué hace este programa?</h3>
+<p>Recibe un arreglo de words y su longitud. Recorre el arreglo comparando cada elemento con el máximo actual. Si el elemento es mayor, lo reemplaza. Al final devuelve el mayor en AX, lo guarda en <code>mayor</code>, e imprime "El mayor es: " seguido del carácter correspondiente.</p>
+
+<h3>Arreglo (caracteres ASCII como words)</h3>
+<div class="tw"><table>
+<tr><th>Pos</th><th>Char</th><th>Dec</th><th>Word</th></tr>
+<tr><td>[0]</td><td>'5'</td><td>53</td><td>0035h</td></tr>
+<tr><td>[1]</td><td>'6'</td><td>54</td><td>0036h</td></tr>
+<tr><td>[2]</td><td>'1'</td><td>49</td><td>0031h</td></tr>
+<tr><td>[3]</td><td>'4'</td><td>52</td><td>0034h</td></tr>
+<tr><td>[4]</td><td>'8'</td><td>56</td><td>0038h</td></tr>
+<tr><td>[5]</td><td>'7'</td><td>55</td><td>0037h</td></tr>
+</table></div>
+<p>El mayor es 56 = 0038h = '8'.</p>
+
+<h4>Pregunta 3a — Mapa de memoria (DS=0720:0000)</h4>
+<div class="ch-head" onclick="tog(this)"><span class="ar">▸</span><span class="tl">Ver mapa</span></div>
+<div class="ch-body">
+<div class="tw"><table>
+<tr><th>Dir.</th><th>Hex</th><th>Var</th></tr>
+<tr><td>00-01</td><td>35h,00h</td><td>arreglo[0]</td></tr>
+<tr><td>02-03</td><td>36h,00h</td><td>arreglo[1]</td></tr>
+<tr><td>04-05</td><td>31h,00h</td><td>arreglo[2]</td></tr>
+<tr><td>06-07</td><td>34h,00h</td><td>arreglo[3]</td></tr>
+<tr><td>08-09</td><td>38h,00h</td><td>arreglo[4]</td></tr>
+<tr><td>0A-0B</td><td>37h,00h</td><td>arreglo[5]</td></tr>
+<tr><td>0C-19</td><td>"El mayor es: $"</td><td>str1</td></tr>
+<tr style="background:rgba(0,232,123,.06)"><td>1A-1B</td><td><code class="gr">38h,00h</code></td><td><strong>mayor★</strong></td></tr>
+<tr><td>1C-1D</td><td>06h,00h</td><td>long</td></tr>
+</table></div>
+<p><code>mayor</code> cambió de ??h a 38h,00h porque el programa ejecutó <code>mov mayor, bx</code> y BX=0038h (el mayor encontrado).</p>
+</div>
+
+<h4>Pregunta 3b — Estado de registros al finalizar el bucle</h4>
+<div class="ch-head" onclick="tog(this)"><span class="ar">▸</span><span class="tl">Ver tabla</span></div>
+<div class="ch-body">
+<div class="tw iter-tbl"><table>
+<tr><th>Iter</th><th>CX</th><th>ds:[bx]</th><th>Dec</th><th>AX antes</th><th>¿menor?</th><th>¿X?</th><th>AX después</th></tr>
+<tr class="hl-r"><td>1</td><td>6→5</td><td>0035h</td><td>53</td><td>0000h</td><td>No</td><td>Sí</td><td><strong class="gr">0035h</strong></td></tr>
+<tr><td>2</td><td>5→4</td><td>0036h</td><td>54</td><td>0035h</td><td>No</td><td>Sí</td><td><strong class="gr">0036h</strong></td></tr>
+<tr class="hl-r"><td>3</td><td>4→3</td><td>0031h</td><td>49</td><td>0036h</td><td><strong class="bl">Sí</strong></td><td><strong class="rd">No</strong></td><td>0036h</td></tr>
+<tr><td>4</td><td>3→2</td><td>0034h</td><td>52</td><td>0036h</td><td><strong class="bl">Sí</strong></td><td><strong class="rd">No</strong></td><td>0036h</td></tr>
+<tr class="hl-r"><td>5</td><td>2→1</td><td>0038h</td><td>56</td><td>0036h</td><td>No</td><td>Sí</td><td><strong class="gr">0038h</strong></td></tr>
+<tr><td>6</td><td>1→0</td><td>0037h</td><td>55</td><td>0038h</td><td><strong class="bl">Sí</strong></td><td><strong class="rd">No</strong></td><td>0038h</td></tr>
+</table></div>
+<div class="reg-row">
+<div class="reg-b ch"><div class="reg-n">AX</div><div class="reg-v gr">0038h</div></div>
+<div class="reg-b ch"><div class="reg-n">BX</div><div class="reg-v gr">0038h</div></div>
+<div class="reg-b"><div class="reg-n">CX</div><div class="reg-v">0000h</div></div>
+<div class="reg-b"><div class="reg-n">DX</div><div class="reg-v">0938h</div></div>
+</div>
+</div>
+
+<h4>Pregunta 3c — Diagrama de pila (SS=0710:0100)</h4>
+<div class="ch-head" onclick="tog(this)"><span class="ar">▸</span><span class="tl">Ver pila</span></div>
+<div class="ch-body">
+
+<h5>Tras los 2 PUSH en el main</h5>
+<div class="stk"><div class="stk-cell" style="border-style:dashed;color:var(--mut)">[vacío]<span class="stk-addr">0710:0100</span></div><div class="stk-cell hl-c"><strong>0006h</strong><span class="stk-addr">00FE</span></div><div class="stk-cell hl-c"><strong>0000h</strong><span class="stk-addr">00FC</span><span class="stk-lbl">← SP</span></div></div>
+<div class="stk-why"><div class="syt">Por qué</div><strong>Primero</strong> se ejecuta <code>push offset arreglo</code>: SP baja de 0100h a 00FEh, y se escribe 0000h (el offset del arreglo) en SS:00FEh. <strong>Después</strong> se ejecuta <code>push long</code>: SP baja de 00FEh a 00FCh, y se escribe 0006h (el valor de long) en SS:00FCh. El orden importa: el primer parámetro quedó más "adentro" de la pila (luego será BP+6) y el segundo más cerca del tope (será BP+4). Esto es porque se leen de la pila en orden inverso al que se apilan.</div>
+
+<h5>En subrutina (CALL + PUSH BP)</h5>
+<div class="stk"><div class="stk-cell" style="border-style:dashed;color:var(--mut)">[vacío]<span class="stk-addr">0100</span></div><div class="stk-cell hl-c"><strong>0006h</strong><span class="stk-addr">00FE</span><span class="stk-arr">← BP+4</span></div><div class="stk-cell hl-c"><strong>0000h</strong><span class="stk-addr">00FC</span><span class="stk-arr">← BP+6</span></div><div class="stk-cell"><em>ret IP</em><span class="stk-addr">00FA</span><span class="stk-arr">← BP+2</span></div><div class="stk-cell bp-c"><strong>BP viejo</strong><span class="stk-addr">00F8</span><span class="stk-lbl">← BP=SP</span><span class="stk-arr">← BP+0</span></div></div>
+<div class="stk-why"><div class="syt">Por qué</div><strong>CALL:</strong> SP baja de 00FCh a 00FAh, guardando la dirección de retorno (IP). Esto permite que <code>ret</code> sepa a dónde volver. <strong>PUSH BP:</strong> SP baja de 00FAh a 00F8h, guardando el BP viejo para preservarlo. Luego <code>mov bp, sp</code> fija BP=00F8h. Ahora los parámetros se acceden así: <code>ss:[bp+4]</code> = SS:00FCh = 0000h (offset arreglo, el primer push), <code>ss:[bp+6]</code> = SS:00FEh = 0006h (long, el segundo push). La distancia de 4 bytes se explica por: 2 (BP viejo) + 2 (retorno) = 4 bytes de separación entre BP y el primer parámetro.</div>
+
+<h5>Tras POP BP + RET 4</h5>
+<div class="stk"><div class="stk-cell" style="border-style:dashed;color:var(--mut)">[vacío]<span class="stk-addr">0710:0100</span><span class="stk-lbl">← SP</span></div></div>
+<div class="stk-why"><div class="syt">Por qué</div><strong>POP BP:</strong> recupera el BP viejo (lee SS:00F8h → BP) y SP sube a 00FAh. <strong>RET 4:</strong> (1) saca la dirección de retorno (lee SS:00FAh → IP, SP sube a 00FCh), (2) suma 4 al SP para limpiar los 2 parámetros apilados (SP sube de 00FCh a 0100h). El "4" en <code>ret 4</code> = 2 parámetros × 2 bytes cada uno. La pila queda vacía, exactamente como al principio, sin "basura" acumulada.</div>
+</div>
+
+<h4>Pregunta 3d — Salida por pantalla</h4>
+<div class="ch-head" onclick="tog(this)"><span class="ar">▸</span><span class="tl">Ver salida</span></div>
+<div class="ch-body">
+<p>Después de la subrutina, AX=0038h. El programa hace <code>mov bx, ax</code> → BX=0038h. INT 21h/AH=09h imprime str1 ("El mayor es: $"). Luego <code>mov dl, bl</code> → DL=38h = '8' en ASCII. INT 21h/AH=02h imprime '8'.</p>
+<div class="term"><div class="out">El mayor es: 8<span class="cursor"></span></div></div>
+</div>
+
+<h4>Pregunta 3e — AX luego de la 3ra iteración</h4>
+<div class="ch-head" onclick="tog(this)"><span class="ar">▸</span><span class="tl">Ver respuesta</span></div>
+<div class="ch-body">
+<p>En la 3ra iteración: ds:[bx]=0031h (49 decimal), AX=0036h (54 decimal). El <code>cmp ds:[bx], ax</code> calcula internamente 0031h - 0036h = resultado negativo. Como es negativo, <code>jl menor</code> salta (JL salta cuando el resultado es negativo, es decir, cuando ds:[bx] &lt; AX). Al saltar, la línea X (<code>mov ax, ds:[bx]</code>) <strong>no se ejecuta</strong>.</p>
+<div class="eq">AX = <span class="gr">0036h</span> (no cambió)</div>
+</div>
+</section>
+</div>
+
+</div><!-- /mod-res -->
+</div><!-- /content-col -->
+
+<!-- ═══ PANEL METODOLOGÍA ═══ -->
+<aside class="method-panel" id="method-panel">
+<div class="mp-header"><h3>Metodología</h3><p>Cómo pensar para resolver</p></div>
+<div class="mp-tabs">
+<div class="mp-tab act" onclick="showMpTab('ej1',this)">Ej 1</div>
+<div class="mp-tab" onclick="showMpTab('ej2',this)">Ej 2</div>
+<div class="mp-tab" onclick="showMpTab('ej3',this)">Ej 3</div>
+<div class="mp-tab" onclick="showMpTab('ref',this)">Ref.</div>
+</div>
+<div class="mp-content">
+
+<div class="mp-section show" id="mp-ej1">
+<div class="mp-block"><h5>Cómo analizar las variables (.DATA)</h5>
+<p>Lo primero que siempre tenés que hacer:</p>
+<div class="step"><div class="step-n">1</div><div class="step-t"><strong>Leé cada línea</strong> y anotá: <code>nombre</code> | <code>tamaño</code> | <code>valor</code></div></div>
+<div class="step"><div class="step-n">2</div><div class="step-t"><code>DB</code> = 1 byte, <code>DW</code> = 2 bytes</div></div>
+<div class="step"><div class="step-n">3</div><div class="step-t"><strong>Con comillas</strong> (ej: <code>"3"</code>) = valor ASCII. '3' = 33h</div></div>
+<div class="step"><div class="step-n">4</div><div class="step-t"><strong>Sin comillas</strong> (ej: <code>3</code>) = valor numérico directo. 3 = 03h</div></div>
+<div class="step"><div class="step-n">5</div><div class="step-t"><strong>Asigná offsets</strong> desde 0000h, sumando el tamaño de cada variable</div></div>
+<div class="mw"><div class="mwt">Error común</div>Confundir <code>dato1 db 3</code> (03h, 1 byte) con <code>dato2 dw "3"</code> (0033h, 2 bytes).</div>
+</div>
+<div class="mp-block"><h5>Cómo saber qué valor tiene AX</h5>
+<div class="step"><div class="step-n">1</div><div class="step-t">Preguntate: <strong>¿DB o DW?</strong> → DW = 2 bytes</div></div>
+<div class="step"><div class="step-n">2</div><div class="step-t">El ensamblador lee <strong>2 bytes</strong> desde el offset</div></div>
+<div class="step"><div class="step-n">3</div><div class="step-t">Buscás en tu mapa: offset 0001h=33h, 0002h=00h</div></div>
+<div class="step"><div class="step-n">4</div><div class="step-t"><strong>Little endian:</strong> byte bajo (33h) → AL, byte alto (00h) → AH → AX = <strong>0033h</strong></div></div>
+<div class="mn"><div class="mnt">Regla</div><strong>mov ax, variable</strong> → si DW, lee 2 bytes en little endian. Si DB, lee 1 byte (en AL).</div>
+</div>
+<div class="mp-block"><h5>Cómo encontrar ss:[bp+4]</h5>
+<div class="step"><div class="step-n">1</div><div class="step-t"><strong>Partí de SP inicial</strong> (0100h si la pila está vacía)</div></div>
+<div class="step"><div class="step-n">2</div><div class="step-t"><strong>Cada PUSH</strong>: SP baja 2. <strong>Cada CALL</strong>: SP baja 2 (guarda IP)</div></div>
+<div class="step"><div class="step-n">3</div><div class="step-t"><strong>Seguí hasta</strong> <code>mov bp, sp</code>. Ese SP final = BP</div></div>
+<div class="step"><div class="step-n">4</div><div class="step-t"><strong>BP+4</strong> = último param antes del CALL</div></div>
+<div class="step"><div class="step-n">5</div><div class="step-t"><strong>BP+6</strong> = penúltimo param</div></div>
+<div class="mb"><div class="mbt">¿Por qué BP+4?</div>2 bytes (BP viejo) + 2 bytes (retorno) = 4 bytes de distancia al primer parámetro.</div>
+</div>
+<div class="mp-block"><h5>Cómo armar el diagrama de pila</h5>
+<div class="step"><div class="step-n">1</div><div class="step-t">Empezá con bloque [vacío] marcando SP</div></div>
+<div class="step"><div class="step-n">2</div><div class="step-t">Cada PUSH agrega un bloque <strong>debajo</strong> (la pila crece hacia abajo)</div></div>
+<div class="step"><div class="step-n">3</div><div class="step-t">Cada POP saca el bloque de <strong>abajo del todo</strong></div></div>
+<div class="step"><div class="step-n">4</div><div class="step-t">CALL = PUSH invisible (guarda IP)</div></div>
+<div class="step"><div class="step-n">5</div><div class="step-t"><strong>Siempre marcá SP</strong> en cada estado</div></div>
+<div class="mn"><div class="mnt">Truco</div>Dibujá cada estado como una <strong>foto</strong> separada.</div>
+</div>
+<div class="mp-block"><h5>Cómo armar el mapa de memoria</h5>
+<div class="step"><div class="step-n">1</div><div class="step-t"><strong>Partí de DS base</strong> (0720:0000)</div></div>
+<div class="step"><div class="step-n">2</div><div class="step-t"><strong>Ubicá cada variable</strong> según su offset y tamaño</div></div>
+<div class="step"><div class="step-n">3</div><div class="step-t"><strong>Ejecutá mentalmente</strong> todo el programa</div></div>
+<div class="step"><div class="step-n">4</div><div class="step-t"><strong>¿Alguna instrucción escribe</strong> en una variable?</div></div>
+<div class="step"><div class="step-n">5</div><div class="step-t">Si sí, actualizá ese valor. Todo lo demás queda igual</div></div>
+<div class="mw"><div class="mwt">Ojo</div>Variables con <code>?</code> empiezan con basura. Solo cambian si alguna instrucción les asigna un valor.</div>
+</div>
+</div>
+
+<div class="mp-section" id="mp-ej2">
+<div class="mp-block"><h5>Cómo calcular el valor de RET</h5>
+<div class="step"><div class="step-n">1</div><div class="step-t"><strong>Contá los PUSH</strong> antes del CALL</div></div>
+<div class="step"><div class="step-n">2</div><div class="step-t"><strong>Cada PUSH</strong> = 2 bytes</div></div>
+<div class="step"><div class="step-n">3</div><div class="step-t"><strong>N = 2 × cantidad_de_pushes</strong></div></div>
+<div class="step"><div class="step-n">4</div><div class="step-t"><strong>Respuesta:</strong> <code>ret N</code></div></div>
+<div class="mb"><div class="mbt">¿Qué hace ret N?</div><code>ret</code> normal solo saca el retorno. <code>ret N</code> además suma N al SP para limpiar parámetros.</div>
+</div>
+<div class="mp-block"><h5>Cómo determinar la salida por pantalla</h5>
+<div class="step"><div class="step-n">1</div><div class="step-t"><strong>AH=09h</strong> → Imprime string desde DX hasta '$'</div></div>
+<div class="step"><div class="step-n">2</div><div class="step-t"><strong>AH=02h</strong> → Imprime UN carácter: el de DL</div></div>
+<div class="step"><div class="step-n">3</div><div class="step-t">Para saber qué tiene DL → seguí las instrucciones hacia atrás</div></div>
+<div class="step"><div class="step-n">4</div><div class="step-t">Acá: bx=ss:[bp+4]=0001h (offset var2). dl=ds:[0001h]=43h='C'</div></div>
+<div class="mn"><div class="mnt">Clave</div>La pantalla muestra caracteres ASCII. DL=43h → imprime 'C', no "43".</div>
+</div>
+<div class="mp-block"><h5>Mapa de memoria — ¿cambió algo?</h5>
+<div class="step"><div class="step-n">1</div><div class="step-t">¿Hay <code>mov variable, registro</code>?</div></div>
+<div class="step"><div class="step-n">2</div><div class="step-t">Si no hay → <strong>nada cambió</strong></div></div>
+<div class="step"><div class="step-n">3</div><div class="step-t">INT 21h solo lee memoria para imprimir, no escribe</div></div>
+<div class="mn"><div class="mnt">Atajo</div>Si el programa solo imprime, el mapa queda igual.</div>
+</div>
+</div>
+
+<!-- ─── METODOLOGÍA EJ3 (FIX: id="mp-ej3") ─── -->
+<div class="mp-section" id="mp-ej3">
+<div class="mp-block"><h5>Cómo calcular offsets de un arreglo DW</h5>
+<div class="step"><div class="step-n">1</div><div class="step-t">Cada <code>DW</code> ocupa <strong>2 bytes</strong></div></div>
+<div class="step"><div class="step-n">2</div><div class="step-t">Elemento [0] en offset base, [1] en base+2, [2] en base+4...</div></div>
+<div class="step"><div class="step-n">3</div><div class="step-t"><strong>Con comillas:</strong> <code>'5'</code> = ASCII 35h. Como word = 0035h</div></div>
+<div class="step"><div class="step-n">4</div><div class="step-t"><strong>Little endian:</strong> 0035h se guarda como [35h][00h]</div></div>
+<div class="mw"><div class="mwt">Trampa común</div><code>'5'</code> no es 5. Es 35h = 53 decimal. Siempre convertí a ASCII.</div>
+</div>
+<div class="mp-block"><h5>Cómo seguir un bucle con LOOP</h5>
+<pre style="font-size:10px">Iter | CX | BX | ds:[bx] | AX antes | ¿salta? | AX después</pre>
+<div class="step"><div class="step-n">1</div><div class="step-t"><strong>CX</strong> empieza con el valor cargado (6). Cada LOOP resta 1</div></div>
+<div class="step"><div class="step-n">2</div><div class="step-t"><strong>BX</strong> empieza con el offset del arreglo. <code>add bx,2</code> avanza al siguiente word</div></div>
+<div class="step"><div class="step-n">3</div><div class="step-t"><strong>ds:[bx]</strong> = el elemento actual (lee 2 bytes porque es word)</div></div>
+<div class="step"><div class="step-n">4</div><div class="step-t"><strong>cmp ds:[bx], ax</strong> calcula (ds:[bx] - AX) y actualiza FLAGS</div></div>
+<div class="step"><div class="step-n">5</div><div class="step-t"><strong>jl menor</strong> salta si ds:[bx] &lt; AX (con signo)</div></div>
+<div class="step"><div class="step-n">6</div><div class="step-t">Si <strong>no salta</strong> → <code>mov ax, ds:[bx]</code> actualiza AX al nuevo mayor</div></div>
+<div class="mn"><div class="mnt">Truco de cmp</div><code>cmp A, B</code> resta A-B. <strong>JL</strong> salta si A &lt; B (con signo). <strong>JB</strong> salta si A &lt; B (sin signo).</div>
+</div>
+<div class="mp-block"><h5>Cómo determinar qué imprime el programa</h5>
+<div class="step"><div class="step-n">1</div><div class="step-t">AX=0038h → <code>mov bx, ax</code> → BX=0038h</div></div>
+<div class="step"><div class="step-n">2</div><div class="step-t">INT 09h imprime str1 = "El mayor es: $"</div></div>
+<div class="step"><div class="step-n">3</div><div class="step-t"><code>mov dl, bl</code> → DL=38h='8'</div></div>
+<div class="step"><div class="step-n">4</div><div class="step-t">INT 02h imprime '8'</div></div>
+<div class="step"><div class="step-n">5</div><div class="step-t">Pantalla: <strong>"El mayor es: 8"</strong></div></div>
+</div>
+<div class="mp-block"><h5>Cómo responder "¿AX después de iteración N?"</h5>
+<div class="step"><div class="step-n">1</div><div class="step-t"><strong>Mirá tu tabla</strong> de seguimiento del bucle</div></div>
+<div class="step"><div class="step-n">2</div><div class="step-t">Buscá la fila de la iteración N</div></div>
+<div class="step"><div class="step-n">3</div><div class="step-t"><strong>¿El jl saltó?</strong> Si sí → AX no cambió. Si no → AX = ds:[bx]</div></div>
+<div class="step"><div class="step-n">4</div><div class="step-t">Para la 3ra: ds:[bx]=0031h (49), AX=0036h (54). 49&lt;54 → jl salta → <strong>AX=0036h</strong></div></div>
+</div>
+</div>
+
+<div class="mp-section" id="mp-ref">
+<div class="mp-block"><h5>Registros clave</h5>
+<div class="tw"><table>
+<tr><th>Reg</th><th>Qué es</th><th>Se usa para</th></tr>
+<tr><td>AX</td><td>Acumulador</td><td>Resultados, INT 21h (AH=función)</td></tr>
+<tr><td>BX</td><td>Base</td><td>Direcciones, datos</td></tr>
+<tr><td>CX</td><td>Contador</td><td>LOOP lo decrementa</td></tr>
+<tr><td>DX</td><td>Datos</td><td>INT 21h (DL=carácter)</td></tr>
+<tr><td>DS</td><td>Data Segment</td><td>Apunta a variables</td></tr>
+<tr><td>SS</td><td>Stack Segment</td><td>Apunta a la pila</td></tr>
+<tr><td>SP</td><td>Stack Pointer</td><td>Tope de la pila</td></tr>
+<tr><td>BP</td><td>Base Pointer</td><td>Referencia en subrutinas</td></tr>
+</table></div>
+</div>
+<div class="mp-block"><h5>INT 21h</h5>
+<div class="tw"><table>
+<tr><th>AH</th><th>Hace</th><th>Parámetros</th></tr>
+<tr><td>02h</td><td>Imprime carácter</td><td>DL = ASCII</td></tr>
+<tr><td>09h</td><td>Imprime string</td><td>DX = dir (hasta '$')</td></tr>
+<tr><td>4Ch</td><td>Termina</td><td>AL = código</td></tr>
+</table></div>
+</div>
+<div class="mp-block"><h5>Pila — fórmula rápida</h5>
+<ul>
+<li>Cada PUSH = SP − 2</li>
+<li>Cada CALL = SP − 2 (guarda IP)</li>
+<li>BP+0 = BP guardado</li>
+<li>BP+2 = retorno</li>
+<li>BP+4 = último param</li>
+<li>BP+6 = penúltimo param</li>
+<li>ret N → N = 2 × nro de params</li>
+</ul>
+</div>
+<div class="mp-block"><h5>Saltos condicionales</h5>
+<div class="tw"><table>
+<tr><th>Salto</th><th>Condición</th><th>Tipo</th></tr>
+<tr><td>JE</td><td>iguales</td><td>ambos</td></tr>
+<tr><td>JB</td><td>A &lt; B</td><td>sin signo</td></tr>
+<tr><td>JA</td><td>A &gt; B</td><td>sin signo</td></tr>
+<tr><td>JL</td><td>A &lt; B</td><td>con signo</td></tr>
+<tr><td>JG</td><td>A &gt; B</td><td>con signo</td></tr>
+</table></div>
+</div>
+<div class="mp-block"><h5>ASCII rápido</h5>
+<div class="tw"><table>
+<tr><th>Char</th><th>Hex</th><th></th><th>Char</th><th>Hex</th></tr>
+<tr><td>'0'</td><td>30h</td><td></td><td>'A'</td><td>41h</td></tr>
+<tr><td>'1'</td><td>31h</td><td></td><td>'C'</td><td>43h</td></tr>
+<tr><td>'3'</td><td>33h</td><td></td><td>'E'</td><td>45h</td></tr>
+<tr><td>'5'</td><td>35h</td><td></td><td>'$'</td><td>24h</td></tr>
+<tr><td>'8'</td><td>38h</td><td></td><td>' '</td><td>20h</td></tr>
+<tr><td>'9'</td><td>39h</td><td></td><td>'#'</td><td>23h</td></tr>
+</table></div>
+</div>
+</div>
+
+</div><!-- /mp-content -->
+</aside>
+</div><!-- /main-area -->
+</div><!-- /layout -->
+
+<script>
+function setMode(m){
+  var s=document.getElementById('mod-sim'),r=document.getElementById('mod-res'),
+      bs=document.getElementById('btn-exam'),br=document.getElementById('btn-res'),
+      ns=document.querySelectorAll('.ns'),nr=document.querySelectorAll('.nr'),
+      mp=document.getElementById('method-panel');
+  if(m==='exam'){
+    s.style.display='block';r.style.display='none';
+    bs.classList.add('act');br.classList.remove('act');
+    ns.forEach(function(n){n.style.display=''});
+    nr.forEach(function(n){n.style.display='none'});
+    mp.style.display='none';
+  } else {
+    s.style.display='none';r.style.display='block';
+    bs.classList.remove('act');br.classList.add('act');
+    ns.forEach(function(n){n.style.display='none'});
+    nr.forEach(function(n){n.style.display=''});
+    mp.style.display='';
+  }
+}
+function showExTab(id,el){
+  document.querySelectorAll('.ex-panel').forEach(function(p){p.classList.remove('show')});
+  document.querySelectorAll('.ex-tab').forEach(function(t){t.classList.remove('act')});
+  document.getElementById('ex-'+id).classList.add('show');
+  el.classList.add('act');
+  document.getElementById('mod-res').scrollIntoView({behavior:'smooth'});
+}
+function goToEx(id){
+  setMode('res');
+  var tab=document.querySelector('.ex-tab[data-extab="'+id+'"]');
+  if(tab) showExTab(id,tab);
+  document.querySelector('.side').classList.remove('open');
+}
+function showMpTab(id,el){
+  document.querySelectorAll('.mp-section').forEach(function(s){s.classList.remove('show')});
+  document.querySelectorAll('.mp-tab').forEach(function(t){t.classList.remove('act')});
+  var target=document.getElementById('mp-'+id);
+  if(target){target.classList.add('show');}
+  el.classList.add('act');
+}
+function tog(el){el.classList.toggle('open');var b=el.nextElementSibling;if(b)b.classList.toggle('open');}
+document.querySelectorAll('.nl').forEach(function(l){l.addEventListener('click',function(){document.querySelector('.side').classList.remove('open')})});
+document.getElementById('method-panel').style.display='none';
+</script>
+</body>
+</html>
